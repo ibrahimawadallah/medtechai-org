@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Clinical Calculators | Arab MedTechAI Tools</title><meta name="description" content="Validated medical calculators — CHADS2, Wells, APACHE II, GFR (CKD-EPI), BMI, corrected calcium, anion gap, and more."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/tools/shared.css"/>
+<style>:root{--accent:#ea580c;--accent-bg:#fff7ed}</style>
+</head><body>
+<nav class="nav"><a href="/" class="nav-logo">MedTech<span>AI</span></a><span class="nav-sep">/</span><a href="/tools/" class="nav-back"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>All Tools</a><div class="nav-spacer"></div><a href="/contact/" class="nav-cta">Get Access</a></nav>
+<div class="breadcrumb"><a href="/">Home</a><span>/</span><a href="/tools/">Tools</a><span>/</span><span style="color:#475569;font-weight:600">Clinical Calculators</span></div>
+<div class="tool-header"><div class="tool-icon"><svg width="26" height="26" fill="none" stroke="#ea580c" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg></div><div class="tool-info"><div class="tool-cat">Advanced Clinical</div><div class="tool-name">Clinical Calculators</div><div class="tool-desc">Validated medical calculators — CHADS2, Wells, APACHE II, GFR (CKD-EPI), BMI, corrected calcium, anion gap, and more.</div></div></div>
+<div class="main"><div><div class="card"><div class="card-header"><div class="card-header-dot"></div><span class="card-header-title">Enter Details</span></div><div class="card-body">
+<div class="field"><label>Select Calculator</label>
+<div class="field-tag-group" id="calcGroup">
+<span class="field-tag" onclick="selectCalc(this,'BMI')">BMI</span>
+<span class="field-tag" onclick="selectCalc(this,'GFR (CKD-EPI)')">GFR</span>
+<span class="field-tag" onclick="selectCalc(this,'Corrected Calcium')">Corrected Ca²⁺</span>
+<span class="field-tag" onclick="selectCalc(this,'Anion Gap')">Anion Gap</span>
+<span class="field-tag" onclick="selectCalc(this,'CHA2DS2-VASc')">CHA₂DS₂-VASc</span>
+<span class="field-tag" onclick="selectCalc(this,'Wells DVT')">Wells DVT</span>
+<span class="field-tag" onclick="selectCalc(this,'Wells PE')">Wells PE</span>
+<span class="field-tag" onclick="selectCalc(this,'APACHE II')">APACHE II</span>
+<span class="field-tag" onclick="selectCalc(this,'MAP')">MAP</span>
+<span class="field-tag" onclick="selectCalc(this,'Sodium Correction')">Sodium Correction</span>
+</div></div>
+<div id="calcFields" class="field" style="display:none"><label id="calcLabel">Calculator</label><div id="calcInputs"></div></div>
+<div class="field" style="display:none" id="aiCalcField"><label>Patient Data</label><textarea id="f_data" placeholder="Describe patient data for this calculator…"></textarea></div>
+<script>
+var localCalcs={
+"BMI":{fields:[{id:"wt",label:"Weight (kg)",type:"number"},{id:"ht",label:"Height (cm)",type:"number"}],
+  calc:function(f){var b=f.wt/((f.ht/100)**2);var c=b<18.5?"Underweight":b<25?"Normal weight":b<30?"Overweight":b<35?"Obese Class I":b<40?"Obese Class II":"Obese Class III";return{result:b.toFixed(1)+" kg/m²",interpretation:"Category: "+c};}},
+"GFR (CKD-EPI)":{fields:[{id:"scr",label:"Serum Creatinine (mg/dL)",type:"number"},{id:"age",label:"Age (years)",type:"number"},{id:"sex",label:"Sex",type:"select",opts:["Female","Male"]}],
+  calc:function(f){var fem=f.sex==="Female",k=fem?0.7:0.9,a=fem?-0.241:-0.302,scr=f.scr,gfr=142*Math.pow(Math.min(scr/k,1),a)*Math.pow(Math.max(scr/k,1),-1.2)*Math.pow(0.9938,f.age)*(fem?1.012:1);var st=gfr>=90?"G1 – Normal":gfr>=60?"G2 – Mildly decreased":gfr>=45?"G3a – Mild-moderately decreased":gfr>=30?"G3b – Moderately-severely decreased":gfr>=15?"G4 – Severely decreased":"G5 – Kidney failure";return{result:Math.round(gfr)+" mL/min/1.73m²",interpretation:"CKD Stage: "+st};}},
+"Corrected Calcium":{fields:[{id:"ca",label:"Serum Calcium (mg/dL)",type:"number"},{id:"alb",label:"Serum Albumin (g/dL)",type:"number"}],
+  calc:function(f){var cc=f.ca+0.8*(4-f.alb);return{result:cc.toFixed(2)+" mg/dL",interpretation:cc<8.5?"Hypocalcemia":cc>10.5?"Hypercalcemia":"Normal (ref: 8.5–10.5 mg/dL)"};}},
+"Anion Gap":{fields:[{id:"na",label:"Sodium Na⁺ (mEq/L)",type:"number"},{id:"cl",label:"Chloride Cl⁻ (mEq/L)",type:"number"},{id:"hco3",label:"Bicarbonate HCO₃⁻ (mEq/L)",type:"number"}],
+  calc:function(f){var ag=f.na-(f.cl+f.hco3);return{result:ag+" mEq/L",interpretation:ag>12?"Elevated Anion Gap — consider MUDPILES (Methanol, Uremia, DKA, Propylene glycol, Isoniazid, Lactic acidosis, Ethylene glycol, Salicylates)":"Normal Anion Gap (ref: 8–12 mEq/L)"};}},
+"MAP":{fields:[{id:"sbp",label:"Systolic BP (mmHg)",type:"number"},{id:"dbp",label:"Diastolic BP (mmHg)",type:"number"}],
+  calc:function(f){var map=(f.sbp+2*f.dbp)/3;return{result:Math.round(map)+" mmHg",interpretation:map<65?"Low MAP — risk of organ hypoperfusion. Target ≥65 mmHg":map>100?"High MAP":("Adequate MAP (target ≥65 mmHg in septic shock)")};}}
+};
+var selected="";
+function selectCalc(el,name){
+  document.querySelectorAll("#calcGroup .field-tag").forEach(function(t){t.style.background="";t.style.borderColor="";t.style.color="";});
+  el.style.background="var(--accent-bg)";el.style.borderColor="var(--accent)";el.style.color="var(--accent)";
+  selected=name;
+  document.getElementById("calcFields").style.display="";
+  document.getElementById("calcLabel").textContent=name;
+  document.getElementById("aiCalcField").style.display="none";
+  var inp=document.getElementById("calcInputs");inp.innerHTML="";
+  if(localCalcs[name]){
+    localCalcs[name].fields.forEach(function(f){
+      var d=document.createElement("div");d.className="field";d.style.marginBottom="10px";
+      d.innerHTML="<label style='font-size:12px;font-weight:600;color:#334155;display:block;margin-bottom:4px'>"+f.label+"</label>";
+      if(f.type==="select"){var s=document.createElement("select");s.id="cf_"+f.id;s.className=""; s.style.cssText="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none";f.opts.forEach(function(o){var opt=document.createElement("option");opt.text=o;s.add(opt);});d.appendChild(s);}
+      else{var i=document.createElement("input");i.type=f.type;i.id="cf_"+f.id;i.style.cssText="width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none";d.appendChild(i);}
+      inp.appendChild(d);
+    });
+  } else {
+    document.getElementById("calcFields").style.display="none";
+    document.getElementById("aiCalcField").style.display="";
+  }
+}
+function getFormData(){
+  if(!selected){alert("Select a calculator first");return null;}
+  if(localCalcs[selected]){
+    var f={};localCalcs[selected].fields.forEach(function(field){var el=document.getElementById("cf_"+field.id);f[field.id]=field.type==="number"?parseFloat(el.value)||0:el.value;});
+    var res=localCalcs[selected].calc(f);
+    setTimeout(function(){
+      show("<div class='r-section'><div class='r-label'>"+selected+"</div><div class='r-value' style='font-size:28px;color:var(--accent)'>"+res.result+"</div></div><div class='r-highlight'><p>"+res.interpretation+"</p></div>");
+    },50);
+    return null;
+  }
+  return{calculator:selected,data:document.getElementById("f_data")?document.getElementById("f_data").value:""};
+}
+</script><div class="field" style="margin-top:18px;margin-bottom:0"><button class="btn" id="submitBtn" onclick="runTool()"><span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span></button></div></div></div></div>
+<div><div id="placeholderCard" class="card" style="border-style:dashed;box-shadow:none"><div class="empty-result"><p style="font-size:32px;margin-bottom:10px;opacity:.4"><svg width="26" height="26" fill="none" stroke="#ea580c" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg></p><p class="em-title">Results appear here</p><p class="em-sub">Fill the form &amp; click Run Tool &nbsp;<kbd style="font-size:10px;background:#f1f5f9;border:1px solid #e2e8f0;padding:2px 5px;border-radius:4px">Ctrl+Enter</kbd></p></div></div>
+<div class="card result-panel" id="resultPanel"><div class="result-top"><span class="result-top-title">Result</span><div class="result-actions"><button class="result-action-btn" onclick="window.print()">Print</button><button class="result-action-btn" onclick="resetTool()">Clear</button></div></div><div class="result-body" id="resultBody"></div></div></div></div>
+<div class="disclaimer-bar"><div><svg width="13" height="13" fill="none" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><p><strong>Clinical decision support only.</strong> AI results must be reviewed by a qualified healthcare professional before clinical use.</p></div></div>
+<footer class="page-footer"><div class="page-footer-inner"><span class="page-footer-logo">MedTech<span>AI</span></span><div class="page-footer-links"><a href="/tools/">All Tools</a><a href="/">Home</a><a href="/contact/">Contact</a></div><p class="page-footer-copy">&copy; 2025 Arab MedTechAI Organization &mdash; AI: Groq · Gemini · OpenRouter</p></div></footer>
+<script>
+var EP='/api/tools/clinical-calculators';
+async function runTool(){var btn=document.getElementById('submitBtn'),sp=document.getElementById('spinner'),txt=document.getElementById('btnText'),body=getFormData();if(!body)return;btn.disabled=true;sp.classList.add('on');txt.textContent='Processing…';try{var res=await fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});var data=await res.json();show(data.html||fb(data));}catch(e){show('<div class="r-error"><p>Connection error — check server API keys.</p></div>');}finally{btn.disabled=false;sp.classList.remove('on');txt.textContent='Run Tool';}}
+function show(html){document.getElementById('placeholderCard').style.display='none';var rp=document.getElementById('resultPanel');rp.classList.add('on');document.getElementById('resultBody').innerHTML=html;rp.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function resetTool(){document.getElementById('placeholderCard').style.display='';document.getElementById('resultPanel').classList.remove('on');document.getElementById('resultBody').innerHTML='';}
+function fb(d){if(d.error)return'<div class="r-error"><p>'+d.error+'</p></div>';if(d.raw_text)return'<p class="r-text">'+d.raw_text.replace(/\n/g,'<br>')+'</p>';return'<pre style="font-size:11px;overflow:auto">'+JSON.stringify(d,null,2)+'</pre>';}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
+</script></body></html>

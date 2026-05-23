@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Drug Search & Insight | Arab MedTechAI Tools</title>
+<meta name="description" content="Comprehensive drug lookup with AI-generated insights — mechanism of action, indications, clinical warnings, side effects, and pricing."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/tools/shared.css"/>
+<style>:root{--accent:#16a34a;--accent-bg:#dcfce7}</style>
+</head><body>
+<nav class="nav">
+  <a href="/" class="nav-logo">MedTech<span>AI</span></a>
+  <span class="nav-sep">/</span>
+  <a href="/tools/" class="nav-back"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>All Tools</a>
+  <div class="nav-spacer"></div>
+  <a href="/contact/" class="nav-cta">Get Access</a>
+</nav>
+<div class="breadcrumb"><a href="/">Home</a><span>/</span><a href="/tools/">Tools</a><span>/</span><span style="color:#475569;font-weight:600">Drug Search & Insight</span></div>
+<div class="tool-header">
+  <div class="tool-icon"><svg width="26" height="26" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+  <div class="tool-info">
+    <div class="tool-cat">Pharmacy Tools</div>
+    <div class="tool-name">Drug Search & Insight</div>
+    <div class="tool-desc">Comprehensive drug lookup with AI-generated insights — mechanism of action, indications, clinical warnings, side effects, and pricing.</div>
+  </div>
+</div>
+<div class="main">
+  <div>
+    <div class="card">
+      <div class="card-header"><div class="card-header-dot"></div><span class="card-header-title">Enter Details</span></div>
+      <div class="card-body">
+
+<div class="field"><label>Drug Name</label><input id="f_drug" type="text" placeholder="e.g. Metformin, Amoxicillin, Warfarin…" autocomplete="off"/></div>
+<div class="field"><label>Quick Search</label><div class="field-tag-group"><span class="field-tag" onclick="setQ(this)">Metformin</span><span class="field-tag" onclick="setQ(this)">Amoxicillin</span><span class="field-tag" onclick="setQ(this)">Warfarin</span><span class="field-tag" onclick="setQ(this)">Atorvastatin</span><span class="field-tag" onclick="setQ(this)">Paracetamol</span><span class="field-tag" onclick="setQ(this)">Furosemide</span></div></div>
+<script>function setQ(el){document.getElementById("f_drug").value=el.textContent}function getFormData(){var d=document.getElementById("f_drug").value.trim();if(!d){alert("Enter a drug name");return null;}return{drug:d};}</script>
+        <div class="field" style="margin-top:18px;margin-bottom:0">
+          <button class="btn" id="submitBtn" onclick="runTool()">
+            <span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div id="placeholderCard" class="card" style="border-style:dashed;box-shadow:none">
+      <div class="empty-result">
+        <p style="font-size:32px"><svg width="26" height="26" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></p>
+        <p class="em-title">Results appear here</p>
+        <p class="em-sub">Fill the form &amp; click Run Tool &nbsp; <kbd style="font-size:10px;background:#f1f5f9;border:1px solid #e2e8f0;padding:2px 5px;border-radius:4px">Ctrl+Enter</kbd></p>
+      </div>
+    </div>
+    <div class="card result-panel" id="resultPanel">
+      <div class="result-top">
+        <span class="result-top-title">Result</span>
+        <div class="result-actions">
+          <button class="result-action-btn" onclick="window.print()">Print</button>
+          <button class="result-action-btn" onclick="resetTool()">Clear</button>
+        </div>
+      </div>
+      <div class="result-body" id="resultBody"></div>
+    </div>
+  </div>
+</div>
+<div class="disclaimer-bar"><div>
+  <svg width="13" height="13" fill="none" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+  <p><strong>Clinical decision support only.</strong> AI-generated results must be reviewed by a qualified healthcare professional before any clinical use.</p>
+</div></div>
+<footer class="page-footer"><div class="page-footer-inner">
+  <span class="page-footer-logo">MedTech<span>AI</span></span>
+  <div class="page-footer-links"><a href="/tools/">All Tools</a><a href="/">Home</a><a href="/contact/">Contact</a></div>
+  <p class="page-footer-copy">&copy; 2025 Arab MedTechAI Organization &mdash; AI: Groq · Gemini · OpenRouter</p>
+</div></footer>
+<script>
+var EP='/api/tools/drug-search';
+async function runTool(){
+  var btn=document.getElementById('submitBtn'),sp=document.getElementById('spinner'),txt=document.getElementById('btnText'),body=getFormData();
+  if(!body)return;
+  btn.disabled=true;sp.classList.add('on');txt.textContent='Processing…';
+  try{
+    var res=await fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    var data=await res.json();
+    show(data.html||fb(data));
+  }catch(e){show('<div class="r-error"><p>Connection error — check that the server is running and GEMINI_API_KEY / GROQ_API_KEY is set.</p></div>');}
+  finally{btn.disabled=false;sp.classList.remove('on');txt.textContent='Run Tool';}
+}
+function show(html){
+  document.getElementById('placeholderCard').style.display='none';
+  var rp=document.getElementById('resultPanel');rp.classList.add('on');
+  document.getElementById('resultBody').innerHTML=html;
+  rp.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function resetTool(){document.getElementById('placeholderCard').style.display='';document.getElementById('resultPanel').classList.remove('on');document.getElementById('resultBody').innerHTML='';}
+function fb(d){if(d.error)return'<div class="r-error"><p>'+d.error+'</p></div>';if(d.raw_text)return'<p class="r-text">'+d.raw_text.replace(/\n/g,'<br>')+'</p>';return'<pre style="font-size:11px;overflow:auto">'+JSON.stringify(d,null,2)+'</pre>';}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
+</script>
+</body></html>

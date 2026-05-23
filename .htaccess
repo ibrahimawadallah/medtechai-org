@@ -1,0 +1,25 @@
+# ── AI Provider Keys ──────────────────────────────────────────────────────
+# Set at least ONE key. Groq is recommended (free, fast, no credit card).
+# Get keys at: groq.com/keys | aistudio.google.com/apikey | openrouter.ai/keys
+#
+SetEnv GROQ_API_KEY       your-groq-api-key
+SetEnv GEMINI_API_KEY     your-gemini-api-key
+SetEnv OPENROUTER_API_KEY your-openrouter-api-key
+# ──────────────────────────────────────────────────────────────────────────
+
+RewriteEngine On
+
+# Static Next.js assets — serve as-is
+RewriteRule ^_next/.* - [L]
+
+# Tool API requests — handled locally by PHP handler (Gemini direct)
+RewriteRule ^api/tools/([a-z0-9-]+)/?$ /api/tools/handler.php [QSA,L]
+
+# All other /api/* requests — proxy to deployed backend on Render
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^api/(.*)$ https://medtechai.onrender.com/api/$1 [P,L]
+
+# SPA fallback — serve index.html for any unmatched path
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /$1/index.html [L]
