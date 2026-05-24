@@ -5,186 +5,130 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Terms of Use | Arab MedTechAI Organization</title>
   <meta name="description" content="Terms of Use for Arab MedTechAI Organization platforms. Governed by UAE law, Abu Dhabi jurisdiction."/>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    body{font-family:'Inter',sans-serif}
-    .gh{background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 40%,#0891b2 100%)}
-    .prose h2{font-size:1.25rem;font-weight:700;color:#111827;margin-top:2rem;margin-bottom:.75rem}
-    .prose h3{font-size:1rem;font-weight:600;color:#374151;margin-top:1.25rem;margin-bottom:.5rem}
-    .prose p{color:#4b5563;line-height:1.7;margin-bottom:.75rem}
-    .prose ul{list-style:disc;padding-left:1.5rem;color:#4b5563;margin-bottom:.75rem}
-    .prose ul li{margin-bottom:.3rem;line-height:1.6}
-    .prose strong{color:#111827}
-    .prose a{color:#1d4ed8;font-weight:600}
-    .prose a:hover{text-decoration:underline}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,system-ui,sans-serif;color:#1e293b;background:#fff;line-height:1.5;-webkit-font-smoothing:antialiased}
+    a{text-decoration:none;color:#2563eb}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+    .hdr{display:flex;align-items:center;justify-content:space-between;height:52px;border-bottom:1px solid #f1f5f9}
+    .hdr-logo{font-size:16px;font-weight:700;color:#0f172a;letter-spacing:-.3px}
+    .hdr-logo em{font-style:normal;color:#059669}
+    .hdr-nav{display:flex;gap:4px}
+    .hdr-nav a{padding:6px 12px;font-size:13px;font-weight:500;color:#64748b;border-radius:4px}
+    .hdr-nav a:hover{background:#f8fafc;text-decoration:none;color:#1e293b}
+    .hdr-nav a.act{color:#2563eb}
+    .sec-h{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+    .ftr{padding:20px 0;border-top:1px solid #f1f5f9;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:#94a3b8}
+    .ftr-links{display:flex;gap:14px}
+    .ftr-links a{color:#94a3b8}
+    .ftr-links a:hover{color:#475569;text-decoration:underline}
+    .p-body{font-size:14px;color:#475569;line-height:1.7}
+    .p-body h2{font-size:16px;font-weight:700;color:#1e293b;margin-top:24px;margin-bottom:8px}
+    .p-body h3{font-size:14px;font-weight:600;color:#334155;margin-top:16px;margin-bottom:6px}
+    .p-body p{margin-bottom:10px}
+    .p-body ul{padding-left:20px;margin-bottom:10px;color:#475569;line-height:1.6}
+    .p-body li{margin-bottom:4px}
+    .p-body strong{color:#1e293b}
   </style>
 </head>
-<body class="bg-white text-gray-900 antialiased">
+<body>
 
-  <!-- Header -->
-  <header class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-100 z-50 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-4">
-        <a href="/" class="flex items-center gap-3">
-          <svg width="32" height="32" viewBox="0 0 120 180" fill="none"><defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1e40af"/><stop offset="100%" style="stop-color:#0891b2"/></linearGradient></defs><g stroke="url(#lg)" stroke-width="4" stroke-linecap="round" fill="none"><path d="M 35 15 Q 20 40, 35 65 Q 50 90, 35 115 Q 20 140, 35 165"/><path d="M 85 15 Q 100 40, 85 65 Q 70 90, 85 115 Q 100 140, 85 165"/><line x1="35" y1="45" x2="85" y2="45" stroke-width="3"/><line x1="40" y1="85" x2="80" y2="85" stroke-width="3"/><line x1="35" y1="125" x2="85" y2="125" stroke-width="3"/></g><g fill="url(#lg)"><circle cx="35" cy="15" r="5"/><circle cx="85" cy="15" r="5"/><circle cx="35" cy="65" r="4"/><circle cx="85" cy="65" r="4"/><circle cx="35" cy="115" r="4"/><circle cx="85" cy="115" r="4"/><circle cx="35" cy="165" r="5"/><circle cx="85" cy="165" r="5"/></g></svg>
-          <div class="leading-tight">
-            <div class="font-black text-xl tracking-tight text-blue-700">MedTech<span class="text-emerald-500">AI</span></div>
-            <div class="text-xs font-semibold text-blue-600/70 tracking-widest uppercase">Arab Organization</div>
-          </div>
-        </a>
-        <nav class="hidden lg:flex items-center gap-1">
-          <a href="/" class="px-4 py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">Home</a>
-          <a href="/tools/" class="px-4 py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">Tools</a>
-          <a href="/#projects" class="px-4 py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">Projects</a>
-          <a href="/about/" class="px-4 py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">About Us</a>
-          <a href="/contact/" class="px-4 py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">Contact</a>
-        </nav>
-        <a href="/tools/" class="hidden md:inline-block px-5 py-2.5 bg-blue-700 text-white rounded-full font-semibold hover:bg-blue-800 transition-colors text-sm shadow">Explore Tools</a>
-        <button id="mb" class="lg:hidden p-2 text-gray-600 hover:text-blue-700" aria-label="Menu"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-      </div>
+<div class="wrap">
+<header class="hdr">
+  <a href="/" class="hdr-logo">MedTech<em>AI</em></a>
+  <nav class="hdr-nav">
+    <a href="/">Home</a>
+    <a href="/tools/">Tools</a>
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header>
+</div>
+
+<main>
+  <div class="wrap">
+    <div style="padding:32px 0 24px">
+      <h1 style="font-size:22px;font-weight:700;color:#0f172a;margin-bottom:4px">Terms of Use</h1>
+      <p style="font-size:12px;color:#94a3b8">Last Updated: January 15, 2025</p>
     </div>
-    <div id="mm" class="hidden lg:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-1">
-      <a href="/" class="block py-2 px-3 text-gray-700 hover:bg-blue-50 rounded-lg font-medium">Home</a>
-      <a href="/tools/" class="block py-2 px-3 text-gray-700 hover:bg-blue-50 rounded-lg font-medium">Tools</a>
-      <a href="/#projects" class="block py-2 px-3 text-gray-700 hover:bg-blue-50 rounded-lg font-medium">Projects</a>
-      <a href="/about/" class="block py-2 px-3 text-gray-700 hover:bg-blue-50 rounded-lg font-medium">About Us</a>
-      <a href="/contact/" class="block py-2 px-3 text-gray-700 hover:bg-blue-50 rounded-lg font-medium">Contact</a>
+
+    <div class="p-body">
+
+      <p><strong>Important Notice:</strong> Arab MedTechAI platforms provide AI-powered informational tools only. They do <strong>not</strong> provide medical advice, medical diagnoses, or treatment recommendations. Always consult a qualified healthcare professional for medical decisions.</p>
+
+      <h2>1. Acceptance of Terms</h2>
+      <p>By accessing and using any platform operated by Arab MedTechAI Organization ("Organization", "We", "Us") — including medtechai.net, pharmacy.medtechai.net, med.medtechai.net, and quran.medtechai.net — you accept and agree to be bound by these Terms of Use and all applicable UAE laws and regulations.</p>
+      <p>If you do not agree to these terms, please do not use our services.</p>
+
+      <h2>2. Service Description</h2>
+      <h3>2.1 AI-Powered Tools</h3>
+      <p>Arab MedTechAI Organization provides AI-powered informational tools including drug reference lookup, clinical calculators, medical report assistance, and Quranic study tools. All outputs are AI-generated and for informational and educational purposes only.</p>
+      <h3>2.2 Not Medical Services</h3>
+      <p>Our platforms do <strong>not</strong> provide:</p>
+      <ul>
+        <li>Medical diagnoses or clinical medical advice</li>
+        <li>Treatment recommendations from licensed healthcare professionals</li>
+        <li>Emergency medical services</li>
+        <li>Prescription services or pharmacy dispensing</li>
+        <li>Telehealth consultations with doctors</li>
+      </ul>
+
+      <h2>3. User Eligibility</h2>
+      <p>To use our services, you must be at least 18 years of age, legally capable of entering binding contracts, and comply with all applicable laws in the UAE and your jurisdiction. Our tools are intended for use by healthcare professionals, students, and informed adults.</p>
+
+      <h2>4. UAE Regulatory Compliance</h2>
+      <p>Arab MedTechAI Organization operates in accordance with:</p>
+      <ul>
+        <li><strong>UAE Federal Law No. 2 of 2019</strong> on the Use of Information and Communication Technology in Health Fields</li>
+        <li><strong>UAE Telecommunications and Digital Government Regulatory Authority (TDRA)</strong> guidelines</li>
+        <li><strong>Abu Dhabi Department of Economic Development (DED)</strong> commercial requirements</li>
+        <li><strong>UAE Ministry of Health and Prevention (MOHAP)</strong> health technology guidelines</li>
+        <li><strong>UAE Federal Decree-Law No. 45 of 2021</strong> on Personal Data Protection</li>
+      </ul>
+
+      <h2>5. User Responsibilities</h2>
+      <h3>5.1 Acceptable Use</h3>
+      <p>You agree not to use our platforms to substitute for professional medical judgment, attempt to reverse-engineer our AI systems, submit false or misleading data, or engage in any unlawful or unauthorized activity.</p>
+      <h3>5.2 Medical Emergency</h3>
+      <p><strong>In case of medical emergency, contact UAE emergency services immediately:</strong></p>
+      <ul>
+        <li><strong>UAE Emergency: 999</strong></li>
+        <li><strong>Ambulance: 998</strong></li>
+      </ul>
+      <p>Do not rely on our platforms for emergency medical assistance.</p>
+
+      <h2>6. Intellectual Property</h2>
+      <p>All content, AI systems, software, design elements, and branding on Arab MedTechAI platforms are owned by Arab MedTechAI Organization and protected by UAE and international intellectual property laws. Unauthorized reproduction or commercial use is prohibited.</p>
+
+      <h2>7. Privacy and Data Protection</h2>
+      <p>We are committed to protecting your privacy in accordance with UAE Federal Decree-Law No. 45 of 2021 on Personal Data Protection. We do not sell user data. Health queries processed through our AI tools are not stored with personally identifiable information. See our <a href="/hipaa-compliance/">HIPAA Compliance</a> page for details on health data handling.</p>
+
+      <h2>8. Limitation of Liability</h2>
+      <p>To the maximum extent permitted by UAE law, Arab MedTechAI Organization is provided "as is" and "as available." We are not liable for any clinical decisions made based on AI-generated outputs. Our total liability in any matter is limited to the amount paid to us in the preceding 12 months, if any.</p>
+
+      <h2>9. Governing Law and Dispute Resolution</h2>
+      <p>These Terms are governed by the laws of the United Arab Emirates and the Emirate of Abu Dhabi. Disputes shall first be attempted through good-faith negotiation, then through UAE-approved mediation, and finally before the Abu Dhabi Courts which have exclusive jurisdiction.</p>
+
+      <h2>10. Changes to Terms</h2>
+      <p>We may update these Terms from time to time. Material changes will be communicated via the platforms. Continued use after changes constitutes acceptance of the updated Terms.</p>
+
+      <h2>11. Contact</h2>
+      <p><strong>Arab MedTechAI Organization</strong><br>Abu Dhabi, United Arab Emirates<br>Email: <a href="mailto:contact@medtechai.net">contact@medtechai.net</a><br>Phone: <a href="tel:+971525397947">+971 52 539 7947</a></p>
+
     </div>
-  </header>
+  </div>
+</main>
 
-  <!-- Hero -->
-  <section class="gh text-white pt-36 pb-16">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <div class="inline-flex items-center justify-center w-14 h-14 bg-white/20 rounded-2xl mb-6">
-        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-      </div>
-      <h1 class="text-4xl lg:text-5xl font-black mb-4">Terms of Use</h1>
-      <p class="text-blue-200 text-sm">Last Updated: January 15, 2025 &nbsp;&mdash;&nbsp; Arab MedTechAI Organization, Abu Dhabi, UAE</p>
-    </div>
-  </section>
+<footer class="ftr wrap">
+  <span>&copy; 2025 Arab MedTechAI Organization</span>
+  <div class="ftr-links">
+    <a href="/terms/">Terms</a>
+    <a href="/hipaa-compliance/">Compliance</a>
+    <a href="/contact/">Contact</a>
+  </div>
+</footer>
 
-  <!-- Content -->
-  <main class="py-16 bg-gray-50">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-
-      <!-- Notice -->
-      <div class="bg-amber-50 border-l-4 border-amber-400 p-5 rounded-r-xl mb-10">
-        <div class="flex gap-3">
-          <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-          <div>
-            <p class="font-semibold text-amber-800 text-sm">Important Notice</p>
-            <p class="text-amber-700 text-sm mt-1">Arab MedTechAI platforms provide AI-powered informational tools only. They do <strong>not</strong> provide medical advice, medical diagnoses, or treatment recommendations. Always consult a qualified healthcare professional for medical decisions.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 prose">
-
-        <h2>1. Acceptance of Terms</h2>
-        <p>By accessing and using any platform operated by Arab MedTechAI Organization ("Organization", "We", "Us") — including medtechai.net, pharmacy.medtechai.net, med.medtechai.net, and quran.medtechai.net — you accept and agree to be bound by these Terms of Use and all applicable UAE laws and regulations.</p>
-        <p>If you do not agree to these terms, please do not use our services.</p>
-
-        <h2>2. Service Description</h2>
-        <h3>2.1 AI-Powered Tools</h3>
-        <p>Arab MedTechAI Organization provides AI-powered informational tools including drug reference lookup, clinical calculators, medical report assistance, and Quranic study tools. All outputs are AI-generated and for informational and educational purposes only.</p>
-        <h3>2.2 Not Medical Services</h3>
-        <p>Our platforms do <strong>not</strong> provide:</p>
-        <ul>
-          <li>Medical diagnoses or clinical medical advice</li>
-          <li>Treatment recommendations from licensed healthcare professionals</li>
-          <li>Emergency medical services</li>
-          <li>Prescription services or pharmacy dispensing</li>
-          <li>Telehealth consultations with doctors</li>
-        </ul>
-
-        <h2>3. User Eligibility</h2>
-        <p>To use our services, you must be at least 18 years of age, legally capable of entering binding contracts, and comply with all applicable laws in the UAE and your jurisdiction. Our tools are intended for use by healthcare professionals, students, and informed adults.</p>
-
-        <h2>4. UAE Regulatory Compliance</h2>
-        <p>Arab MedTechAI Organization operates in accordance with:</p>
-        <ul>
-          <li><strong>UAE Federal Law No. 2 of 2019</strong> on the Use of Information and Communication Technology in Health Fields</li>
-          <li><strong>UAE Telecommunications and Digital Government Regulatory Authority (TDRA)</strong> guidelines</li>
-          <li><strong>Abu Dhabi Department of Economic Development (DED)</strong> commercial requirements</li>
-          <li><strong>UAE Ministry of Health and Prevention (MOHAP)</strong> health technology guidelines</li>
-          <li><strong>UAE Federal Decree-Law No. 45 of 2021</strong> on Personal Data Protection</li>
-        </ul>
-
-        <h2>5. User Responsibilities</h2>
-        <h3>5.1 Acceptable Use</h3>
-        <p>You agree not to use our platforms to substitute for professional medical judgment, attempt to reverse-engineer our AI systems, submit false or misleading data, or engage in any unlawful or unauthorized activity.</p>
-        <h3>5.2 Medical Emergency</h3>
-        <p><strong>In case of medical emergency, contact UAE emergency services immediately:</strong></p>
-        <ul>
-          <li><strong>UAE Emergency: 999</strong></li>
-          <li><strong>Ambulance: 998</strong></li>
-        </ul>
-        <p>Do not rely on our platforms for emergency medical assistance.</p>
-
-        <h2>6. Intellectual Property</h2>
-        <p>All content, AI systems, software, design elements, and branding on Arab MedTechAI platforms are owned by Arab MedTechAI Organization and protected by UAE and international intellectual property laws. Unauthorized reproduction or commercial use is prohibited.</p>
-
-        <h2>7. Privacy and Data Protection</h2>
-        <p>We are committed to protecting your privacy in accordance with UAE Federal Decree-Law No. 45 of 2021 on Personal Data Protection. We do not sell user data. Health queries processed through our AI tools are not stored with personally identifiable information. See our <a href="/hipaa-compliance/">HIPAA Compliance</a> page for details on health data handling.</p>
-
-        <h2>8. Limitation of Liability</h2>
-        <p>To the maximum extent permitted by UAE law, Arab MedTechAI Organization is provided "as is" and "as available." We are not liable for any clinical decisions made based on AI-generated outputs. Our total liability in any matter is limited to the amount paid to us in the preceding 12 months, if any.</p>
-
-        <h2>9. Governing Law and Dispute Resolution</h2>
-        <p>These Terms are governed by the laws of the United Arab Emirates and the Emirate of Abu Dhabi. Disputes shall first be attempted through good-faith negotiation, then through UAE-approved mediation, and finally before the Abu Dhabi Courts which have exclusive jurisdiction.</p>
-
-        <h2>10. Changes to Terms</h2>
-        <p>We may update these Terms from time to time. Material changes will be communicated via the platforms. Continued use after changes constitutes acceptance of the updated Terms.</p>
-
-        <h2>11. Contact</h2>
-        <div class="bg-gray-50 p-6 rounded-xl not-prose">
-          <p class="font-bold text-gray-900 mb-1">Arab MedTechAI Organization</p>
-          <p class="text-gray-600 text-sm">Abu Dhabi, United Arab Emirates</p>
-          <p class="text-gray-600 text-sm">Email: <a href="mailto:contact@medtechai.net" class="text-blue-700 font-semibold hover:underline">contact@medtechai.net</a></p>
-          <p class="text-gray-600 text-sm">Phone: <a href="tel:+971525397947" class="text-blue-700 font-semibold hover:underline">+971 52 539 7947</a></p>
-        </div>
-
-      </div>
-    </div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="bg-gray-900 text-gray-400 py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
-        <div class="md:col-span-2">
-          <div class="font-black text-2xl text-white mb-3">MedTech<span class="text-emerald-400">AI</span></div>
-          <p class="text-sm leading-relaxed mb-4">Arab MedTechAI Organization — building AI-powered medical technology for the Arab world. Based in Abu Dhabi, UAE.</p>
-          <p class="text-xs text-gray-500">contact@medtechai.net &nbsp;|&nbsp; +971 52 539 7947</p>
-        </div>
-        <div>
-          <div class="text-white font-semibold mb-4">Navigation</div>
-          <ul class="space-y-2 text-sm">
-            <li><a href="/" class="hover:text-white transition-colors">Home</a></li>
-            <li><a href="/tools/" class="hover:text-white transition-colors">Tools</a></li>
-            <li><a href="/about/" class="hover:text-white transition-colors">About Us</a></li>
-            <li><a href="/contact/" class="hover:text-white transition-colors">Contact</a></li>
-          </ul>
-        </div>
-        <div>
-          <div class="text-white font-semibold mb-4">Legal</div>
-          <ul class="space-y-2 text-sm">
-            <li><a href="/terms/" class="hover:text-white transition-colors">Terms of Use</a></li>
-            <li><a href="/hipaa-compliance/" class="hover:text-white transition-colors">HIPAA Compliance</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
-        &copy; 2025 Arab MedTechAI Organization. All rights reserved. Abu Dhabi, UAE.
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    document.getElementById('mb').addEventListener('click', function(){
-      document.getElementById('mm').classList.toggle('hidden');
-    });
-  </script>
 </body>
 </html>
