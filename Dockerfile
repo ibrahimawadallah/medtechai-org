@@ -3,7 +3,12 @@ FROM php:8.1-apache
 # Enable Apache mod_rewrite for .htaccess support
 RUN a2enmod rewrite
 
-# Install PHP extensions needed by the API handler (curl)
+# Install system dependencies required by PHP extensions
+RUN apt-get update && apt-get install -y \
+    libcurl4-openssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PHP curl extension
 RUN docker-php-ext-install curl
 
 # Copy all project files to Apache web root
