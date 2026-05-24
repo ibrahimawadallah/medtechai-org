@@ -3,674 +3,123 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Tools & Platforms | Arab MedTechAI</title>
+<title>Tools | MedTechAI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/tools/shared.css"/>
 <style>
-/* ── Page specific ───────────────────────── */
-body { display: block; }
-.page { max-width:1200px; margin:0 auto; padding:24px 24px 64px }
+body{display:block}
+.page{max-width:960px;margin:0 auto;padding:16px 20px 48px}
 
-/* ── Hamburger ── */
-.hamburger{display:none;width:36px;height:36px;border:1px solid var(--border);border-radius:var(--radius);background:#fff;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0}
+/* Nav tweaks */
+.hamburger{display:none;width:34px;height:34px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;color:var(--slate4);padding:0}
 @media(max-width:768px){.hamburger{display:flex}}
-@media(min-width:769px){.hamburger{display:none!important}}
-.nav .nav-sep{margin:0 2px}
 
-/* ── Page header ── */
-.page-head{display:flex;align-items:center;gap:14px;margin-bottom:6px}
-.page-head-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.page-head h1{font-size:22px;font-weight:900;color:var(--slate);letter-spacing:-.5px}
-.page-head p{font-size:13px;color:var(--slate4);margin-top:1px}
-.page-sub{font-size:13px;color:var(--slate5);margin-bottom:28px;padding-left:58px}
+/* Search */
+.tool-srch{display:flex;max-width:480px;margin:10px 0 20px}
+.tool-srch input{flex:1;height:36px;padding:0 12px;border:1px solid var(--border);border-right:none;border-radius:var(--radius) 0 0 var(--radius);font-size:13px;font-family:inherit;color:var(--slate);outline:none}
+.tool-srch input:focus{border-color:var(--blue)}
+.tool-srch button{height:36px;padding:0 14px;background:var(--blue);color:#fff;border:none;border-radius:0 var(--radius) var(--radius) 0;font-size:12px;font-weight:600;cursor:pointer}
+.tool-srch button:hover{background:var(--blue-h)}
 
-/* ── Category tabs ── */
-.cat-tabs{position:sticky;top:56px;z-index:40;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
-.cat-tabs-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
-.cat-tabs-inner::-webkit-scrollbar{display:none}
-.cat-tab{display:flex;align-items:center;gap:7px;padding:0 14px;height:46px;font-size:13px;font-weight:600;color:var(--slate4);border:none;background:none;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;text-decoration:none;flex-shrink:0}
-.cat-tab:hover{color:var(--slate2)}
-.cat-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
-.cat-tab .pill{font-size:11px;background:#f1f5f9;color:var(--slate4);padding:2px 7px;border-radius:99px;font-weight:700;transition:all .15s}
-.cat-tab.active .pill{background:var(--primary-bg);color:var(--primary)}
+/* Category section */
+.cat{margin-bottom:24px}
+.cat-h{font-size:13px;font-weight:700;color:var(--slate2);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
 
-/* ── Search ── */
-.search-wrap{position:relative;margin-bottom:28px}
-.search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none}
-.search-input{width:100%;padding:11px 16px 11px 42px;border:1px solid var(--border);border-radius:var(--radius-lg);font-size:14px;font-family:inherit;background:var(--surface);color:var(--slate);outline:none;transition:border-color .15s,box-shadow .15s}
-.search-input:focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(147,197,253,.25)}
-.search-input::placeholder{color:var(--slate5)}
+/* Tool list items */
+.tool-item{display:flex;align-items:flex-start;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;gap:12px}
+.tool-item:last-child{border-bottom:none}
+.tool-item-l{flex:1}
+.tool-item-l a{font-size:14px;font-weight:500;color:var(--slate);display:inline-block;margin-bottom:1px}
+.tool-item-l a:hover{color:var(--blue);text-decoration:underline}
+.tool-item-desc{font-size:12px;color:var(--slate4);line-height:1.5}
+.tool-item-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.tool-badge{font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.02em;color:var(--slate4);background:#f1f5f9}
 
-/* ── Section header ── */
-.section-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
-.section-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.section-head h2{font-size:18px;font-weight:800;color:var(--slate);margin-bottom:2px}
-.section-head p{font-size:13px;color:var(--slate4)}
-.section-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;margin-left:6px;vertical-align:middle}
-
-/* ── Tool grid ── */
-.tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:40px}
-
-/* ── Tool card ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:20px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;transition:border-color .2s,box-shadow .2s,transform .2s}
-.card:hover{border-color:#bfdbfe;box-shadow:var(--shadow-lg);transform:translateY(-2px)}
-.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.card-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.card-badges{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.badge-live{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#15803d;background:#dcfce7;padding:3px 10px;border-radius:99px}
-.badge-live::before{content:'';width:6px;height:6px;border-radius:50%;background:#16a34a}
-.card-title{font-size:15px;font-weight:700;color:var(--slate);line-height:1.3}
-.card-desc{font-size:13px;color:var(--slate4);line-height:1.6;flex:1}
-.card-tags{display:flex;flex-wrap:wrap;gap:4px}
-.tag{font-size:11px;font-weight:500;color:var(--slate3);background:#f8fafc;border:1px solid var(--border);padding:3px 9px;border-radius:6px}
-
-/* ── Empty state ── */
-#emptyState{display:none;text-align:center;padding:80px 20px}
-#emptyState p:first-child{font-size:40px;margin-bottom:12px}
-#emptyState .em-title{font-size:18px;font-weight:700;color:var(--slate2);margin-bottom:6px}
-#emptyState .em-sub{font-size:14px;color:var(--slate4)}
-
-/* ── Mobile menu ── */
-.mobile-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:199;backdrop-filter:blur(3px)}
-.mobile-overlay.on{display:block}
-.mobile-menu{position:fixed;top:0;right:0;bottom:0;width:280px;background:#fff;z-index:200;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column}
-.mobile-menu.on{transform:translateX(0)}
-.mobile-menu-head{padding:20px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between}
-.mobile-close{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.mobile-menu-body{padding:12px;flex:1}
-.mobile-nav-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:500;color:var(--slate3);text-decoration:none;transition:all .15s;margin-bottom:2px}
-.mobile-nav-link:hover{background:#f8fafc;color:var(--slate)}
-.mobile-nav-link .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.mobile-nav-link .cnt{margin-left:auto;font-size:11px;font-weight:700;background:#f1f5f9;color:var(--slate4);padding:2px 8px;border-radius:99px}
-
-/* ── Footer ── */
-.footer{background:var(--slate);color:#fff;padding:48px 24px 28px;margin-top:auto}
-.footer-inner{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:48px;justify-content:space-between;margin-bottom:36px}
-.footer-brand .logo{font-size:20px;font-weight:900;color:#60a5fa;letter-spacing:-.5px;margin-bottom:6px}
-.footer-brand .logo span{color:#34d399}
-.footer-brand .tagline{font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
-.footer-brand p{font-size:13px;color:#475569;max-width:220px;line-height:1.6}
-.footer-col h4{font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
-.footer-col a{display:block;font-size:13px;color:#64748b;text-decoration:none;margin-bottom:9px;transition:color .15s}
-.footer-col a:hover{color:#fff}
-.footer-bottom{max-width:1200px;margin:0 auto;padding-top:24px;border-top:1px solid #1e293b;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.footer-bottom p{font-size:12px;color:#334155}
-
-/* ── Responsive ── */
-@media(max-width:768px){
-  .page{padding:20px 16px 48px}
-  .tool-grid{grid-template-columns:1fr}
-  .section-head{gap:10px}
-  .page-head{padding:0}
-  .page-sub{padding-left:0}
-  .cat-tabs-inner{padding:0 16px}
-}
+/* No results */
+.no-match{display:none;text-align:center;padding:48px 20px;color:var(--slate5);font-size:14px}
 </style>
 </head>
 <body>
 
-<!-- Nav -->
-<nav class="nav">
-  <button class="hamburger" id="hamburger" aria-label="Open menu">
-    <svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-  </button>
+<div class="nav">
+  <span class="hamburger" id="ham" onclick="document.getElementById('mobileMenu').classList.toggle('on')">☰</span>
   <a href="/" class="nav-logo">MedTech<span>AI</span></a>
-  <span class="nav-sep">|</span>
-  <span style="font-size:13px;font-weight:500;color:var(--slate4)">Tools &amp; Platforms</span>
-  <div class="nav-spacer"></div>
-  <a href="/contact/" class="nav-cta">Get Access</a>
-</nav>
-
-<!-- Breadcrumb -->
-<div class="breadcrumb">
-  <a href="/">Home</a><span>/</span>
-  <span>Tools &amp; Platforms</span>
+  <span class="nav-sep">/</span>
+  <a href="/tools/" class="nav-back" style="font-weight:600;color:var(--blue)">Tools</a>
+  <span style="flex:1"></span>
+  <a href="/contact/" class="nav-back">Contact</a>
 </div>
 
-<!-- Mobile overlay & menu -->
-<div class="mobile-overlay" id="overlay"></div>
-<div class="mobile-menu" id="mobileMenu">
-  <div class="mobile-menu-head">
-    <a href="/" class="nav-logo" style="font-size:16px">MedTech<span>AI</span></a>
-    <button class="mobile-close" id="mobileClose">
-      <svg width="16" height="16" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
-  </div>
-  <div class="mobile-menu-body">
-    <p style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;padding:4px 12px;margin-bottom:4px">Categories</p>
-    <a href="#pharmacy"     class="mobile-nav-link" data-cat="pharmacy"><span class="dot" style="background:#16a34a"></span>Pharmacy Tools<span class="cnt">6</span></a>
-    <a href="#clinical"     class="mobile-nav-link" data-cat="clinical"><span class="dot" style="background:#2563eb"></span>Clinical Support<span class="cnt">4</span></a>
-    <a href="#smart-report" class="mobile-nav-link" data-cat="smart-report"><span class="dot" style="background:#7c3aed"></span>Smart Reports<span class="cnt">7</span></a>
-    <a href="#advanced"     class="mobile-nav-link" data-cat="advanced"><span class="dot" style="background:#dc2626"></span>Advanced Clinical<span class="cnt">6</span></a>
-    <a href="#other"        class="mobile-nav-link" data-cat="other"><span class="dot" style="background:#4f46e5"></span>Other Tools<span class="cnt">1</span></a>
-    <div style="height:1px;background:#f1f5f9;margin:12px 0"></div>
-    <p style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;padding:4px 12px;margin-bottom:4px">Site</p>
-    <a href="/"          class="mobile-nav-link"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
-    <a href="/#projects" class="mobile-nav-link"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Projects</a>
-    <a href="/contact/"  class="mobile-nav-link"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>Contact</a>
-  </div>
-</div>
+<div class="page">
 
-<!-- Category tabs -->
-<div class="cat-tabs">
-  <div class="cat-tabs-inner">
-    <button class="cat-tab active" data-filter="all">All Tools<span class="pill">24</span></button>
-    <button class="cat-tab" data-filter="pharmacy">
-      <svg width="13" height="13" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/></svg>
-      Pharmacy<span class="pill">6</span>
-    </button>
-    <button class="cat-tab" data-filter="clinical">
-      <svg width="13" height="13" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-      Clinical<span class="pill">4</span>
-    </button>
-    <button class="cat-tab" data-filter="smart-report">
-      <svg width="13" height="13" fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Smart Reports<span class="pill">7</span>
-    </button>
-    <button class="cat-tab" data-filter="advanced">
-      <svg width="13" height="13" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-      Advanced<span class="pill">6</span>
-    </button>
-    <button class="cat-tab" data-filter="other">
-      <svg width="13" height="13" fill="none" stroke="#4f46e5" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      Other<span class="pill">1</span>
-    </button>
-  </div>
-</div>
-
-<main class="page">
+  <h1 style="font-size:18px;font-weight:700;color:var(--slate);margin-bottom:2px">All Tools</h1>
+  <p style="font-size:13px;color:var(--slate4);margin-bottom:4px">AI-powered clinical tools and reference resources</p>
 
   <!-- Search -->
-  <div class="search-wrap">
-    <svg width="16" height="16" fill="none" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input class="search-input" id="searchInput" type="search" placeholder="Search 24 tools — drug search, IV compatibility, SOAP notes…" autocomplete="off"/>
+  <div class="tool-srch">
+    <input type="text" id="toolFilter" placeholder="Filter tools…" oninput="filterTools()" aria-label="Filter tools">
+    <button onclick="document.getElementById('toolFilter').value='';filterTools()">Clear</button>
   </div>
 
-  <!-- Empty state -->
-  <div id="emptyState">
-    <p>&#128270;</p>
-    <p class="em-title">No tools found</p>
-    <p class="em-sub">Try a different keyword</p>
+  <!-- Pharmacy -->
+  <div class="cat" data-cat="pharmacy">
+    <div class="cat-h">Pharmacy Tools</div>
+    <div class="tool-item" data-term="drug search insight lookup pricing"><div class="tool-item-l"><a href="/tools/drug-search/">Drug Search &amp; Insight</a><div class="tool-item-desc">Drug lookup with AI-generated insights — mechanism, indications, warnings, pricing</div><div class="tool-item-tags"><span class="tool-badge">Drug database</span><span class="tool-badge">AI insights</span><span class="tool-badge">Pricing</span></div></div></div>
+    <div class="tool-item" data-term="dose calculator pediatric adult weight renal"><div class="tool-item-l"><a href="/tools/dose-calculator/">Dose Calculator</a><div class="tool-item-desc">Pediatric and adult dose calculation with weight-based dosing and renal adjustment</div><div class="tool-item-tags"><span class="tool-badge">Weight-based</span><span class="tool-badge">Renal adjust</span><span class="tool-badge">Max dose</span></div></div></div>
+    <div class="tool-item" data-term="pregnancy safety FDA category lactation"><div class="tool-item-l"><a href="/tools/pregnancy-safety/">Pregnancy Safety</a><div class="tool-item-desc">FDA pregnancy categories and AI risk assessment for medication use during pregnancy</div><div class="tool-item-tags"><span class="tool-badge">FDA categories</span><span class="tool-badge">Lactation</span><span class="tool-badge">Alternatives</span></div></div></div>
+    <div class="tool-item" data-term="G6PD checker deficiency hemolytic anemia"><div class="tool-item-l"><a href="/tools/g6pd-checker/">G6PD Checker</a><div class="tool-item-desc">Flags medications unsafe for G6PD-deficient patients</div><div class="tool-item-tags"><span class="tool-badge">Risk level</span><span class="tool-badge">Safe alternatives</span></div></div></div>
+    <div class="tool-item" data-term="interaction checker drug drug food condition"><div class="tool-item-l"><a href="/tools/interaction-checker/">Interaction Checker</a><div class="tool-item-desc">Drug-drug, drug-food, and drug-condition interaction analysis with severity grading</div><div class="tool-item-tags"><span class="tool-badge">Drug-drug</span><span class="tool-badge">Severity</span><span class="tool-badge">Management</span></div></div></div>
+    <div class="tool-item" data-term="drug comparison efficacy safety cost"><div class="tool-item-l"><a href="/tools/drug-comparison/">Drug Comparison</a><div class="tool-item-desc">Side-by-side AI comparison of two drugs — efficacy, safety, cost</div><div class="tool-item-tags"><span class="tool-badge">Efficacy</span><span class="tool-badge">Safety</span><span class="tool-badge">Recommendation</span></div></div></div>
   </div>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       PHARMACY TOOLS
-  ════════════════════════════════════════════════════════════════ -->
-  <section id="pharmacy" data-section="pharmacy">
-    <div class="section-head">
-      <div class="section-icon" style="background:#dcfce7">
-        <svg width="20" height="20" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>
-      </div>
-      <div>
-        <h2>Pharmacy Tools</h2>
-        <p>Drug lookup, dosing calculation, safety checks, and therapeutic comparisons</p>
-      </div>
-    </div>
-    <div class="tool-grid">
-<a class="card" data-cat="pharmacy" href="/tools/drug-search/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#16a34a;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#dcfce7"><svg width="18" height="18" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
+  <!-- Clinical -->
+  <div class="cat" data-cat="clinical">
+    <div class="cat-h">Clinical Support</div>
+    <div class="tool-item" data-term="decision support treatment plan protocol"><div class="tool-item-l"><a href="/tools/clinical-decision-support/">Clinical Decision Support</a><div class="tool-item-desc">AI-powered treatment protocols, management plans, and evidence-based recommendations</div><div class="tool-item-tags"><span class="tool-badge">Treatment plans</span><span class="tool-badge">Evidence-based</span><span class="tool-badge">Urgency</span></div></div></div>
+    <div class="tool-item" data-term="diagnostic check differential diagnosis"><div class="tool-item-l"><a href="/tools/diagnostic-check/">Diagnostic Check</a><div class="tool-item-desc">Differential diagnosis support — analyzes symptoms and history to rank conditions</div><div class="tool-item-tags"><span class="tool-badge">Differential Dx</span><span class="tool-badge">Red flags</span><span class="tool-badge">Probability</span></div></div></div>
+    <div class="tool-item" data-term="symptom checker triage emergency"><div class="tool-item-l"><a href="/tools/symptom-checker/">Symptom Checker</a><div class="tool-item-desc">AI triage tool — emergency/urgent/routine classification and care advice</div><div class="tool-item-tags"><span class="tool-badge">Triage level</span><span class="tool-badge">Care advice</span><span class="tool-badge">Emergency flags</span></div></div></div>
+    <div class="tool-item" data-term="ICD-10 lookup code diagnosis"><div class="tool-item-l"><a href="/tools/icd10-lookup/">ICD-10 Lookup</a><div class="tool-item-desc">AI-powered ICD-10 code search with confidence scoring and clinical context</div><div class="tool-item-tags"><span class="tool-badge">Primary codes</span><span class="tool-badge">Confidence score</span><span class="tool-badge">Context</span></div></div></div>
   </div>
-  <div class="card-title">Drug Search &amp; Insight</div>
-  <div class="card-desc">Comprehensive drug lookup with AI-generated insights covering mechanism of action, indications, clinical warnings, side effects, and regional pricing.</div>
-  <div class="card-tags"><span class="tag">Drug database</span><span class="tag">AI insights</span><span class="tag">Indications</span><span class="tag">Pricing</span></div>
-  <span class="btn btn-primary" style="background:#16a34a;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="pharmacy" href="/tools/dose-calculator/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#16a34a;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#dcfce7"><svg width="18" height="18" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Dose Calculator</div>
-  <div class="card-desc">Pediatric and adult dosage calculation with weight-based dosing, renal function adjustment, and maximum dose safety alerts.</div>
-  <div class="card-tags"><span class="tag">Weight-based</span><span class="tag">Renal adjust</span><span class="tag">Pediatric</span><span class="tag">Max dose</span></div>
-  <span class="btn btn-primary" style="background:#16a34a;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="pharmacy" href="/tools/pregnancy-safety/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#db2777;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#fdf2f8"><svg width="18" height="18" fill="none" stroke="#db2777" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Pregnancy Safety</div>
-  <div class="card-desc">FDA pregnancy categories and AI risk assessment for medication use during pregnancy and breastfeeding, by trimester.</div>
-  <div class="card-tags"><span class="tag">FDA categories</span><span class="tag">By trimester</span><span class="tag">Lactation</span><span class="tag">Alternatives</span></div>
-  <span class="btn btn-primary" style="background:#db2777;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="pharmacy" href="/tools/g6pd-checker/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#dc2626;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#fef2f2"><svg width="18" height="18" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">G6PD Checker</div>
-  <div class="card-desc">Flags medications unsafe for G6PD-deficient patients to prevent life-threatening hemolytic anemia. Covers high-risk and intermediate-risk drugs.</div>
-  <div class="card-tags"><span class="tag">Risk level</span><span class="tag">Drug database</span><span class="tag">Mechanism</span><span class="tag">Safe alternatives</span></div>
-  <span class="btn btn-primary" style="background:#dc2626;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="pharmacy" href="/tools/interaction-checker/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#ea580c;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#fff7ed"><svg width="18" height="18" fill="none" stroke="#ea580c" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Interaction Checker</div>
-  <div class="card-desc">Drug-drug, drug-food, and drug-condition interaction analysis with severity grading (major/moderate/minor) and clinical management guidance.</div>
-  <div class="card-tags"><span class="tag">Drug-drug</span><span class="tag">Drug-food</span><span class="tag">Severity</span><span class="tag">Management</span></div>
-  <span class="btn btn-primary" style="background:#ea580c;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="pharmacy" href="/tools/drug-comparison/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#0d9488;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#f0fdfa"><svg width="18" height="18" fill="none" stroke="#0d9488" stroke-width="2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Drug Comparison</div>
-  <div class="card-desc">Side-by-side AI comparison of two drugs — efficacy, safety profile, cost-effectiveness, and dosing convenience with clinical recommendation.</div>
-  <div class="card-tags"><span class="tag">Efficacy</span><span class="tag">Safety</span><span class="tag">Cost</span><span class="tag">Recommendation</span></div>
-  <span class="btn btn-primary" style="background:#0d9488;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-    </div>
-  </section>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       CLINICAL SUPPORT
-  ════════════════════════════════════════════════════════════════ -->
-  <section id="clinical" data-section="clinical">
-    <div class="section-head">
-      <div class="section-icon" style="background:#dbeafe">
-        <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-      </div>
-      <div>
-        <h2>Clinical Support</h2>
-        <p>AI-assisted clinical decision-making, diagnosis, and triage tools</p>
-      </div>
-    </div>
-    <div class="tool-grid">
-<a class="card" data-cat="clinical" href="/tools/clinical-decision-support/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#2563eb;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#dbeafe"><svg width="18" height="18" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
+  <!-- Reports -->
+  <div class="cat" data-cat="smart-report">
+    <div class="cat-h">Smart Reports</div>
+    <div class="tool-item" data-term="smart report OIC optical image classification"><div class="tool-item-l"><a href="/tools/smart-report-oic/">Smart Report (OIC)</a><div class="tool-item-desc">Optical Image Classification — upload medical scans or text for AI report with ICD-10</div><div class="tool-item-tags"><span class="tool-badge">Image upload</span><span class="tool-badge">ICD-10</span><span class="tool-badge">Severity grade</span></div></div></div>
+    <div class="tool-item" data-term="medical report SOAP progress notes"><div class="tool-item-l"><a href="/tools/report-composer/">Medical Report</a><div class="tool-item-desc">Generates structured SOAP, progress, admission, or consultation notes</div><div class="tool-item-tags"><span class="tool-badge">SOAP format</span><span class="tool-badge">Print ready</span></div></div></div>
+    <div class="tool-item" data-term="lab test reader blood work analyzer"><div class="tool-item-l"><a href="/tools/lab-analyzer/">Lab Test Reader</a><div class="tool-item-desc">Interprets blood work and lab panels — flags critical values and trend analysis</div><div class="tool-item-tags"><span class="tool-badge">Abnormal flags</span><span class="tool-badge">Critical alerts</span><span class="tool-badge">AI summary</span></div></div></div>
+    <div class="tool-item" data-term="imaging reader MRI CT X-Ray radiology"><div class="tool-item-l"><a href="/tools/imaging-reader/">AI Imaging Reader</a><div class="tool-item-desc">Automated radiological report generation for MRI, CT, and X-Ray</div><div class="tool-item-tags"><span class="tool-badge">MRI / CT / X-Ray</span><span class="tool-badge">Severity</span><span class="tool-badge">ICD-10</span></div></div></div>
+    <div class="tool-item" data-term="pathology reader biopsy TNM staging"><div class="tool-item-l"><a href="/tools/pathology-reader/">Pathology Reader</a><div class="tool-item-desc">AI-assisted pathology report analysis with TNM staging and biomarker summary</div><div class="tool-item-tags"><span class="tool-badge">TNM staging</span><span class="tool-badge">Biomarkers</span></div></div></div>
+    <div class="tool-item" data-term="discharge summary hospitalization"><div class="tool-item-l"><a href="/tools/discharge-summary/">Discharge Summary</a><div class="tool-item-desc">Structured discharge summaries from hospitalization data</div><div class="tool-item-tags"><span class="tool-badge">Full summary</span><span class="tool-badge">Follow-up plan</span></div></div></div>
+    <div class="tool-item" data-term="clinical notes SOAP progress operative"><div class="tool-item-l"><a href="/tools/clinical-notes/">Clinical Notes</a><div class="tool-item-desc">Point-of-care note generator — SOAP, progress, admission, consult, operative</div><div class="tool-item-tags"><span class="tool-badge">SOAP / Progress</span><span class="tool-badge">ICD-10 hints</span></div></div></div>
   </div>
-  <div class="card-title">Decision Support</div>
-  <div class="card-desc">AI-powered clinical decision support — generates treatment protocols, management plans, and evidence-based recommendations from patient presentation.</div>
-  <div class="card-tags"><span class="tag">Treatment plans</span><span class="tag">Evidence-based</span><span class="tag">Urgency</span><span class="tag">Referral</span></div>
-  <span class="btn btn-primary" style="background:#2563eb;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="clinical" href="/tools/diagnostic-check/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#7c3aed;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#f5f3ff"><svg width="18" height="18" fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Diagnostic Check</div>
-  <div class="card-desc">Differential diagnosis support — analyzes symptoms, vitals, and clinical history to rank probable conditions with red flag identification.</div>
-  <div class="card-tags"><span class="tag">Differential Dx</span><span class="tag">Red flags</span><span class="tag">Workup plan</span><span class="tag">Probability</span></div>
-  <span class="btn btn-primary" style="background:#7c3aed;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="clinical" href="/tools/symptom-checker/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#0891b2;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#f0fdfa"><svg width="18" height="18" fill="none" stroke="#0891b2" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Symptom Checker</div>
-  <div class="card-desc">AI triage tool — assesses reported symptoms with emergency/urgent/routine classification, potential causes, and actionable care advice.</div>
-  <div class="card-tags"><span class="tag">Triage level</span><span class="tag">Potential causes</span><span class="tag">Care advice</span><span class="tag">Emergency flags</span></div>
-  <span class="btn btn-primary" style="background:#0891b2;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="clinical" href="/tools/icd10-lookup/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#4f46e5;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#eef2ff"><svg width="18" height="18" fill="none" stroke="#4f46e5" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">ICD-10 Lookup</div>
-  <div class="card-desc">AI-powered ICD-10 code search and mapping with confidence scoring, secondary codes, and clinical context for accurate medical documentation.</div>
-  <div class="card-tags"><span class="tag">Primary codes</span><span class="tag">Secondary codes</span><span class="tag">Confidence score</span><span class="tag">Context</span></div>
-  <span class="btn btn-primary" style="background:#4f46e5;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-    </div>
-  </section>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       SMART REPORTS
-  ════════════════════════════════════════════════════════════════ -->
-  <section id="smart-report" data-section="smart-report">
-    <div class="section-head">
-      <div class="section-icon" style="background:#ede9fe">
-        <svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
-      </div>
-      <div>
-        <h2>Smart Reports <span class="section-badge" style="background:#ede9fe;color:#7c3aed">OIC</span></h2>
-        <p>AI-generated clinical documents — each tool produces one specific document type</p>
-      </div>
-    </div>
-    <div class="tool-grid">
-<a class="card" data-cat="smart-report" href="/tools/smart-report-oic/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#7c3aed;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#ede9fe"><svg width="18" height="18" fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
+  <!-- Advanced -->
+  <div class="cat" data-cat="advanced">
+    <div class="cat-h">Advanced Clinical</div>
+    <div class="tool-item" data-term="medication safety LASA high alert allergy"><div class="tool-item-l"><a href="/tools/medication-safety/">Medication Safety</a><div class="tool-item-desc">LASA drug warnings, high-alert flags, allergy detection, interaction screening</div><div class="tool-item-tags"><span class="tool-badge">LASA warnings</span><span class="tool-badge">High-alert</span><span class="tool-badge">Monitoring</span></div></div></div>
+    <div class="tool-item" data-term="formulary manager hospital substitution"><div class="tool-item-l"><a href="/tools/formulary/">Formulary Manager</a><div class="tool-item-desc">Hospital formulary search with therapeutic substitutions and compliance tracking</div><div class="tool-item-tags"><span class="tool-badge">Formulary search</span><span class="tool-badge">Substitutions</span></div></div></div>
+    <div class="tool-item" data-term="IV compatibility intravenous"><div class="tool-item-l"><a href="/tools/iv-compatibility/">IV Compatibility</a><div class="tool-item-desc">IV drug compatibility checker for safe intravenous administration</div><div class="tool-item-tags"><span class="tool-badge">Multi-drug</span><span class="tool-badge">Diluent check</span></div></div></div>
+    <div class="tool-item" data-term="clinical pathway treatment protocol step"><div class="tool-item-l"><a href="/tools/clinical-pathways/">Clinical Pathways</a><div class="tool-item-desc">Evidence-based step-by-step treatment protocols for common diagnoses</div><div class="tool-item-tags"><span class="tool-badge">Treatment steps</span><span class="tool-badge">Evidence-based</span></div></div></div>
+    <div class="tool-item" data-term="clinical calculator CHADS2 Wells GFR BMI"><div class="tool-item-l"><a href="/tools/clinical-calculators/">Clinical Calculators</a><div class="tool-item-desc">Validated medical calculators — CHA2DS2-VASc, Wells, GFR, BMI, and more</div><div class="tool-item-tags"><span class="tool-badge">CHADS2 / Wells</span><span class="tool-badge">GFR / BMI</span><span class="tool-badge">Risk scores</span></div></div></div>
+    <div class="tool-item" data-term="antimicrobial stewardship AMS resistance"><div class="tool-item-l"><a href="/tools/stewardship/">Antimicrobial Stewardship</a><div class="tool-item-desc">AMS platform — antibiotic appropriateness, de-escalation, resistance tracking</div><div class="tool-item-tags"><span class="tool-badge">Appropriateness</span><span class="tool-badge">De-escalation</span><span class="tool-badge">Resistance</span></div></div></div>
   </div>
-  <div class="card-title">Smart Report (OIC)</div>
-  <div class="card-desc">Flagship tool — Optical Image Classification. Upload any medical scan or paste clinical text to receive a structured, specialist-grade AI report with ICD-10 coding and severity grading.</div>
-  <div class="card-tags"><span class="tag">Image upload</span><span class="tag">ICD-10 mapping</span><span class="tag">Severity grade</span><span class="tag">Urgency</span></div>
-  <span class="btn btn-primary" style="background:#7c3aed;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="smart-report" href="/tools/report-composer/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#2563eb;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#dbeafe"><svg width="18" height="18" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Medical Report</div>
-  <div class="card-desc">Generates structured SOAP, progress, admission, or consultation notes from clinical input. Print-ready output with all standard documentation sections.</div>
-  <div class="card-tags"><span class="tag">SOAP format</span><span class="tag">Progress notes</span><span class="tag">Consultation</span><span class="tag">Print ready</span></div>
-  <span class="btn btn-primary" style="background:#2563eb;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="smart-report" href="/tools/lab-analyzer/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#16a34a;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#dcfce7"><svg width="18" height="18" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16h-5"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Lab Test Reader</div>
-  <div class="card-desc">Interprets blood work and laboratory panels — flags critical and abnormal values, provides trend analysis, and generates a plain-language clinical summary.</div>
-  <div class="card-tags"><span class="tag">Abnormal flags</span><span class="tag">Critical alerts</span><span class="tag">Trend analysis</span><span class="tag">AI summary</span></div>
-  <span class="btn btn-primary" style="background:#16a34a;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="smart-report" href="/tools/imaging-reader/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#7c3aed;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#f5f3ff"><svg width="18" height="18" fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="4"/><path d="m15 9-6 6"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">AI Imaging Reader</div>
-  <div class="card-desc">Automated radiological report generation for MRI, CT scan, and X-Ray studies. Produces structured findings, impression, and ICD-10 codes with severity classification.</div>
-  <div class="card-tags"><span class="tag">MRI / CT / X-Ray</span><span class="tag">Severity grade</span><span class="tag">Urgency</span><span class="tag">ICD-10</span></div>
-  <span class="btn btn-primary" style="background:#7c3aed;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="smart-report" href="/tools/pathology-reader/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#dc2626;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#fef2f2"><svg width="18" height="18" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M8 11h6M11 8v6"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Pathology Reader</div>
-  <div class="card-desc">AI-assisted pathology report analysis — interprets biopsy and tissue specimens with TNM staging, grade classification, and biomarker summary.</div>
-  <div class="card-tags"><span class="tag">TNM staging</span><span class="tag">Biopsy types</span><span class="tag">Biomarkers</span><span class="tag">Diagnosis</span></div>
-  <span class="btn btn-primary" style="background:#dc2626;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="smart-report" href="/tools/discharge-summary/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#0891b2;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#f0fdfa"><svg width="18" height="18" fill="none" stroke="#0891b2" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11l2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1m-6 0h6"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Discharge Summary</div>
-  <div class="card-desc">Generates complete, structured discharge summaries from hospitalization data — primary and secondary diagnoses, hospital course, discharge medications, and follow-up plan.</div>
-  <div class="card-tags"><span class="tag">Full summary</span><span class="tag">Discharge meds</span><span class="tag">Follow-up plan</span><span class="tag">Print ready</span></div>
-  <span class="btn btn-primary" style="background:#0891b2;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="smart-report" href="/tools/clinical-notes/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#ea580c;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#fff7ed"><svg width="18" height="18" fill="none" stroke="#ea580c" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Clinical Notes</div>
-  <div class="card-desc">Point-of-care AI note generator — converts raw clinical information into structured SOAP, progress, admission, consultation, or operative notes with ICD-10 suggestions.</div>
-  <div class="card-tags"><span class="tag">SOAP / Progress</span><span class="tag">Multiple types</span><span class="tag">ICD-10 hints</span><span class="tag">Point-of-care</span></div>
-  <span class="btn btn-primary" style="background:#ea580c;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-    </div>
-  </section>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       ADVANCED CLINICAL
-  ════════════════════════════════════════════════════════════════ -->
-  <section id="advanced" data-section="advanced">
-    <div class="section-head">
-      <div class="section-icon" style="background:#ffe4e6">
-        <svg width="20" height="20" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-      </div>
-      <div>
-        <h2>Advanced Clinical Tools</h2>
-        <p>Professional-grade tools designed for hospital and clinical practice environments</p>
-      </div>
-    </div>
-    <div class="tool-grid">
-<a class="card" data-cat="advanced" href="/tools/medication-safety/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#dc2626;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#fef2f2"><svg width="18" height="18" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Medication Safety</div>
-  <div class="card-desc">Advanced medication safety checker — LASA drug warnings, high-alert drug flags, allergy conflict detection, interaction screening, and monitoring parameter guidance.</div>
-  <div class="card-tags"><span class="tag">LASA warnings</span><span class="tag">High-alert drugs</span><span class="tag">Allergy check</span><span class="tag">Monitoring</span></div>
-  <span class="btn btn-primary" style="background:#dc2626;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="advanced" href="/tools/formulary/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#2563eb;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#dbeafe"><svg width="18" height="18" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Formulary Manager</div>
-  <div class="card-desc">Hospital drug formulary search and management — AI-assisted therapeutic substitutions, formulary status, access restrictions, and compliance tracking.</div>
-  <div class="card-tags"><span class="tag">Formulary search</span><span class="tag">Substitutions</span><span class="tag">Restrictions</span><span class="tag">Status</span></div>
-  <span class="btn btn-primary" style="background:#2563eb;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="advanced" href="/tools/iv-compatibility/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#0891b2;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#f0fdfa"><svg width="18" height="18" fill="none" stroke="#0891b2" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">IV Compatibility</div>
-  <div class="card-desc">Instant IV drug compatibility checker — determines compatible and incompatible combinations for intravenous administration using evidence-based reference data.</div>
-  <div class="card-tags"><span class="tag">Multi-drug</span><span class="tag">Evidence-based</span><span class="tag">Diluent check</span><span class="tag">Alternatives</span></div>
-  <span class="btn btn-primary" style="background:#0891b2;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="advanced" href="/tools/clinical-pathways/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#16a34a;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#dcfce7"><svg width="18" height="18" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Clinical Pathways</div>
-  <div class="card-desc">Evidence-based step-by-step treatment protocols for common diagnoses — includes initial assessment, diagnostic workup, treatment steps, and monitoring parameters.</div>
-  <div class="card-tags"><span class="tag">Treatment steps</span><span class="tag">Timeframes</span><span class="tag">Monitoring</span><span class="tag">Evidence-based</span></div>
-  <span class="btn btn-primary" style="background:#16a34a;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="advanced" href="/tools/clinical-calculators/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#ea580c;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#fff7ed"><svg width="18" height="18" fill="none" stroke="#ea580c" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Clinical Calculators</div>
-  <div class="card-desc">Validated medical calculators — CHA2DS2-VASc, Wells DVT/PE, APACHE II, GFR (CKD-EPI), BMI, corrected calcium, anion gap, and dozens more clinical scores.</div>
-  <div class="card-tags"><span class="tag">CHADS2 / Wells</span><span class="tag">GFR / BMI</span><span class="tag">Anion gap</span><span class="tag">Risk scores</span></div>
-  <span class="btn btn-primary" style="background:#ea580c;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-<a class="card" data-cat="advanced" href="/tools/stewardship/">
-  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#4f46e5;border-radius:16px 16px 0 0"></div>
-  <div class="card-top">
-    <div class="card-icon" style="background:#eef2ff"><svg width="18" height="18" fill="none" stroke="#4f46e5" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg></div>
-    <div class="card-badges"><span class="badge-live">Live</span></div>
-  </div>
-  <div class="card-title">Antimicrobial Stewardship</div>
-  <div class="card-desc">AMS platform — reviews antibiotic appropriateness, recommends de-escalation based on culture results, tracks resistance patterns, and suggests optimal duration.</div>
-  <div class="card-tags"><span class="tag">Appropriateness</span><span class="tag">De-escalation</span><span class="tag">Culture-guided</span><span class="tag">Resistance</span></div>
-  <span class="btn btn-primary" style="background:#4f46e5;font-size:12px;padding:7px 16px;width:fit-content;margin-top:auto">Open Tool &nbsp;&#8594;</span>
-</a>
-    </div>
-  </section>
+  <div class="no-match" id="noMatch">No tools match your filter.</div>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       OTHER TOOLS
-  ════════════════════════════════════════════════════════════════ -->
-  <section id="other" data-section="other">
-    <div class="section-head">
-      <div class="section-icon" style="background:#e0e7ff">
-        <svg width="20" height="20" fill="none" stroke="#4f46e5" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      </div>
-      <div>
-        <h2>Other Platforms</h2>
-        <p>Additional standalone platforms built by Arab MedTechAI</p>
-      </div>
-    </div>
-    <div class="tool-grid">
-    </div>
-  </section>
-
-</main>
-
-<!-- Footer -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <div class="logo">MedTech<span>AI</span></div>
-      <div class="tagline">Arab Organization</div>
-      <p>Building AI-powered medical systems and digital platforms for the Arab world. Based in Abu Dhabi, UAE.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Tool Categories</h4>
-      <a href="#pharmacy">Pharmacy Tools</a>
-      <a href="#clinical">Clinical Support</a>
-      <a href="#smart-report">Smart Reports</a>
-      <a href="#advanced">Advanced Clinical</a>
-      <a href="#other">Other Platforms</a>
-    </div>
-    <div class="footer-col">
-      <h4>Organization</h4>
-      <a href="/">Home</a>
-      <a href="/#projects">Our Projects</a>
-      <a href="/#about">About Us</a>
-      <a href="/contact/">Contact</a>
-      <a href="/terms/">Terms</a>
-    </div>
-    <div class="footer-col">
-      <h4>Platforms</h4>
-      <a href="https://pharmacy.medtechai.net" target="_blank" rel="noopener">AI Pharmacy</a>
-      <a href="https://med.medtechai.net" target="_blank" rel="noopener">Medical AI</a>
-    </div>
+  <!-- Platforms -->
+  <div class="cat">
+    <div class="cat-h">Platforms</div>
+    <div class="tool-item"><div class="tool-item-l"><a href="https://pharmacy.medtechai.net" target="_blank" rel="noopener">AI Pharmacy Platform</a><div class="tool-item-desc">pharmacy.medtechai.net — AI-powered pharmacy management</div></div></div>
+    <div class="tool-item"><div class="tool-item-l"><a href="https://med.medtechai.net" target="_blank" rel="noopener">Medical AI Platform</a><div class="tool-item-desc">med.medtechai.net — AI-assisted diagnostics and clinical decision support</div></div></div>
   </div>
-  <div class="footer-bottom">
-    <p>&copy; 2025 Arab MedTechAI Organization. All rights reserved.</p>
-    <p>AI: Groq &middot; Gemini &middot; OpenRouter</p>
-  </div>
-</footer>
+
+</div>
 
 <script>
-(function() {
-  'use strict';
-
-  // ── MOBILE MENU ──────────────────────────────────────────────────────────
-  var hamburger = document.getElementById('hamburger');
-  var overlay   = document.getElementById('overlay');
-  var menu      = document.getElementById('mobileMenu');
-  var closeBtn  = document.getElementById('mobileClose');
-
-  function openMenu()  { menu.classList.add('on'); overlay.classList.add('on'); document.body.style.overflow = 'hidden'; }
-  function closeMenu() { menu.classList.remove('on'); overlay.classList.remove('on'); document.body.style.overflow = ''; }
-
-  hamburger.addEventListener('click', openMenu);
-  overlay.addEventListener('click',   closeMenu);
-  closeBtn.addEventListener('click',  closeMenu);
-
-  document.querySelectorAll('.mobile-nav-link').forEach(function(link) {
-    link.addEventListener('click', function() {
-      closeMenu();
-    });
-  });
-
-  // ── CATEGORY TABS ────────────────────────────────────────────────────────
-  var tabs     = document.querySelectorAll('.cat-tab');
-  var sections = document.querySelectorAll('section[data-section]');
-  var cards    = document.querySelectorAll('.card');
-
-  function filterByCategory(cat) {
-    tabs.forEach(function(t) { t.classList.toggle('active', t.dataset.filter === cat); });
-
-    sections.forEach(function(sec) {
-      var secCat = sec.dataset.section;
-      var show   = (cat === 'all' || cat === secCat);
-      sec.style.display = show ? '' : 'none';
-    });
-
-    window.scrollTo({ top: document.querySelector('.cat-tabs').offsetTop - 10, behavior: 'smooth' });
-  }
-
-  tabs.forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      filterByCategory(this.dataset.filter);
-      document.getElementById('searchInput').value = '';
-    });
-  });
-
-  document.querySelectorAll('.mobile-nav-link[data-cat]').forEach(function(link) {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      var cat = this.dataset.cat;
-      filterByCategory(cat);
-      closeMenu();
-    });
-  });
-
-  // ── SEARCH ───────────────────────────────────────────────────────────────
-  var searchInput = document.getElementById('searchInput');
-  var emptyState  = document.getElementById('emptyState');
-
-  function doSearch(q) {
-    q = q.toLowerCase().trim();
-
-    if (q) {
-      tabs.forEach(function(t) { t.classList.remove('active'); });
-      sections.forEach(function(sec) { sec.style.display = ''; });
-    }
-
-    var visible = 0;
-    cards.forEach(function(card) {
-      var text  = (card.querySelector('.card-title').textContent + ' ' + card.querySelector('.card-desc').textContent).toLowerCase();
-      var match = !q || text.includes(q);
-      card.style.display = match ? '' : 'none';
-      if (match) visible++;
-    });
-
-    sections.forEach(function(sec) {
-      var hasVisible = Array.from(sec.querySelectorAll('.card')).some(function(c) { return c.style.display !== 'none'; });
-      sec.style.display = hasVisible ? '' : 'none';
-    });
-
-    emptyState.style.display = visible === 0 ? 'block' : 'none';
-
-    if (!q) {
-      tabs[0].classList.add('active');
-    }
-  }
-
-  searchInput.addEventListener('input', function() { doSearch(this.value); });
-  searchInput.addEventListener('search', function() { doSearch(this.value); });
-
-  // ── CARD CLICK — open tool ───────────────────────────────────────────────
-  cards.forEach(function(card) {
-    card.addEventListener('click', function(e) {
-      if (e.target.closest('.btn')) return;
-      var href = card.getAttribute('href');
-      if (href && href !== '#') window.location.href = href;
-    });
-  });
-
-})();
+function filterTools(){var f=document.getElementById('toolFilter').value.toLowerCase();var m=document.getElementById('noMatch');var v=0;document.querySelectorAll('.cat').forEach(function(c){var cv=0;c.querySelectorAll('.tool-item').forEach(function(i){var t=i.getAttribute('data-term')||'';if(!f||t.indexOf(f)>-1){i.style.display='';cv++}else{i.style.display='none'}});if(cv===0){c.style.display='none'}else{c.style.display='';v++}});m.style.display=v===0?'block':'none'}
+document.getElementById('toolFilter').focus();
 </script>
+
 </body>
 </html>
