@@ -5,297 +5,409 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Arab MedTechAI Organization | Medical Technology &amp; AI Solutions</title>
   <meta name="description" content="Arab MedTechAI Organization - building advanced medical technology systems and AI-powered tools for the Arab world."/>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    body{font-family:'Inter',sans-serif}
-    .gh{background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 40%,#0891b2 100%)}
-    .ch{transition:transform .2s ease,box-shadow .2s ease}
-    .ch:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.12)}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-    .fu{animation:fadeUp .7s ease forwards}
-    .fu2{animation:fadeUp .7s .15s ease both}
-    .fu3{animation:fadeUp .7s .3s ease both}
-    @keyframes pd{0%,100%{opacity:1}50%{opacity:.4}}
-    .pd{animation:pd 2s infinite}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:#1e293b;background:#fff;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;line-height:1.6}
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%;display:block}
+    .container{max-width:1280px;margin:0 auto;padding:0 24px}
+    @media(min-width:768px){.container{padding:0 32px}}
+    @media(min-width:1024px){.container{padding:0 48px}}
+    /* Header */
+    .header{position:fixed;top:0;left:0;right:0;background:rgba(255,255,255,.97);border-bottom:1px solid #e2e8f0;z-index:50;height:64px}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px;color:#1e40af;letter-spacing:-.5px}
+    .logo-em{color:#059669}
+    .logo-sub{font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-top:-2px}
+    .nav-desktop{display:none;align-items:center;gap:2px}
+    @media(min-width:1024px){.nav-desktop{display:flex}}
+    .nav-link{padding:8px 16px;font-size:14px;font-weight:500;color:#64748b;border-radius:6px;transition:all .15s}
+    .nav-link:hover{color:#2563eb;background:#f1f5f9}
+    .nav-link.active{color:#2563eb;font-weight:700}
+    .nav-cta{display:none;padding:10px 22px;background:#2563eb;color:#fff;border-radius:8px;font-weight:600;font-size:14px;transition:background .15s}
+    .nav-cta:hover{background:#1d4ed8}
+    @media(min-width:1024px){.nav-cta{display:inline-block}}
+    .hamburger{display:flex;flex-direction:column;justify-content:center;align-items:center;width:40px;height:40px;background:none;border:none;cursor:pointer;padding:8px;gap:5px}
+    @media(min-width:1024px){.hamburger{display:none}}
+    .hamburger span{display:block;width:22px;height:2px;background:#64748b;border-radius:2px;transition:all .2s}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .hamburger.open span:nth-child(2){opacity:0}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    .mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:#fff;border-bottom:1px solid #e2e8f0;padding:16px 24px 24px;z-index:49;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    .mobile-menu.open{display:block}
+    .mobile-link{display:block;padding:12px 16px;font-size:15px;font-weight:500;color:#475569;border-radius:8px;transition:all .15s}
+    .mobile-link:hover{background:#f1f5f9;color:#2563eb}
+    .mobile-link.active{color:#2563eb;font-weight:700;background:#eff6ff}
+    .mobile-cta{display:block;margin-top:12px;padding:12px 16px;background:#2563eb;color:#fff;border-radius:8px;font-weight:600;font-size:15px;text-align:center}
+    .mobile-cta:hover{background:#1d4ed8}
+    /* Sections */
+    .section{padding:80px 0}
+    @media(min-width:768px){.section{padding:100px 0}}
+    .section-label{font-size:12px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+    .section-title{font-size:32px;font-weight:900;color:#0f172a;line-height:1.2;margin-bottom:16px}
+    @media(min-width:768px){.section-title{font-size:40px}}
+    .section-sub{font-size:17px;color:#64748b;max-width:640px;line-height:1.7}
+    .section-header{text-align:center;margin-bottom:56px}
+    .section-header .section-sub{margin:0 auto}
+    /* Hero */
+    .hero{padding:120px 0 80px;background:#fff;border-bottom:1px solid #f1f5f9}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#475569;background:#f8fafc;border:1px solid #e2e8f0;padding:6px 16px;border-radius:20px;margin-bottom:24px}
+    .hero-dot{width:7px;height:7px;background:#059669;border-radius:50%;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .hero h1{font-size:36px;font-weight:900;color:#0f172a;line-height:1.15;margin-bottom:16px}
+    @media(min-width:768px){.hero h1{font-size:52px}}
+    .hero h1 span{color:#059669}
+    .hero p{font-size:17px;color:#64748b;line-height:1.7;margin-bottom:32px}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:12px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:8px;font-weight:600;font-size:15px;transition:all .15s;cursor:pointer;border:none}
+    .btn-primary{background:#2563eb;color:#fff}
+    .btn-primary:hover{background:#1d4ed8}
+    .btn-outline{background:transparent;color:#2563eb;border:1.5px solid #2563eb}
+    .btn-outline:hover{background:#eff6ff}
+    .btn-white{background:#fff;color:#2563eb;font-weight:700}
+    .btn-white:hover{background:#f8fafc}
+    .btn-outline-white{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4)}
+    .btn-outline-white:hover{background:rgba(255,255,255,.08)}
+    /* Stats bar */
+    .stats{border-bottom:1px solid #f1f5f9;padding:40px 0}
+    .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;text-align:center}
+    @media(min-width:768px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+    .stat-num{font-size:32px;font-weight:900;letter-spacing:-1px;margin-bottom:2px}
+    @media(min-width:768px){.stat-num{font-size:36px}}
+    .stat-label{font-size:13px;font-weight:500;color:#94a3b8}
+    .stat-blue{color:#2563eb}
+    .stat-emerald{color:#059669}
+    /* Cards grid */
+    .card-grid{display:grid;grid-template-columns:1fr;gap:24px}
+    @media(min-width:640px){.card-grid.two{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:768px){.card-grid.three{grid-template-columns:repeat(3,1fr)}}
+    @media(min-width:1024px){.card-grid.four{grid-template-columns:repeat(4,1fr)}}
+    .card{background:#fff;border:1px solid #f1f5f9;border-radius:12px;overflow:hidden;transition:all .2s}
+    .card:hover{box-shadow:0 4px 20px rgba(0,0,0,.06);transform:translateY(-2px)}
+    .card-top-bar{height:4px}
+    .card-body{padding:28px}
+    .card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+    .card h3{font-size:18px;font-weight:800;color:#0f172a;margin-bottom:8px}
+    .card p{font-size:14px;color:#64748b;line-height:1.6;margin-bottom:16px}
+    .platform-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+    .platform-url{font-size:12px;color:#94a3b8;font-family:monospace}
+    .card ul{list-style:none;padding:0;margin:0 0 20px}
+    .card li{font-size:13px;color:#475569;padding:4px 0;display:flex;align-items:center;gap:8px}
+    .card li::before{content:"";width:5px;height:5px;border-radius:50%;flex-shrink:0}
+    .card-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:8px;font-weight:600;font-size:13px;color:#fff;transition:opacity .15s}
+    .card-btn:hover{opacity:.9}
+    /* Tool card */
+    .tool-card .card-body{padding:24px}
+    .tool-count{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;margin-top:8px}
+    .tool-link{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:#2563eb;margin-top:12px;transition:color .15s}
+    .tool-link:hover{color:#1d4ed8}
+    /* About */
+    .about-grid{display:grid;grid-template-columns:1fr;gap:48px}
+    @media(min-width:1024px){.about-grid{grid-template-columns:1fr 1fr}}
+    .about-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:32px}
+    .about-stat-card{background:#fff;border:1px solid #f1f5f9;border-radius:10px;padding:20px}
+    .about-stat-num{font-size:28px;font-weight:900;margin-bottom:2px}
+    .about-stat-label{font-size:13px;color:#64748b;font-weight:500}
+    .mission-card{border-radius:12px;padding:32px;color:#fff}
+    .mission-card h3{font-size:22px;font-weight:800;margin-bottom:12px}
+    .mission-card p{font-size:15px;line-height:1.7;opacity:.9}
+    .mission-cards{display:flex;flex-direction:column;gap:20px}
+    /* CTA */
+    .cta{background:#2563eb;padding:80px 0;text-align:center}
+    .cta h2{font-size:32px;font-weight:900;color:#fff;margin-bottom:16px}
+    @media(min-width:768px){.cta h2{font-size:40px}}
+    .cta p{font-size:17px;color:#bfdbfe;max-width:600px;margin:0 auto 32px;line-height:1.7}
+    .cta-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+    /* Footer */
+    .footer{background:#0f172a;color:#fff;padding:64px 0 0}
+    .footer-grid{display:grid;grid-template-columns:1fr;gap:40px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.08)}
+    @media(min-width:640px){.footer-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:1024px){.footer-grid{grid-template-columns:2fr 1fr 1fr}}
+    .footer-brand .logo{color:#60a5fa;margin-bottom:4px}
+    .footer-brand .logo-em{color:#34d399}
+    .footer-brand p{color:#94a3b8;font-size:14px;line-height:1.7;margin-top:12px;max-width:360px}
+    .footer-brand .footer-contact{font-size:13px;color:#64748b;margin-top:16px}
+    .footer-brand .footer-contact a{color:#60a5fa;transition:color .15s}
+    .footer-brand .footer-contact a:hover{color:#93c5fd}
+    .footer h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:20px;letter-spacing:.5px}
+    .footer ul{list-style:none;padding:0}
+    .footer li{margin-bottom:10px}
+    .footer a{font-size:14px;color:#94a3b8;transition:color .15s}
+    .footer a:hover{color:#fff}
+    .footer-bottom{padding:24px 0;display:flex;flex-direction:column;align-items:center;gap:12px}
+    @media(min-width:768px){.footer-bottom{flex-direction:row;justify-content:space-between}}
+    .footer-bottom p{font-size:13px;color:#64748b}
+    .footer-links{display:flex;gap:20px}
+    .footer-links a{font-size:13px;color:#64748b;transition:color .15s}
+    .footer-links a:hover{color:#fff}
+    /* Animations */
+    .fade-up{opacity:0;transform:translateY(24px);animation:fadeUp .7s ease forwards}
+    .fade-up-d1{opacity:0;transform:translateY(24px);animation:fadeUp .7s .12s ease both}
+    .fade-up-d2{opacity:0;transform:translateY(24px);animation:fadeUp .7s .24s ease both}
+    @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+    /* Utility */
+    .mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}.mt-48{margin-top:48px}.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}.mb-16{margin-bottom:16px}.mb-24{margin-bottom:24px}.mb-32{margin-bottom:32px}
   </style>
 </head>
-<body class="bg-white text-gray-900 antialiased">
+<body>
 
   <!-- Header -->
-  <header class="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-gray-100 z-50 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-4">
-        <a href="/" class="flex items-center gap-3">
-          <svg width="32" height="32" viewBox="0 0 120 180" fill="none"><defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1e40af"/><stop offset="100%" style="stop-color:#0891b2"/></linearGradient></defs><g stroke="url(#lg)" stroke-width="4" stroke-linecap="round" fill="none"><path d="M 35 15 Q 20 40, 35 65 Q 50 90, 35 115 Q 20 140, 35 165"/><path d="M 85 15 Q 100 40, 85 65 Q 70 90, 85 115 Q 100 140, 85 165"/><line x1="35" y1="45" x2="85" y2="45" stroke-width="3"/><line x1="40" y1="85" x2="80" y2="85" stroke-width="3"/><line x1="35" y1="125" x2="85" y2="125" stroke-width="3"/></g><g fill="url(#lg)"><circle cx="35" cy="15" r="5"/><circle cx="85" cy="15" r="5"/><circle cx="35" cy="65" r="4"/><circle cx="85" cy="65" r="4"/><circle cx="35" cy="115" r="4"/><circle cx="85" cy="115" r="4"/><circle cx="35" cy="165" r="5"/><circle cx="85" cy="165" r="5"/></g></svg>
-          <div class="leading-tight">
-            <div class="font-black text-xl tracking-tight text-blue-700">MedTech<span class="text-emerald-500">AI</span></div>
-            <div class="text-xs font-semibold text-blue-600/70 tracking-widest uppercase">Arab Organization</div>
-          </div>
-        </a>
-        <nav class="hidden lg:flex items-center gap-1">
-          <a href="/" class="px-4 py-2 text-blue-700 font-bold border-b-2 border-blue-700 transition-colors">Home</a>
-          <a href="/tools/" class="px-4 py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">Tools</a>
-          <a href="#projects" class="px-4 py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">Projects</a>
-          <a href="#about" class="px-4 py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">About Us</a>
-          <a href="/contact/" class="px-4 py-2 text-gray-700 hover:text-blue-700 font-medium transition-colors">Contact</a>
-        </nav>
-        <a href="/tools/" class="hidden md:inline-block px-5 py-2.5 bg-blue-700 text-white rounded-full font-semibold hover:bg-blue-800 transition-colors text-sm shadow">Explore Tools</a>
-        <button id="mb" class="lg:hidden p-2 text-gray-600 hover:text-blue-700" aria-label="Menu"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-      </div>
+  <header class="header">
+    <div class="container header-inner">
+      <a href="/" class="logo">
+        <svg width="28" height="40" viewBox="0 0 120 180" fill="none" style="flex-shrink:0"><g stroke="#2563eb" stroke-width="4" stroke-linecap="round" fill="none"><path d="M35 15Q20 40 35 65Q50 90 35 115Q20 140 35 165"/><path d="M85 15Q100 40 85 65Q70 90 85 115Q100 140 85 165"/><line x1="35" y1="45" x2="85" y2="45" stroke-width="3"/><line x1="40" y1="85" x2="80" y2="85" stroke-width="3"/><line x1="35" y1="125" x2="85" y2="125" stroke-width="3"/></g><circle cx="35" cy="15" r="5" fill="#2563eb"/><circle cx="85" cy="15" r="5" fill="#2563eb"/><circle cx="35" cy="65" r="4" fill="#2563eb"/><circle cx="85" cy="65" r="4" fill="#2563eb"/><circle cx="35" cy="115" r="4" fill="#2563eb"/><circle cx="85" cy="115" r="4" fill="#2563eb"/><circle cx="35" cy="165" r="5" fill="#2563eb"/><circle cx="85" cy="165" r="5" fill="#2563eb"/></svg>
+        <div>
+          <div>MedTech<span class="logo-em">AI</span></div>
+          <div class="logo-sub">Arab Organization</div>
+        </div>
+      </a>
+      <nav class="nav-desktop">
+        <a href="/" class="nav-link active">Home</a>
+        <a href="/tools/" class="nav-link">Tools</a>
+        <a href="#platforms" class="nav-link">Platforms</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="/contact/" class="nav-link">Contact</a>
+      </nav>
+      <a href="/tools/" class="nav-cta">Explore Tools</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <div id="mm" class="hidden lg:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-1">
-      <a href="/" class="block py-2 px-3 text-blue-700 bg-blue-50 rounded-lg font-semibold">Home</a>
-      <a href="/tools/" class="block py-2 px-3 text-gray-700 hover:bg-blue-50 rounded-lg font-medium">Tools</a>
-      <a href="#projects" class="block py-2 px-3 text-gray-700 hover:bg-blue-50 rounded-lg font-medium">Projects</a>
-      <a href="#about" class="block py-2 px-3 text-gray-700 hover:bg-blue-50 rounded-lg font-medium">About Us</a>
-      <a href="/contact/" class="block py-2 px-3 text-gray-700 hover:bg-blue-50 rounded-lg font-medium">Contact</a>
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="/" class="mobile-link active">Home</a>
+      <a href="/tools/" class="mobile-link">Tools</a>
+      <a href="#platforms" class="mobile-link">Platforms</a>
+      <a href="#about" class="mobile-link">About</a>
+      <a href="/contact/" class="mobile-link">Contact</a>
+      <a href="/tools/" class="mobile-cta">Explore Tools</a>
     </div>
   </header>
 
   <!-- Hero -->
-  <section class="gh text-white pt-36 pb-24 relative overflow-hidden">
-    <div class="absolute inset-0 opacity-10">
-      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
-    </div>
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <div class="inline-flex items-center gap-2 bg-white/15 text-white/90 text-sm font-semibold px-4 py-2 rounded-full mb-8 fu border border-white/20">
-        <span class="w-2 h-2 bg-emerald-400 rounded-full pd"></span>
-        Arab MedTechAI Organization &mdash; Est. 2020
+  <section class="hero">
+    <div class="container">
+      <div style="max-width:720px">
+        <div class="hero-badge fade-up">
+          <span class="hero-dot"></span>
+          Arab MedTechAI Organization &mdash; Est. 2020
+        </div>
+        <h1 class="fade-up-d1">
+          AI-Powered Medical Technology<br/>
+          for the <span>Arab World</span>
+        </h1>
+        <p class="fade-up-d2">
+          We design and develop AI-powered medical systems, intelligent health platforms, and digital tools built for the region, deployed globally. Our platforms serve hospitals, clinics, pharmacies, and individuals across 10+ Arab countries.
+        </p>
+        <div class="hero-actions fade-up-d2">
+          <a href="/tools/" class="btn btn-primary">Explore Tools</a>
+          <a href="#platforms" class="btn btn-outline">Our Projects</a>
+        </div>
       </div>
-      <h1 class="text-5xl lg:text-7xl font-black mb-6 leading-tight fu2">
-        Building the Future of<br/>
-        <span class="text-transparent bg-clip-text" style="background-image:linear-gradient(to right,#6ee7b7,#93c5fd)">Healthcare Technology</span><br/>
-        in the Arab World
-      </h1>
-      <p class="text-xl lg:text-2xl text-blue-100 max-w-3xl mx-auto mb-10 leading-relaxed fu3">
-        We design and develop AI-powered medical systems, intelligent health platforms, and digital tools built for the region, deployed globally.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center fu3">
-        <a href="#projects" class="inline-block bg-white text-blue-800 px-8 py-4 rounded-full font-bold hover:bg-blue-50 transition-all shadow-xl text-lg">Our Projects</a>
-        <a href="/tools/" class="inline-block border-2 border-white/50 text-white px-8 py-4 rounded-full font-bold hover:bg-white/10 transition-all text-lg">Explore Tools</a>
-      </div>
-    </div>
-    <div class="absolute bottom-0 left-0 right-0">
-      <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 30 C360 60 720 0 1080 30 C1260 45 1380 25 1440 30 L1440 60 L0 60 Z" fill="white"/></svg>
     </div>
   </section>
 
   <!-- Stats -->
-  <section class="py-12 bg-white border-b border-gray-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-        <div><div class="text-4xl font-black text-blue-700 mb-1">2+</div><div class="text-gray-500 font-medium">Live Platforms</div></div>
-        <div><div class="text-4xl font-black text-emerald-600 mb-1">15+</div><div class="text-gray-500 font-medium">AI Tools in Dev</div></div>
-        <div><div class="text-4xl font-black text-blue-700 mb-1">10+</div><div class="text-gray-500 font-medium">Arab Countries</div></div>
-        <div><div class="text-4xl font-black text-emerald-600 mb-1">24/7</div><div class="text-gray-500 font-medium">Platform Uptime</div></div>
+  <section class="stats">
+    <div class="container">
+      <div class="stats-grid">
+        <div><div class="stat-num stat-blue">2+</div><div class="stat-label">Live Platforms</div></div>
+        <div><div class="stat-num stat-emerald">15+</div><div class="stat-label">AI Tools in Dev</div></div>
+        <div><div class="stat-num stat-blue">10+</div><div class="stat-label">Arab Countries</div></div>
+        <div><div class="stat-num stat-emerald">24/7</div><div class="stat-label">Platform Uptime</div></div>
       </div>
     </div>
   </section>
 
-  <!-- Projects -->
-  <section id="projects" class="py-24 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
-        <span class="text-blue-700 font-semibold text-sm uppercase tracking-widest">Our Portfolio</span>
-        <h2 class="text-4xl lg:text-5xl font-black text-gray-900 mt-3 mb-4">Core Platforms</h2>
-        <p class="text-xl text-gray-500 max-w-2xl mx-auto">Our two main AI-powered platforms, live and serving the Arab world.</p>
+  <!-- Platforms / Featured Works -->
+  <section id="platforms" class="section" style="background:#f8fafc">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Our Portfolio</div>
+        <h2 class="section-title">Core Platforms</h2>
+        <p class="section-sub">Our two main AI-powered platforms, live and serving the Arab world.</p>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-
+      <div class="card-grid three" style="max-width:960px;margin:0 auto">
         <!-- Pharmacy -->
-        <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 ch">
-          <div class="h-3 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
-          <div class="p-8">
-            <div class="inline-flex p-3 rounded-2xl bg-emerald-50 mb-5">
-              <svg width="32" height="32" fill="none" stroke="#10B981" stroke-width="2" viewBox="0 0 24 24"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>
+        <div class="card fade-up">
+          <div class="card-top-bar" style="background:#059669"></div>
+          <div class="card-body">
+            <div class="card-icon" style="background:#ecfdf5"><svg width="20" height="20" fill="none" stroke="#059669" stroke-width="2" viewBox="0 0 24 24"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <span class="platform-badge" style="background:#d1fae5;color:#065f46">Live</span>
+              <span class="platform-url">pharmacy.medtechai.net</span>
             </div>
-            <div class="flex items-center gap-2 mb-3">
-              <span class="text-xs font-bold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full pd"></span>Live</span>
-              <span class="text-xs text-gray-400 font-mono">pharmacy.medtechai.net</span>
-            </div>
-            <h3 class="text-2xl font-black text-gray-900 mb-3">AI Pharmacy Platform</h3>
-            <p class="text-gray-500 leading-relaxed mb-6">An intelligent pharmacy management system powered by AI. Handles prescriptions, drug interactions, inventory, and patient medication records.</p>
-            <ul class="space-y-2 mb-8">
-              <li class="flex items-center gap-2 text-gray-600 text-sm"><span class="text-emerald-500 font-bold">&#10003;</span> AI drug interaction checker</li>
-              <li class="flex items-center gap-2 text-gray-600 text-sm"><span class="text-emerald-500 font-bold">&#10003;</span> Smart prescription management</li>
-              <li class="flex items-center gap-2 text-gray-600 text-sm"><span class="text-emerald-500 font-bold">&#10003;</span> Inventory &amp; supply chain AI</li>
-              <li class="flex items-center gap-2 text-gray-600 text-sm"><span class="text-emerald-500 font-bold">&#10003;</span> Patient medication history</li>
+            <h3>AI Pharmacy Platform</h3>
+            <p>Intelligent pharmacy management system powered by AI. Handles prescriptions, drug interactions, inventory, and patient medication records.</p>
+            <ul>
+              <li style="--c:#059669"><span style="color:#059669;font-weight:700">&#10003;</span> AI drug interaction checker</li>
+              <li style="--c:#059669"><span style="color:#059669;font-weight:700">&#10003;</span> Smart prescription management</li>
+              <li style="--c:#059669"><span style="color:#059669;font-weight:700">&#10003;</span> Inventory &amp; supply chain AI</li>
+              <li style="--c:#059669"><span style="color:#059669;font-weight:700">&#10003;</span> Patient medication history</li>
             </ul>
-            <a href="https://pharmacy.medtechai.net" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3 rounded-xl font-bold hover:opacity-90 transition-opacity">
-              Visit Platform <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
+            <a href="https://pharmacy.medtechai.net" target="_blank" rel="noopener noreferrer" class="card-btn" style="background:#059669">Visit Platform <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
           </div>
         </div>
-
         <!-- Med -->
-        <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 ch">
-          <div class="h-3 bg-gradient-to-r from-blue-600 to-cyan-500"></div>
-          <div class="p-8">
-            <div class="inline-flex p-3 rounded-2xl bg-blue-50 mb-5">
-              <svg width="32" height="32" fill="none" stroke="#2563EB" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/></svg>
+        <div class="card fade-up-d1">
+          <div class="card-top-bar" style="background:#2563eb"></div>
+          <div class="card-body">
+            <div class="card-icon" style="background:#eff6ff"><svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/></svg></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <span class="platform-badge" style="background:#dbeafe;color:#1e40af">Live</span>
+              <span class="platform-url">med.medtechai.net</span>
             </div>
-            <div class="flex items-center gap-2 mb-3">
-              <span class="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-blue-500 rounded-full pd"></span>Live</span>
-              <span class="text-xs text-gray-400 font-mono">med.medtechai.net</span>
-            </div>
-            <h3 class="text-2xl font-black text-gray-900 mb-3">Medical AI Platform</h3>
-            <p class="text-gray-500 leading-relaxed mb-6">A comprehensive medical intelligence platform offering AI-assisted diagnostics, clinical decision support, and health monitoring tools.</p>
-            <ul class="space-y-2 mb-8">
-              <li class="flex items-center gap-2 text-gray-600 text-sm"><span class="text-blue-500 font-bold">&#10003;</span> AI-assisted diagnostics</li>
-              <li class="flex items-center gap-2 text-gray-600 text-sm"><span class="text-blue-500 font-bold">&#10003;</span> Clinical decision support</li>
-              <li class="flex items-center gap-2 text-gray-600 text-sm"><span class="text-blue-500 font-bold">&#10003;</span> Patient health analytics</li>
-              <li class="flex items-center gap-2 text-gray-600 text-sm"><span class="text-blue-500 font-bold">&#10003;</span> Medical imaging analysis</li>
+            <h3>Medical AI Platform</h3>
+            <p>Comprehensive medical intelligence platform with AI-assisted diagnostics, clinical decision support, and health monitoring tools.</p>
+            <ul>
+              <li><span style="color:#2563eb;font-weight:700">&#10003;</span> AI-assisted diagnostics</li>
+              <li><span style="color:#2563eb;font-weight:700">&#10003;</span> Clinical decision support</li>
+              <li><span style="color:#2563eb;font-weight:700">&#10003;</span> Patient health analytics</li>
+              <li><span style="color:#2563eb;font-weight:700">&#10003;</span> Medical imaging analysis</li>
             </ul>
-            <a href="https://med.medtechai.net" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-3 rounded-xl font-bold hover:opacity-90 transition-opacity">
-              Visit Platform <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
+            <a href="https://med.medtechai.net" target="_blank" rel="noopener noreferrer" class="card-btn" style="background:#2563eb">Visit Platform <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
           </div>
         </div>
-
+        <!-- Quran -->
+        <div class="card fade-up-d2">
+          <div class="card-top-bar" style="background:#7c3aed"></div>
+          <div class="card-body">
+            <div class="card-icon" style="background:#f5f3ff"><svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M16 8.2C16 9.2 14 10 12 10S8 9.2 8 8.2"/><path d="M12 10v6"/></svg></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <span class="platform-badge" style="background:#ede9fe;color:#5b21b6">Live</span>
+              <span class="platform-url">quran.medtechai.net</span>
+            </div>
+            <h3>Quran AI Platform</h3>
+            <p>AI-powered Quran learning and research platform with semantic search, Tafsir assistance, and recitation analysis tools.</p>
+            <ul>
+              <li><span style="color:#7c3aed;font-weight:700">&#10003;</span> Semantic Quran search</li>
+              <li><span style="color:#7c3aed;font-weight:700">&#10003;</span> Tafsir AI assistance</li>
+              <li><span style="color:#7c3aed;font-weight:700">&#10003;</span> Recitation analysis</li>
+              <li><span style="color:#7c3aed;font-weight:700">&#10003;</span> Multi-language support</li>
+            </ul>
+            <a href="https://quran.medtechai.net" target="_blank" rel="noopener noreferrer" class="card-btn" style="background:#7c3aed">Visit Platform <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Tools Preview -->
-  <section class="py-24 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-14">
-        <span class="text-blue-700 font-semibold text-sm uppercase tracking-widest">AI Tools Suite</span>
-        <h2 class="text-4xl lg:text-5xl font-black text-gray-900 mt-3 mb-4">Tools &amp; Platforms</h2>
-        <p class="text-xl text-gray-500 max-w-2xl mx-auto">Beyond our core platforms, we are building a full suite of independent AI-powered clinical tools.</p>
+  <!-- Tools Overview -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">AI Tools Suite</div>
+        <h2 class="section-title">Tools &amp; Services</h2>
+        <p class="section-sub">Beyond our core platforms, a full suite of independent AI-powered clinical tools and services.</p>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
-
-        <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100 ch">
-          <div class="inline-flex p-2.5 rounded-xl bg-blue-600 mb-4">
-            <svg width="20" height="20" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <div class="card-grid four">
+        <div class="card tool-card">
+          <div class="card-body">
+            <div class="card-icon" style="background:#eff6ff"><svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+            <h3>Pharmacy Tools</h3>
+            <p>Drug search, interaction checking, dose calculation, medication therapy management, and pharmacy analytics.</p>
+            <span class="tool-count" style="background:#dbeafe;color:#1e40af">5 Tools</span>
+            <div><a href="/tools/" class="tool-link">View All &rarr;</a></div>
           </div>
-          <h3 class="font-black text-gray-900 mb-1">Smart Report (OIC)</h3>
-          <p class="text-gray-500 text-sm mb-3">6 independent AI report tools &mdash; Medical, Lab, Imaging, Pathology, Discharge, Clinical Notes</p>
-          <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full">6 Tools</span>
         </div>
-
-        <div class="bg-violet-50 rounded-2xl p-6 border border-violet-100 ch">
-          <div class="inline-flex p-2.5 rounded-xl bg-violet-600 mb-4">
-            <svg width="20" height="20" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        <div class="card tool-card">
+          <div class="card-body">
+            <div class="card-icon" style="background:#ecfdf5"><svg width="20" height="20" fill="none" stroke="#059669" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+            <h3>Clinical Support</h3>
+            <p>Clinical decision support, AI diagnostics, symptom checker, patient risk assessment, and referral tools.</p>
+            <span class="tool-count" style="background:#d1fae5;color:#065f46">4 Tools</span>
+            <div><a href="/tools/" class="tool-link">View All &rarr;</a></div>
           </div>
-          <h3 class="font-black text-gray-900 mb-1">Academy</h3>
-          <p class="text-gray-500 text-sm mb-3">Medical Academy and Pharmaceutical Academy &mdash; AI-powered learning platforms for professionals</p>
-          <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full">2 Tools</span>
         </div>
-
-        <div class="bg-rose-50 rounded-2xl p-6 border border-rose-100 ch">
-          <div class="inline-flex p-2.5 rounded-xl bg-rose-600 mb-4">
-            <svg width="20" height="20" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M11 2v2M2 11h2M17.364 4.636l-1.414 1.414M20 11h2M17.364 17.364l-1.414-1.414"/><circle cx="12" cy="12" r="4"/></svg>
+        <div class="card tool-card">
+          <div class="card-body">
+            <div class="card-icon" style="background:#fef2f2"><svg width="20" height="20" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+            <h3>Smart Reports</h3>
+            <p>AI-generated lab reports, imaging reports, pathology reports, discharge summaries, and clinical notes.</p>
+            <span class="tool-count" style="background:#fee2e2;color:#991b1b">6 Tools</span>
+            <div><a href="/tools/" class="tool-link">View All &rarr;</a></div>
           </div>
-          <h3 class="font-black text-gray-900 mb-1">Advanced Clinical Tools</h3>
-          <p class="text-gray-500 text-sm mb-3">Medication Safety, Formulary, IV Compatibility, Pathways, Calculators, Stewardship</p>
-          <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full">6 Tools</span>
         </div>
-
-        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 ch">
-          <div class="inline-flex p-2.5 rounded-xl bg-slate-700 mb-4">
-            <svg width="20" height="20" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <div class="card tool-card">
+          <div class="card-body">
+            <div class="card-icon" style="background:#f5f3ff"><svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+            <h3>Advanced Clinical</h3>
+            <p>Medication safety, formulary management, IV compatibility, clinical pathways, calculators, antimicrobial stewardship.</p>
+            <span class="tool-count" style="background:#ede9fe;color:#5b21b6">6 Tools</span>
+            <div><a href="/tools/" class="tool-link">View All &rarr;</a></div>
           </div>
-          <h3 class="font-black text-gray-900 mb-1">Other Tools</h3>
-          <p class="text-gray-500 text-sm mb-3">Quran AI, Medical Calculator, standalone Lab Test Reader &mdash; and more coming</p>
-          <span class="text-xs font-bold bg-violet-100 text-violet-700 px-2.5 py-1 rounded-full">3+ Tools</span>
         </div>
-
       </div>
-      <div class="text-center">
-        <a href="/tools/" class="inline-flex items-center gap-2 bg-blue-700 text-white px-8 py-4 rounded-full font-bold hover:bg-blue-800 transition-colors shadow-lg text-lg">
-          View All Tools
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
+      <div style="text-align:center;margin-top:40px">
+        <a href="/tools/" class="btn btn-primary">View All Tools</a>
       </div>
     </div>
   </section>
 
-<!-- About -->
-  <section id="about" class="py-24 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+  <!-- About -->
+  <section id="about" class="section" style="background:#f8fafc">
+    <div class="container">
+      <div class="about-grid">
         <div>
-          <span class="text-blue-700 font-semibold text-sm uppercase tracking-widest">About the Organization</span>
-          <h2 class="text-4xl lg:text-5xl font-black text-gray-900 mt-3 mb-6 leading-tight">Arab MedTechAI<br/>Organization</h2>
-          <p class="text-lg text-gray-600 leading-relaxed mb-6">We are a technology organization dedicated to advancing medical technology and AI-powered systems across the Arab world. Founded in 2020 and based in Abu Dhabi, UAE, we build platforms that solve real challenges in healthcare, education, and digital services.</p>
-          <p class="text-lg text-gray-600 leading-relaxed mb-8">Each of our products is an independently deployed platform built with modern AI infrastructure, serving hospitals, clinics, pharmacies, and individuals across 10+ Arab countries.</p>
-          <div class="grid grid-cols-2 gap-6">
-            <div class="bg-white rounded-2xl p-5 shadow-sm"><div class="text-3xl font-black text-blue-700 mb-1">2020</div><div class="text-gray-600 font-medium">Year Founded</div></div>
-            <div class="bg-white rounded-2xl p-5 shadow-sm"><div class="text-3xl font-black text-emerald-600 mb-1">UAE</div><div class="text-gray-600 font-medium">Headquartered</div></div>
-            <div class="bg-white rounded-2xl p-5 shadow-sm"><div class="text-3xl font-black text-violet-700 mb-1">15+</div><div class="text-gray-600 font-medium">Tools in Dev</div></div>
-            <div class="bg-white rounded-2xl p-5 shadow-sm"><div class="text-3xl font-black text-blue-700 mb-1">AI</div><div class="text-gray-600 font-medium">First Approach</div></div>
+          <div class="section-label">About the Organization</div>
+          <h2 class="section-title" style="font-size:36px">Arab MedTechAI<br/>Organization</h2>
+          <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:20px">We are a technology organization dedicated to advancing medical technology and AI-powered systems across the Arab world. Founded in 2020 and based in Abu Dhabi, UAE, we build platforms that solve real challenges in healthcare, education, and digital services.</p>
+          <p style="font-size:16px;color:#475569;line-height:1.7;margin-bottom:8px">Each of our products is an independently deployed platform built with modern AI infrastructure, serving hospitals, clinics, pharmacies, and individuals across 10+ Arab countries.</p>
+          <div class="about-stats">
+            <div class="about-stat-card"><div class="about-stat-num" style="color:#2563eb">2020</div><div class="about-stat-label">Year Founded</div></div>
+            <div class="about-stat-card"><div class="about-stat-num" style="color:#059669">UAE</div><div class="about-stat-label">Headquartered</div></div>
+            <div class="about-stat-card"><div class="about-stat-num" style="color:#7c3aed">15+</div><div class="about-stat-label">Tools in Dev</div></div>
+            <div class="about-stat-card"><div class="about-stat-num" style="color:#2563eb">AI</div><div class="about-stat-label">First Approach</div></div>
           </div>
         </div>
-        <div class="space-y-6">
-          <div class="bg-gradient-to-br from-blue-600 to-cyan-600 text-white rounded-3xl p-8">
-            <div class="text-4xl mb-3">&#127919;</div>
-            <h3 class="text-2xl font-black mb-3">Our Mission</h3>
-            <p class="text-blue-100 leading-relaxed">To bridge the gap between advanced AI technology and the Arab world healthcare and digital needs, delivering intelligent systems that are accessible, reliable, and impactful.</p>
+        <div class="mission-cards">
+          <div class="mission-card" style="background:#2563eb">
+            <h3>Our Mission</h3>
+            <p>To bridge the gap between advanced AI technology and the Arab world healthcare and digital needs, delivering intelligent systems that are accessible, reliable, and impactful.</p>
           </div>
-          <div class="bg-gradient-to-br from-emerald-600 to-teal-600 text-white rounded-3xl p-8">
-            <div class="text-4xl mb-3">&#128302;</div>
-            <h3 class="text-2xl font-black mb-3">Our Vision</h3>
-            <p class="text-emerald-100 leading-relaxed">To become the leading Arab organization building AI-powered medical and digital platforms that serve hundreds of millions of Arabic speakers worldwide.</p>
+          <div class="mission-card" style="background:#059669">
+            <h3>Our Vision</h3>
+            <p>To become the leading Arab organization building AI-powered medical and digital platforms that serve hundreds of millions of Arabic speakers worldwide.</p>
           </div>
         </div>
       </div>
 
-      <!-- Our Works Section -->
-      <div class="mt-20">
-        <div class="text-center mb-12">
-          <span class="text-blue-700 font-semibold text-sm uppercase tracking-widest">Our Works</span>
-          <h2 class="text-4xl lg:text-5xl font-black text-gray-900 mt-3 mb-4">Featured Platforms</h2>
-          <p class="text-xl text-gray-500 max-w-2xl mx-auto">Our complete portfolio of AI-powered platforms, each serving a unique purpose in healthcare, education, and Islamic scholarship.</p>
+      <!-- Our Works -->
+      <div style="margin-top:80px">
+        <div class="section-header">
+          <div class="section-label">Our Works</div>
+          <h2 class="section-title">Featured Platforms</h2>
+          <p class="section-sub">Complete portfolio of AI-powered platforms serving healthcare, education, and Islamic scholarship.</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <!-- Pharmacy -->
-          <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 ch">
-            <div class="h-2 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
-            <div class="p-6">
-              <div class="flex items-center gap-2 mb-3">
-                <span class="text-xs font-bold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full uppercase tracking-wider">Live</span>
-              </div>
-              <h3 class="text-xl font-black text-gray-900 mb-2">AI Pharmacy Platform</h3>
-              <p class="text-gray-500 text-sm leading-relaxed mb-4">Intelligent pharmacy management with AI-powered drug interactions, prescriptions, inventory, and patient records.</p>
-              <a href="https://pharmacy.medtechai.net" target="_blank" class="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-5 py-2.5 rounded-xl font-bold hover:opacity-90 transition-opacity text-sm">
-                Visit Platform
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </a>
+        <div class="card-grid three">
+          <div class="card">
+            <div class="card-top-bar" style="background:#059669"></div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="platform-badge" style="background:#d1fae5;color:#065f46">Live</span></div>
+              <h3>AI Pharmacy Platform</h3>
+              <p>Intelligent pharmacy management with AI-powered drug interactions, prescriptions, inventory, and patient records.</p>
+              <a href="https://pharmacy.medtechai.net" target="_blank" rel="noopener noreferrer" class="card-btn" style="background:#059669">Visit Platform <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
             </div>
           </div>
-
-          <!-- Med -->
-          <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 ch">
-            <div class="h-2 bg-gradient-to-r from-blue-600 to-cyan-500"></div>
-            <div class="p-6">
-              <div class="flex items-center gap-2 mb-3">
-                <span class="text-xs font-bold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full uppercase tracking-wider">Live</span>
-              </div>
-              <h3 class="text-xl font-black text-gray-900 mb-2">Medical AI Platform</h3>
-              <p class="text-gray-500 text-sm leading-relaxed mb-4">Comprehensive medical intelligence with AI-assisted diagnostics, clinical decision support, and health analytics.</p>
-              <a href="https://med.medtechai.net" target="_blank" class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-5 py-2.5 rounded-xl font-bold hover:opacity-90 transition-opacity text-sm">
-                Visit Platform
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </a>
+          <div class="card">
+            <div class="card-top-bar" style="background:#2563eb"></div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="platform-badge" style="background:#dbeafe;color:#1e40af">Live</span></div>
+              <h3>Medical AI Platform</h3>
+              <p>Comprehensive medical intelligence with AI-assisted diagnostics, clinical decision support, and health analytics.</p>
+              <a href="https://med.medtechai.net" target="_blank" rel="noopener noreferrer" class="card-btn" style="background:#2563eb">Visit Platform <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
             </div>
           </div>
-
-          <!-- Quran -->
-          <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 ch">
-            <div class="h-2 bg-gradient-to-r from-violet-600 to-purple-600"></div>
-            <div class="p-6">
-              <div class="flex items-center gap-2 mb-3">
-                <span class="text-xs font-bold bg-violet-100 text-violet-700 px-2.5 py-1 rounded-full uppercase tracking-wider">Live</span>
-              </div>
-              <h3 class="text-xl font-black text-gray-900 mb-2">Quran AI Platform</h3>
-              <p class="text-gray-500 text-sm leading-relaxed mb-4">AI-powered Quran learning and research platform with semantic search, Tafsir assistance, and recitation analysis.</p>
-              <a href="https://quran.medtechai.net" target="_blank" class="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-bold hover:opacity-90 transition-opacity text-sm">
-                Visit Platform
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </a>
+          <div class="card">
+            <div class="card-top-bar" style="background:#7c3aed"></div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span class="platform-badge" style="background:#ede9fe;color:#5b21b6">Live</span></div>
+              <h3>Quran AI Platform</h3>
+              <p>AI-powered Quran learning and research platform with semantic search, Tafsir assistance, and recitation analysis.</p>
+              <a href="https://quran.medtechai.net" target="_blank" rel="noopener noreferrer" class="card-btn" style="background:#7c3aed">Visit Platform <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
             </div>
           </div>
         </div>
@@ -304,67 +416,68 @@
   </section>
 
   <!-- CTA -->
-  <section class="py-20 gh text-white relative overflow-hidden">
-    <div class="absolute inset-0 opacity-10"><svg width="100%" height="100%"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="white"/></pattern></defs><rect width="100%" height="100%" fill="url(#dots)"/></svg></div>
-    <div class="relative max-w-4xl mx-auto px-4 text-center">
-      <h2 class="text-4xl lg:text-5xl font-black mb-6">Partner with Arab MedTechAI</h2>
-      <p class="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">Whether you are a hospital, clinic, pharmacy, or organization, we build AI-powered systems tailored for the Arab healthcare ecosystem.</p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="/contact/" class="inline-block bg-white text-blue-800 px-8 py-4 rounded-full font-bold hover:bg-blue-50 transition-all shadow-xl text-lg">Get in Touch</a>
-        <a href="/tools/" class="inline-block border-2 border-white/50 text-white px-8 py-4 rounded-full font-bold hover:bg-white/10 transition-all text-lg">Explore Tools</a>
+  <section class="cta">
+    <div class="container">
+      <h2>Partner with Arab MedTechAI</h2>
+      <p>Whether you are a hospital, clinic, pharmacy, or organization, we build AI-powered systems tailored for the Arab healthcare ecosystem.</p>
+      <div class="cta-actions">
+        <a href="/contact/" class="btn btn-white">Get in Touch</a>
+        <a href="/tools/" class="btn btn-outline-white">Explore Tools</a>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="bg-slate-900 text-white py-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-        <div class="md:col-span-2">
-          <div class="font-black text-xl text-blue-400 mb-1">MedTech<span class="text-emerald-400">AI</span></div>
-          <div class="text-xs text-blue-300/70 tracking-widest uppercase mb-4">Arab Organization</div>
-          <p class="text-gray-400 mb-4 max-w-sm leading-relaxed">Arab MedTechAI Organization - building AI-powered medical technology systems and digital platforms for the Arab world.</p>
-          <p class="text-gray-500 text-sm mb-1">Abu Dhabi, United Arab Emirates</p>
-          <a href="mailto:contact@medtechai.net" class="text-blue-400 hover:text-blue-300 text-sm transition-colors">contact@medtechai.net</a>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo" style="margin-bottom:0"><span>MedTech</span><span class="logo-em">AI</span></div>
+          <div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:2px;text-transform:uppercase">Arab Organization</div>
+          <p>Arab MedTechAI Organization &mdash; building AI-powered medical technology systems and digital platforms for the Arab world.</p>
+          <div class="footer-contact">
+            Abu Dhabi, United Arab Emirates<br/>
+            <a href="mailto:contact@medtechai.net">contact@medtechai.net</a>
+          </div>
         </div>
         <div>
-          <h4 class="font-bold text-white mb-5">Platforms</h4>
-          <ul class="space-y-3">
-<li><a href="https://pharmacy.medtechai.net" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-emerald-400 transition-colors text-sm">AI Pharmacy Platform</a></li>
-            <li><a href="https://med.medtechai.net" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-blue-400 transition-colors text-sm">Medical AI Platform</a></li>
-            <li><a href="/tools/" class="text-gray-400 hover:text-white transition-colors text-sm">All Tools &rarr;</a></li>
+          <h4>Platforms</h4>
+          <ul>
+            <li><a href="https://pharmacy.medtechai.net" target="_blank" rel="noopener noreferrer">AI Pharmacy Platform</a></li>
+            <li><a href="https://med.medtechai.net" target="_blank" rel="noopener noreferrer">Medical AI Platform</a></li>
+            <li><a href="https://quran.medtechai.net" target="_blank" rel="noopener noreferrer">Quran AI Platform</a></li>
+            <li><a href="/tools/" style="color:#60a5fa">All Tools &rarr;</a></li>
           </ul>
         </div>
         <div>
-          <h4 class="font-bold text-white mb-5">Organization</h4>
-          <ul class="space-y-3">
-            <li><a href="#about" class="text-gray-400 hover:text-white transition-colors text-sm">About Us</a></li>
-            <li><a href="/tools/" class="text-gray-400 hover:text-white transition-colors text-sm">Tools</a></li>
-            <li><a href="/contact/" class="text-gray-400 hover:text-white transition-colors text-sm">Contact</a></li>
-            <li><a href="/terms/" class="text-gray-400 hover:text-white transition-colors text-sm">Terms of Use</a></li>
-            <li><a href="/hipaa-compliance/" class="text-gray-400 hover:text-white transition-colors text-sm">Compliance</a></li>
+          <h4>Organization</h4>
+          <ul>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="/tools/">Tools</a></li>
+            <li><a href="/contact/">Contact</a></li>
+            <li><a href="/terms/">Terms of Use</a></li>
+            <li><a href="/hipaa-compliance/">Compliance</a></li>
           </ul>
         </div>
       </div>
-      <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p class="text-gray-500 text-sm">&copy; 2025 Arab MedTechAI Organization. All rights reserved.</p>
-        <div class="flex gap-6 text-sm text-gray-500">
-          <a href="/terms/" class="hover:text-white transition-colors">Terms</a>
-          <a href="/hipaa-compliance/" class="hover:text-white transition-colors">Compliance</a>
-          <a href="/contact/" class="hover:text-white transition-colors">Contact</a>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Arab MedTechAI Organization. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="/terms/">Terms</a>
+          <a href="/hipaa-compliance/">Compliance</a>
+          <a href="/contact/">Contact</a>
         </div>
       </div>
     </div>
   </footer>
 
   <script>
-    document.getElementById('mb').addEventListener('click',function(){document.getElementById('mm').classList.toggle('hidden')});
-    document.querySelectorAll('a[href^="#"]').forEach(function(a){
-      a.addEventListener('click',function(e){
-        var t=document.querySelector(this.getAttribute('href'));
-        if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('mm').classList.add('hidden')}
-      });
-    });
+    (function(){
+      var h=document.getElementById('hamburger'),m=document.getElementById('mobileMenu');
+      h.addEventListener('click',function(){h.classList.toggle('open');m.classList.toggle('open')});
+      m.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){h.classList.remove('open');m.classList.remove('open')})});
+      document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var t=document.querySelector(this.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}})});
+    })();
   </script>
 </body>
 </html>
