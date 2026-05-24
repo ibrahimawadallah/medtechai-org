@@ -1,10 +1,6 @@
 # ── AI Provider Keys ──────────────────────────────────────────────────────
-# Set at least ONE key. Groq is recommended (free, fast, no credit card).
-# Get keys at: groq.com/keys | aistudio.google.com/apikey | openrouter.ai/keys
-# #
-SetEnv GROQ_API_KEY       your-groq-api-key
-SetEnv GEMINI_API_KEY     your-gemini-api-key
-SetEnv OPENROUTER_API_KEY your-openrouter-api-key
+# Set via Render dashboard > Environment tab:
+#   GROQ_API_KEY, GEMINI_API_KEY, OPENROUTER_API_KEY
 # ──────────────────────────────────────────────────────────────────────────
 
 RewriteEngine On

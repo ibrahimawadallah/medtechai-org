@@ -9,8 +9,8 @@ services:
         size: 512
     envVars:
       - key: GROQ_API_KEY
-        value: your-groq-api-key
+        sync: false
       - key: GEMINI_API_KEY
-        value: your-gemini-api-key
+        sync: false
       - key: OPENROUTER_API_KEY
-        value: your-openrouter-api-key
+        sync: false
