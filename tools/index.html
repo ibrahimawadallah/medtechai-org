@@ -12,7 +12,8 @@ body{display:block}
 .page{max-width:960px;margin:0 auto;padding:16px 20px 48px}
 
 /* Nav tweaks */
-.hamburger{display:none;width:34px;height:34px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;color:var(--slate4);padding:0}
+.hamburger{display:none;width:34px;height:34px;border:1px solid var(--slate6);border-radius:var(--radius);background:transparent;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;color:var(--nav-text);padding:0}
+.hamburger:hover{background:rgba(255,255,255,.08)}
 @media(max-width:768px){.hamburger{display:flex}}
 
 /* Search */
@@ -23,18 +24,27 @@ body{display:block}
 .tool-srch button:hover{background:var(--blue-h)}
 
 /* Category section */
-.cat{margin-bottom:24px}
-.cat-h{font-size:13px;font-weight:700;color:var(--slate2);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.cat{margin-bottom:28px}
+.cat-h{font-size:13px;font-weight:700;padding:6px 12px;border-radius:var(--radius);margin-bottom:10px}
+.cat[data-cat=pharmacy] .cat-h{background:var(--blue-bg);color:#1e40af}
+.cat[data-cat=clinical] .cat-h{background:var(--teal-bg);color:#155e75}
+.cat[data-cat=smart-report] .cat-h{background:var(--green-bg);color:#065f46}
+.cat[data-cat=advanced] .cat-h{background:var(--purple-bg);color:#5b21b6}
 
 /* Tool list items */
-.tool-item{display:flex;align-items:flex-start;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;gap:12px}
+.tool-item{display:flex;align-items:flex-start;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;gap:12px}
 .tool-item:last-child{border-bottom:none}
 .tool-item-l{flex:1}
-.tool-item-l a{font-size:14px;font-weight:500;color:var(--slate);display:inline-block;margin-bottom:1px}
+.tool-item-l a{font-size:14px;font-weight:600;color:var(--slate);display:inline-block;margin-bottom:1px}
 .tool-item-l a:hover{color:var(--blue);text-decoration:underline}
 .tool-item-desc{font-size:12px;color:var(--slate4);line-height:1.5}
-.tool-item-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
-.tool-badge{font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.02em;color:var(--slate4);background:#f1f5f9}
+.tool-item-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.tool-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.02em}
+.cat[data-cat=pharmacy] .tool-badge{background:var(--blue-bg);color:#1e40af}
+.cat[data-cat=clinical] .tool-badge{background:var(--teal-bg);color:#155e75}
+.cat[data-cat=smart-report] .tool-badge{background:var(--green-bg);color:#065f46}
+.cat[data-cat=advanced] .tool-badge{background:var(--purple-bg);color:#5b21b6}
+.cat:not([data-cat]) .tool-badge{background:var(--blue-bg);color:#1e40af}
 
 /* No results */
 .no-match{display:none;text-align:center;padding:48px 20px;color:var(--slate5);font-size:14px}

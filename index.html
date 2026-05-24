@@ -15,14 +15,14 @@
     a{text-decoration:none;color:#2563eb}
     a:hover{text-decoration:underline}
     .wrap{max-width:960px;margin:0 auto;padding:0 20px}
-    /* Header */
-    .hdr{display:flex;align-items:center;justify-content:space-between;height:52px;border-bottom:1px solid #f1f5f9}
-    .hdr-logo{font-size:16px;font-weight:700;color:#0f172a;letter-spacing:-.3px}
-    .hdr-logo em{font-style:normal;color:#059669}
+    /* Header — dark nav */
+    .hdr{display:flex;align-items:center;justify-content:space-between;height:48px;padding:0 20px;background:#0f172a}
+    .hdr-logo{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.3px}
+    .hdr-logo em{font-style:normal;color:#38bdf8}
     .hdr-nav{display:flex;gap:4px}
-    .hdr-nav a{padding:6px 12px;font-size:13px;font-weight:500;color:#64748b;border-radius:4px}
-    .hdr-nav a:hover{background:#f8fafc;text-decoration:none;color:#1e293b}
-    .hdr-nav a.act{color:#2563eb}
+    .hdr-nav a{padding:6px 12px;font-size:13px;font-weight:500;color:#94a3b8;border-radius:4px}
+    .hdr-nav a:hover{background:rgba(255,255,255,.08);text-decoration:none;color:#fff}
+    .hdr-nav a.act{color:#38bdf8}
     /* Hero - minimal search */
     .hero{padding:48px 0 0;text-align:center}
     .hero h1{font-size:22px;font-weight:700;color:#0f172a;margin-bottom:4px}
@@ -67,9 +67,8 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
-
-    <header class="hdr">
+  <header class="hdr">
+    <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 20px">
       <a href="/" class="hdr-logo">MedTech<em>AI</em></a>
       <nav class="hdr-nav">
         <a href="/" class="act">Home</a>
@@ -77,8 +76,10 @@
         <a href="/about/">About</a>
         <a href="/contact/">Contact</a>
       </nav>
-    </header>
+    </div>
+  </header>
 
+  <div class="wrap">
     <!-- Search -->
     <section class="hero">
       <h1>MedTechAI</h1>
