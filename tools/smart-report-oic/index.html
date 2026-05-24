@@ -46,6 +46,17 @@
         </div>
       </div>
       <div class="field"><label>Medical Findings / Paste Report Text</label><textarea id="f_text" placeholder="Paste report text, clinical findings, or describe the scan/image content in detail…" style="min-height:120px"></textarea></div>
+      <div class="field">
+        <label>Upload Scan Image (optional)</label>
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('f_scan').click()">
+          <input type="file" id="f_scan" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="handleFile(this)">
+          <div id="uploadPlaceholder"><span>Click to select a scan image (JPG/PNG/WEBP, max 2 MB)</span></div>
+          <div id="uploadPreview" style="display:none">
+            <img id="previewImg" style="max-height:180px;border:1px solid var(--border);border-radius:3px;display:block;margin-bottom:6px">
+            <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeFile()">Remove Image</button>
+          </div>
+        </div>
+      </div>
       <button class="btn btn-primary btn-block" id="submitBtn" onclick="runTool()">
         <span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span>
       </button>
@@ -76,13 +87,22 @@
 
 <script>
 var EP='/api/tools/smart-report-oic';
-function getFormData(){var t=document.getElementById('f_text').value.trim();if(!t){alert('Enter findings text');return null;}return{text:t,type:document.getElementById('f_type').value,modality:document.getElementById('f_mod').value};}
+function getFormData(){
+  var t=document.getElementById('f_text').value.trim();
+  var f=document.getElementById('f_scan');
+  if(!t&&(!f.files||!f.files.length)){alert('Enter findings text or upload a scan image');return null;}
+  var type=document.getElementById('f_type').value,mod=document.getElementById('f_mod').value;
+  if(f.files&&f.files.length){var fd=new FormData();fd.append('text',t);fd.append('type',type);fd.append('modality',mod);fd.append('scan',f.files[0]);return fd;}
+  return{text:t,type:type,modality:mod};
+}
 async function runTool(){
   var btn=document.getElementById('submitBtn'),sp=document.getElementById('spinner'),txt=document.getElementById('btnText'),body=getFormData();
   if(!body)return;
   btn.disabled=true;sp.classList.add('on');txt.textContent='Processing…';
   try{
-    var res=await fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    var opts={method:'POST'};
+    if(body instanceof FormData){opts.body=body;}else{opts.headers={'Content-Type':'application/json'};opts.body=JSON.stringify(body);}
+    var res=await fetch(EP,opts);
     var data=await res.json();
     show(data.html||fb(data));
   }catch(e){show('<div class="r-error"><span class="r-error-icon">&#9888;</span><div><strong>Connection Error</strong><br>Check that the server is running and API keys are set.</div></div>');}
@@ -97,6 +117,20 @@ function show(html){
 }
 function resetTool(){document.getElementById('placeholderCard').style.display='';document.getElementById('resultPanel').classList.remove('on');document.getElementById('resultBody').innerHTML='';}
 function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon">&#9888;</span><div>'+d.error+'</div></div>';if(d.raw_text)return'<p>'+d.raw_text.replace(/\n/g,'<br>')+'</p>';return'<pre style="font-size:11px;overflow:auto">'+JSON.stringify(d,null,2)+'</pre>';}
+function handleFile(input){
+  var ph=document.getElementById('uploadPlaceholder'),pv=document.getElementById('uploadPreview'),pi=document.getElementById('previewImg');
+  if(input.files&&input.files[0]){var r=new FileReader();r.onload=function(e){pi.src=e.target.result;ph.style.display='none';pv.style.display='block';};r.readAsDataURL(input.files[0]);}
+  else removeFile();
+}
+function removeFile(){
+  var f=document.getElementById('f_scan');f.value='';
+  document.getElementById('uploadPlaceholder').style.display='';
+  document.getElementById('uploadPreview').style.display='none';
+}
+var ua=document.getElementById('uploadArea');
+ua.addEventListener('dragover',function(e){e.preventDefault();this.classList.add('drag-over');});
+ua.addEventListener('dragleave',function(){this.classList.remove('drag-over');});
+ua.addEventListener('drop',function(e){e.preventDefault();this.classList.remove('drag-over');var dt=e.dataTransfer;if(dt.files&&dt.files[0]){var inp=document.getElementById('f_scan');inp.files=dt.files;handleFile(inp);}});
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 

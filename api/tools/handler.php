@@ -1,21 +1,14 @@
 <?php
-/**
- * Arab MedTechAI — Tools API Handler
- * Provider priority: Groq (Llama 3.3 70B) → Gemini 1.5 Flash → OpenRouter
- * Add keys via server env vars or .htaccess SetEnv
- */
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 
-// ── API keys (set at least one) ────────────────────────────────────────────
 define('GROQ_KEY',        getenv('GROQ_API_KEY')        ?: '');
 define('GEMINI_KEY',      getenv('GEMINI_API_KEY')      ?: getenv('GOOGLE_API_KEY') ?: '');
 define('OPENROUTER_KEY',  getenv('OPENROUTER_API_KEY')  ?: '');
 
-// ── Request routing ────────────────────────────────────────────────────────
 $uri   = $_SERVER['REQUEST_URI'];
 $parts = explode('/', trim(parse_url($uri, PHP_URL_PATH), '/'));
 $tool  = $parts[2] ?? '';
@@ -23,7 +16,6 @@ $raw   = file_get_contents('php://input');
 $body  = json_decode($raw, true) ?: [];
 foreach ($_POST as $k => $v) $body[$k] = $v;
 
-// ── Parse AI text response (strips markdown fences, extracts JSON) ─────────
 function parseAI(string $text): array {
     $text = preg_replace('/```json\n?|```\n?/', '', $text);
     $text = trim($text);
@@ -32,7 +24,6 @@ function parseAI(string $text): array {
     return ['raw_text' => $text];
 }
 
-// ── OpenAI-compatible call (Groq / OpenRouter) ────────────────────────────
 function callOpenAI(string $url, string $key, string $model, string $prompt): ?string {
     $payload = json_encode([
         'model'    => $model,
@@ -53,7 +44,6 @@ function callOpenAI(string $url, string $key, string $model, string $prompt): ?s
     return $json['choices'][0]['message']['content'] ?? null;
 }
 
-// ── Gemini call ────────────────────────────────────────────────────────────
 function callGemini(string $key, string $prompt): ?string {
     $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $key;
     $payload = json_encode(['contents'=>[['parts'=>[['text'=>$prompt]]]],'generationConfig'=>['temperature'=>0.3,'maxOutputTokens'=>2048]]);
@@ -64,519 +54,635 @@ function callGemini(string $key, string $prompt): ?string {
     return $json['candidates'][0]['content']['parts'][0]['text'] ?? null;
 }
 
-// ── Main AI dispatcher — tries providers in priority order ─────────────────
+function callGeminiVision(string $key, string $prompt, string $imageData, string $mimeType): ?string {
+    $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $key;
+    $payload = json_encode([
+        'contents'=>[[
+            'parts'=>[
+                ['inline_data'=>['mime_type'=>$mimeType, 'data'=>$imageData]],
+                ['text'=>$prompt]
+            ]
+        ]],
+        'generationConfig'=>['temperature'=>0.3,'maxOutputTokens'=>2048]
+    ]);
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>$payload,CURLOPT_RETURNTRANSFER=>true,CURLOPT_HTTPHEADER=>['Content-Type: application/json'],CURLOPT_TIMEOUT=>60]);
+    $resp = curl_exec($ch); curl_close($ch);
+    $json = json_decode($resp, true);
+    return $json['candidates'][0]['content']['parts'][0]['text'] ?? null;
+}
+
+function geminiVision(string $prompt, string $imageData, string $mimeType): array {
+    $text = null;
+    if (GEMINI_KEY) {
+        $text = callGeminiVision(GEMINI_KEY, $prompt, $imageData, $mimeType);
+    }
+    if (!$text) {
+        $fb = $prompt . " (Note: an image was uploaded but could not be analyzed visually. Use text findings only.)";
+        if (GROQ_KEY) {
+            $text = callOpenAI('https://api.groq.com/openai/v1/chat/completions', GROQ_KEY, 'llama-3.3-70b-versatile', $fb);
+        }
+        if (!$text && OPENROUTER_KEY) {
+            $text = callOpenAI('https://openrouter.ai/api/v1/chat/completions', OPENROUTER_KEY, 'meta-llama/llama-3.3-70b-instruct:free', $fb);
+        }
+    }
+    if (!$text) return ['error' => 'No AI provider available. Set GEMINI_API_KEY for image analysis or GROQ/OPENROUTER for text.'];
+    return parseAI($text);
+}
+
 function gemini(string $prompt): array {
     $text = null;
-
-    // 1st: Groq (Llama 3.3 70B — fastest free tier, 14,400 req/day)
     if (GROQ_KEY) {
-        $text = callOpenAI(
-            'https://api.groq.com/openai/v1/chat/completions',
-            GROQ_KEY,
-            'llama-3.3-70b-versatile',
-            $prompt
-        );
+        $text = callOpenAI('https://api.groq.com/openai/v1/chat/completions', GROQ_KEY, 'llama-3.3-70b-versatile', $prompt);
     }
-
-    // 2nd: Gemini 1.5 Flash (1,500 req/day free)
     if (!$text && GEMINI_KEY) {
         $text = callGemini(GEMINI_KEY, $prompt);
     }
-
-    // 3rd: OpenRouter — free models (DeepSeek V3 / Llama)
     if (!$text && OPENROUTER_KEY) {
-        $text = callOpenAI(
-            'https://openrouter.ai/api/v1/chat/completions',
-            OPENROUTER_KEY,
-            'meta-llama/llama-3.3-70b-instruct:free',
-            $prompt
-        );
+        $text = callOpenAI('https://openrouter.ai/api/v1/chat/completions', OPENROUTER_KEY, 'meta-llama/llama-3.3-70b-instruct:free', $prompt);
     }
-
     if (!$text) {
         return ['error' => 'No AI provider configured. Set GROQ_API_KEY, GEMINI_API_KEY, or OPENROUTER_API_KEY on the server.'];
     }
-
     return parseAI($text);
 }
 
 function h($s): string { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
-function rl(array $items, string $c='#059669'): string {
-    $o='<ul class="space-y-1.5 mt-2">';
-    foreach($items as $i) $o.='<li class="flex items-start gap-2 text-sm text-gray-700"><span style="color:'.$c.';font-weight:700;flex-shrink:0">&#10003;</span>'.h($i).'</li>';
+
+function rl(array $items): string {
+    $o='<ul class="r-list">';
+    foreach($items as $i) $o.='<li>'.h($i).'</li>';
     return $o.'</ul>';
 }
+
 function bdg(string $l): string {
-    $m=['high'=>'bg-red-100 text-red-700','severe'=>'bg-red-100 text-red-700','critical'=>'bg-red-100 text-red-700',
-        'moderate'=>'bg-amber-100 text-amber-700','mild'=>'bg-yellow-100 text-yellow-700','caution'=>'bg-amber-100 text-amber-700',
-        'low'=>'bg-emerald-100 text-emerald-700','none'=>'bg-gray-100 text-gray-600','normal'=>'bg-emerald-100 text-emerald-700',
-        'safe'=>'bg-emerald-100 text-emerald-700','emergency'=>'bg-red-100 text-red-700','urgent'=>'bg-amber-100 text-amber-700',
-        'routine'=>'bg-blue-100 text-blue-700','self-care'=>'bg-emerald-100 text-emerald-700','appropriate'=>'bg-emerald-100 text-emerald-700',
-        'compatible'=>'bg-emerald-100 text-emerald-700','incompatible'=>'bg-red-100 text-red-700',
-        'needs review'=>'bg-amber-100 text-amber-700','high risk'=>'bg-red-100 text-red-700'];
-    $cl=$m[strtolower($l)]??'bg-gray-100 text-gray-600';
-    return '<span class="text-xs font-bold px-2.5 py-1 rounded-full '.$cl.'">'.h(strtoupper($l)).'</span>';
+    $m=['high'=>'badge-red','severe'=>'badge-red','critical'=>'badge-red',
+        'moderate'=>'badge-amber','mild'=>'badge-amber','caution'=>'badge-amber',
+        'low'=>'badge-green','none'=>'badge-gray','normal'=>'badge-green',
+        'safe'=>'badge-green','emergency'=>'badge-red','urgent'=>'badge-amber',
+        'routine'=>'badge-blue','self-care'=>'badge-green','appropriate'=>'badge-green',
+        'compatible'=>'badge-green','incompatible'=>'badge-red',
+        'needs review'=>'badge-amber','high risk'=>'badge-red',
+        'high'=>'badge-red','medium'=>'badge-amber','low'=>'badge-green',
+        'yes'=>'badge-red','no'=>'badge-green',
+        'restricted'=>'badge-amber','non-formulary'=>'badge-red','formulary'=>'badge-green',
+        'safe|caution|avoid'=>'badge-amber'];
+    $cl=$m[strtolower($l)]??'badge-gray';
+    return '<span class="badge '.$cl.'">'.h(strtoupper($l)).'</span>';
 }
-function sec(string $t, string $c): string { return '<div class="mb-4"><p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">'.h($t).'</p>'.$c.'</div>'; }
+
+function sec(string $t, string $c): string {
+    return '<div class="r-section"><div class="r-section-header no-collapse"><span class="r-section-title">'.h($t).'</span></div><div class="r-section-body">'.$c.'</div></div>';
+}
+
+function alert(string $type, string $text): string {
+    $m=['red'=>'r-alert-red','amber'=>'r-alert-amber','blue'=>'r-alert-blue','green'=>'r-alert-green'];
+    $cl=$m[$type]??'r-alert-blue';
+    return '<div class="r-alert '.$cl.'"><div>'.$text.'</div></div>';
+}
+
+function dailymedGet(string $url): ?string {
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>15, CURLOPT_FOLLOWLOCATION=>true, CURLOPT_SSL_VERIFYPEER=>true, CURLOPT_USERAGENT=>'MedTechAI/1.0']);
+    $r = curl_exec($ch); $http = curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
+    return ($http === 200 && $r) ? $r : null;
+}
+
+function cleanDMText(string $html): string {
+    $t = preg_replace('/<br\s*\/?>\s*/i', "\n", $html);
+    $t = preg_replace('/<\/p>\s*/i', "\n\n", $t);
+    $t = preg_replace('/<li[^>]*>\s*/i', "\n  - ", $t);
+    $t = preg_replace('/<\/li>\s*/i', '', $t);
+    $t = preg_replace('/<h3>.*?<\/h3>/i', '', $t);
+    $t = strip_tags($t);
+    $t = html_entity_decode($t, ENT_QUOTES, 'UTF-8');
+    $t = preg_replace('/[ \t]+/', ' ', $t);
+    $t = preg_replace('/\n{3,}/', "\n\n", $t);
+    return trim($t);
+}
+
+function fetchDailyMedLabel(string $drug): array {
+    $r = ['indications'=>'', 'warnings'=>'', 'boxedWarning'=>''];
+    // Search
+    $j = dailymedGet('https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json?drug_name='.urlencode(strtoupper($drug)).'&name_type=both&pagesize=3');
+    if (!$j) return $r;
+    $d = json_decode($j, true);
+    if (empty($d['data'])) return $r;
+    $setid = $d['data'][0]['setid'] ?? '';
+    if (!$setid) return $r;
+    // Fetch label HTML
+    $html = dailymedGet('https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid='.$setid);
+    if (!$html) return $r;
+    // Remove script/style tags
+    $html = preg_replace('/<script[^>]*>.*?<\/script>/si', '', $html);
+    $html = preg_replace('/<style[^>]*>.*?<\/style>/si', '', $html);
+    // Indications (section 1)
+    if (preg_match('/<h3>\s*1\s+INDICATIONS?\s+(?:AND\s+)?USAGE\s*<\/h3>\s*(.*?)(?=<h3>\s*\d+\s+|$)/si', $html, $m)) {
+        $r['indications'] = cleanDMText($m[1]);
+    }
+    // Warnings (section 5)
+    if (preg_match('/<h3>\s*5\s+WARNINGS?\s+(?:AND\s+)?PRECAUTIONS?\s*<\/h3>\s*(.*?)(?=<h3>\s*\d+\s+|$)/si', $html, $m)) {
+        $r['warnings'] = cleanDMText($m[1]);
+    }
+    // Boxed warning
+    if (preg_match('/<h3[^>]*>\s*BOXED\s+WARNING/i', $html)) {
+        if (preg_match('/<h3[^>]*>\s*BOXED\s+WARNING[^<]*<\/h3>\s*(.*?)(?=<h3|$)/si', $html, $m)) {
+            $r['boxedWarning'] = cleanDMText($m[1]);
+        }
+    }
+    // If no boxed warning section found, look in highlights
+    if (!$r['boxedWarning'] && preg_match('/WARNING:\s*(?:[^<]*<br\s*\/?>\s*)*(?:[^<]*)(?=<br|<h|$)/i', $html, $m)) {
+        $r['boxedWarning'] = cleanDMText($m[0]);
+    }
+    return $r;
+}
 
 switch ($tool) {
 
-// ── DRUG SEARCH
+// DRUG SEARCH
 case 'drug-search':
-    $drug = trim($body['drug']??''); if(!$drug){echo json_encode(['html'=>'<p class="text-red-500">Enter a drug name.</p>']);exit;}
+    $drug = trim($body['drug']??''); if(!$drug){echo json_encode(['html'=>alert('red','Enter a drug name.')]);exit;}
     $d = gemini("Explain drug \"{$drug}\" comprehensively. Return ONLY JSON: {\"genericName\":\"str\",\"brandNames\":[\"str\"],\"drugClass\":\"str\",\"therapeuticCategory\":\"str\",\"mechanismOfAction\":\"str\",\"indications\":[\"str\"],\"dosageForms\":[\"str\"],\"adultDosing\":\"str\",\"pediatricDosing\":\"str\",\"renalAdjustment\":\"str\",\"hepaticAdjustment\":\"str\",\"administration\":\"str\",\"adverseReactions\":[{\"system\":\"str\",\"reactions\":\"str\",\"frequency\":\"str\"}],\"contraindications\":[\"str\"],\"clinicalWarnings\":[\"str\"],\"drugInteractions\":[\"str\"],\"pregnancyCategory\":\"str\",\"lactationSafety\":\"str\",\"monitoringParameters\":[\"str\"],\"pharmacokinetics\":\"str\",\"patientEducation\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html=sec('Generic Name','<p class="font-bold text-gray-900 text-lg">'.h($d['genericName']??$drug).'</p>');
-    if(!empty($d['brandNames'])) $html.=sec('Brand Names','<p class="text-gray-700 text-sm">'.h(implode(', ',$d['brandNames'])).'</p>');
-    if(!empty($d['drugClass'])) $html.=sec('Drug Class','<p class="text-gray-700 text-sm font-semibold">'.h($d['drugClass']).'</p>');
-    if(!empty($d['therapeuticCategory'])) $html.=sec('Therapeutic Category','<p class="text-gray-700 text-sm">'.h($d['therapeuticCategory']).'</p>');
-    if(!empty($d['mechanismOfAction'])) $html.=sec('Mechanism of Action','<p class="text-gray-700 text-sm leading-relaxed">'.h($d['mechanismOfAction']).'</p>');
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div class="r-value-lg" style="margin-bottom:8px">'.h($d['genericName']??$drug).'</div>';
+    if(!empty($d['brandNames'])) $html.=sec('Brand Names','<span class="r-value">'.h(implode(', ',$d['brandNames'])).'</span>');
+    if(!empty($d['drugClass'])) $html.=sec('Drug Class','<span class="r-value">'.h($d['drugClass']).'</span>');
+    if(!empty($d['therapeuticCategory'])) $html.=sec('Therapeutic Category','<span class="r-value">'.h($d['therapeuticCategory']).'</span>');
+    if(!empty($d['mechanismOfAction'])) $html.=sec('Mechanism of Action','<span class="r-value">'.h($d['mechanismOfAction']).'</span>');
     if(!empty($d['indications'])) $html.=sec('Indications',rl($d['indications']));
-    if(!empty($d['dosageForms'])) $html.=sec('Dosage Forms','<p class="text-gray-700 text-sm">'.h(implode(', ',$d['dosageForms'])).'</p>');
-    if(!empty($d['adultDosing'])) $html.=sec('Adult Dosing','<p class="text-gray-700 text-sm">'.h($d['adultDosing']).'</p>');
-    if(!empty($d['pediatricDosing'])) $html.=sec('Pediatric Dosing','<p class="text-gray-700 text-sm">'.h($d['pediatricDosing']).'</p>');
-    if(!empty($d['renalAdjustment'])) $html.=sec('Renal Adjustment','<p class="text-amber-700 text-sm">'.h($d['renalAdjustment']).'</p>');
-    if(!empty($d['hepaticAdjustment'])) $html.=sec('Hepatic Adjustment','<p class="text-amber-700 text-sm">'.h($d['hepaticAdjustment']).'</p>');
-    if(!empty($d['administration'])) $html.=sec('Administration','<p class="text-gray-700 text-sm">'.h($d['administration']).'</p>');
-    if(!empty($d['adverseReactions'])){$html.=sec('Adverse Reactions','');foreach($d['adverseReactions'] as $ar)$html.='<div class="border border-gray-100 rounded-xl p-3 mb-2"><div class="flex items-center justify-between"><span class="text-xs font-bold text-gray-400 uppercase">'.h($ar['system']??'').'</span><span class="text-xs text-gray-500">'.h($ar['frequency']??'').'</span></div><p class="text-sm text-gray-700 mt-1">'.h($ar['reactions']??'').'</p></div>';}
-    if(!empty($d['contraindications'])) $html.=sec('Contraindications',rl($d['contraindications'],'#dc2626'));
-    if(!empty($d['clinicalWarnings'])) $html.=sec('Warnings',rl($d['clinicalWarnings'],'#dc2626'));
-    if(!empty($d['drugInteractions'])) $html.=sec('Drug Interactions',rl($d['drugInteractions'],'#ea580c'));
-    if(!empty($d['pregnancyCategory'])) $html.=sec('Pregnancy Category','<p class="text-gray-700 text-sm">'.h($d['pregnancyCategory']).'</p>');
-    if(!empty($d['lactationSafety'])) $html.=sec('Lactation Safety','<p class="text-gray-700 text-sm">'.h($d['lactationSafety']).'</p>');
-    if(!empty($d['monitoringParameters'])) $html.=sec('Monitoring',rl($d['monitoringParameters'],'#7c3aed'));
-    if(!empty($d['pharmacokinetics'])) $html.=sec('Pharmacokinetics','<p class="text-gray-700 text-sm">'.h($d['pharmacokinetics']).'</p>');
-    if(!empty($d['patientEducation'])) $html.='<div class="mt-4 bg-blue-50 rounded-xl p-3 text-sm text-blue-800"><strong>Patient Education:</strong> '.h($d['patientEducation']).'</div>';
+    if(!empty($d['dosageForms'])) $html.=sec('Dosage Forms','<span class="r-value">'.h(implode(', ',$d['dosageForms'])).'</span>');
+    if(!empty($d['adultDosing'])) $html.=sec('Adult Dosing','<span class="r-value">'.h($d['adultDosing']).'</span>');
+    if(!empty($d['pediatricDosing'])) $html.=sec('Pediatric Dosing','<span class="r-value">'.h($d['pediatricDosing']).'</span>');
+    if(!empty($d['renalAdjustment'])) $html.=sec('Renal Adjustment','<span class="r-value">'.h($d['renalAdjustment']).'</span>');
+    if(!empty($d['hepaticAdjustment'])) $html.=sec('Hepatic Adjustment','<span class="r-value">'.h($d['hepaticAdjustment']).'</span>');
+    if(!empty($d['administration'])) $html.=sec('Administration','<span class="r-value">'.h($d['administration']).'</span>');
+    if(!empty($d['adverseReactions'])){$ar='';foreach($d['adverseReactions'] as $arx)$ar.='<div style="margin-bottom:6px"><span class="badge badge-blue">'.h($arx['system']??'').'</span> <span class="r-value-sm">'.h($arx['frequency']??'').'</span><div class="r-value">'.h($arx['reactions']??'').'</div></div>';$html.=sec('Adverse Reactions',$ar);}
+    if(!empty($d['contraindications'])) $html.=sec('Contraindications',rl($d['contraindications']));
+    if(!empty($d['clinicalWarnings'])) $html.=sec('Warnings',rl($d['clinicalWarnings']));
+    if(!empty($d['drugInteractions'])) $html.=sec('Drug Interactions',rl($d['drugInteractions']));
+    if(!empty($d['pregnancyCategory'])) $html.=sec('Pregnancy Category','<span class="r-value">'.h($d['pregnancyCategory']).'</span>');
+    if(!empty($d['lactationSafety'])) $html.=sec('Lactation Safety','<span class="r-value">'.h($d['lactationSafety']).'</span>');
+    if(!empty($d['monitoringParameters'])) $html.=sec('Monitoring',rl($d['monitoringParameters']));
+    if(!empty($d['pharmacokinetics'])) $html.=sec('Pharmacokinetics','<span class="r-value">'.h($d['pharmacokinetics']).'</span>');
+    if(!empty($d['patientEducation'])) $html.=sec('Patient Education','<span class="r-value">'.h($d['patientEducation']).'</span>');
+    // Augment with DailyMed FDA label data
+    $dm = fetchDailyMedLabel($drug);
+    if ($dm['boxedWarning']) $html.=sec('FDA Boxed Warning','<div class="r-alert r-alert-red"><div style="white-space:pre-wrap;font-size:12px">'.h($dm['boxedWarning']).'</div></div>');
+    if ($dm['indications']) $html.=sec('FDA Indications (DailyMed)','<div style="white-space:pre-wrap;font-size:12px;color:var(--slate3)">'.h($dm['indications']).'</div>');
+    if ($dm['warnings']) $html.=sec('FDA Warnings &amp; Precautions (DailyMed)','<div style="white-space:pre-wrap;font-size:12px;color:var(--slate3)">'.h($dm['warnings']).'</div>');
     echo json_encode(['html'=>$html]); break;
 
-// ── INTERACTION CHECKER
+// INTERACTION CHECKER
 case 'interaction-checker':
     $drugs=array_filter(array_map('trim',$body['drugs']??[]));
-    if(count($drugs)<2){echo json_encode(['html'=>'<p class="text-red-500">Enter at least 2 drugs.</p>']);exit;}
+    if(count($drugs)<2){echo json_encode(['html'=>alert('red','Enter at least 2 drugs.')]);exit;}
     $dl=implode(', ',$drugs);
     $d=gemini("Drug interactions for: {$dl}. Return ONLY JSON: {\"interactions\":[{\"drugs\":[\"A\",\"B\"],\"severity\":\"high|moderate|low\",\"description\":\"str\",\"mechanism\":\"str\",\"clinicalSignificance\":\"str\",\"onset\":\"str\",\"management\":\"str\"}],\"overallRisk\":\"high|moderate|low\",\"summary\":\"str\",\"riskFactors\":[\"str\"],\"monitoringRecommendation\":\"str\",\"patientManagement\":\"str\",\"alternativeCombinations\":[\"str\"]}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<div class="flex items-center gap-2 mb-4"><p class="text-sm font-semibold text-gray-600">Overall Risk:</p>'.bdg($d['overallRisk']??'low').'</div>';
-    if(!empty($d['summary'])) $html.=sec('Summary','<p class="text-gray-700 text-sm">'.h($d['summary']).'</p>');
-    if(!empty($d['riskFactors'])) $html.=sec('Risk Factors',rl($d['riskFactors'],'#ea580c'));
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="margin-bottom:10px"><strong>Overall Risk:</strong> '.bdg($d['overallRisk']??'low').'</div>';
+    if(!empty($d['summary'])) $html.=sec('Summary','<span class="r-value">'.h($d['summary']).'</span>');
+    if(!empty($d['riskFactors'])) $html.=sec('Risk Factors',rl($d['riskFactors']));
     foreach(($d['interactions']??[]) as $ix){
-        $html.='<div class="border border-gray-100 rounded-xl p-4 mb-3"><div class="flex items-center gap-2 mb-2"><span class="font-semibold text-gray-900 text-sm">'.h(implode(' + ',$ix['drugs']??[])).'</span>'.bdg($ix['severity']??'').'</div><p class="text-gray-600 text-sm mb-1">'.h($ix['description']??'').'</p>';
-        if(!empty($ix['mechanism'])) $html.='<p class="text-xs text-gray-500 mt-1"><strong>Mechanism:</strong> '.h($ix['mechanism']).'</p>';
-        if(!empty($ix['clinicalSignificance'])) $html.='<p class="text-xs text-gray-500"><strong>Significance:</strong> '.h($ix['clinicalSignificance']).'</p>';
-        if(!empty($ix['onset'])) $html.='<p class="text-xs text-gray-500"><strong>Onset:</strong> '.h($ix['onset']).'</p>';
-        if(!empty($ix['management'])) $html.='<p class="text-xs text-blue-700 bg-blue-50 rounded-lg p-2 mt-2"><strong>Management:</strong> '.h($ix['management']).'</p>';
-        $html.='</div>';
+        $html.='<div class="r-section"><div class="r-section-header no-collapse"><span class="r-section-title">'.h(implode(' + ',$ix['drugs']??[])).'</span>'.bdg($ix['severity']??'').'</div><div class="r-section-body"><span class="r-value">'.h($ix['description']??'').'</span>';
+        if(!empty($ix['mechanism'])) $html.='<div class="r-field"><span class="r-label">Mechanism</span><span class="r-value-sm">'.h($ix['mechanism']).'</span></div>';
+        if(!empty($ix['clinicalSignificance'])) $html.='<div class="r-field"><span class="r-label">Significance</span><span class="r-value-sm">'.h($ix['clinicalSignificance']).'</span></div>';
+        if(!empty($ix['onset'])) $html.='<div class="r-field"><span class="r-label">Onset</span><span class="r-value-sm">'.h($ix['onset']).'</span></div>';
+        if(!empty($ix['management'])) $html.='<div class="r-field"><span class="r-label">Management</span><span class="r-value-sm">'.h($ix['management']).'</span></div>';
+        $html.='</div></div>';
     }
-    if(!empty($d['monitoringRecommendation'])) $html.=sec('Monitoring Recommendation','<p class="text-gray-700 text-sm">'.h($d['monitoringRecommendation']).'</p>');
-    if(!empty($d['patientManagement'])) $html.=sec('Patient Management','<p class="text-gray-700 text-sm">'.h($d['patientManagement']).'</p>');
-    if(!empty($d['alternativeCombinations'])) $html.=sec('Alternative Combinations',rl($d['alternativeCombinations'],'#2563EB'));
+    if(!empty($d['monitoringRecommendation'])) $html.=sec('Monitoring Recommendation','<span class="r-value">'.h($d['monitoringRecommendation']).'</span>');
+    if(!empty($d['patientManagement'])) $html.=sec('Patient Management','<span class="r-value">'.h($d['patientManagement']).'</span>');
+    if(!empty($d['alternativeCombinations'])) $html.=sec('Alternative Combinations',rl($d['alternativeCombinations']));
     echo json_encode(['html'=>$html]); break;
 
-// ── DOSE CALCULATOR
+// DOSE CALCULATOR
 case 'dose-calculator':
     $d=gemini("Dose for: ".($body['drug']??'').", weight ".($body['weight']??'')."kg, age ".($body['age']??'').", indication: ".($body['indication']??'').", renal: ".($body['renal']??'Normal').". Return ONLY JSON: {\"recommendedDose\":\"str\",\"frequency\":\"str\",\"route\":\"str\",\"duration\":\"str\",\"renalAdjustment\":\"str\",\"hepaticAdjustment\":\"str\",\"pediatricDose\":\"str\",\"loadingDose\":\"str\",\"maxDose\":\"str\",\"bsaDose\":\"str\",\"therapeuticDrugMonitoring\":\"str\",\"administrationGuidance\":\"str\",\"precautions\":[\"str\"],\"monitoringParameters\":[\"str\"],\"warnings\":[\"str\"],\"notes\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html=sec('Recommended Dose','<p class="text-2xl font-black text-emerald-700">'.h($d['recommendedDose']??'').'</p>');
-    $html.=sec('Frequency','<p class="text-gray-700 text-sm">'.h($d['frequency']??'').'</p>');
-    $html.=sec('Route','<p class="text-gray-700 text-sm">'.h($d['route']??'').'</p>');
-    if(!empty($d['duration'])) $html.=sec('Duration','<p class="text-gray-700 text-sm">'.h($d['duration']).'</p>');
-    if(!empty($d['loadingDose'])) $html.=sec('Loading Dose','<p class="text-gray-700 text-sm">'.h($d['loadingDose']).'</p>');
-    if(!empty($d['pediatricDose'])) $html.=sec('Pediatric Dose','<p class="text-gray-700 text-sm">'.h($d['pediatricDose']).'</p>');
-    if(!empty($d['bsaDose'])) $html.=sec('BSA-Based Dose','<p class="text-gray-700 text-sm">'.h($d['bsaDose']).'</p>');
-    if(!empty($d['maxDose'])) $html.=sec('Max Dose','<p class="text-gray-700 text-sm">'.h($d['maxDose']).'</p>');
-    if(!empty($d['renalAdjustment'])) $html.=sec('Renal Adjustment','<p class="text-amber-700 text-sm">'.h($d['renalAdjustment']).'</p>');
-    if(!empty($d['hepaticAdjustment'])) $html.=sec('Hepatic Adjustment','<p class="text-amber-700 text-sm">'.h($d['hepaticAdjustment']).'</p>');
-    if(!empty($d['therapeuticDrugMonitoring'])) $html.=sec('Therapeutic Drug Monitoring','<p class="text-gray-700 text-sm">'.h($d['therapeuticDrugMonitoring']).'</p>');
-    if(!empty($d['administrationGuidance'])) $html.=sec('Administration Guidance','<p class="text-gray-700 text-sm">'.h($d['administrationGuidance']).'</p>');
-    if(!empty($d['precautions'])) $html.=sec('Precautions',rl($d['precautions'],'#ea580c'));
-    if(!empty($d['monitoringParameters'])) $html.=sec('Monitoring',rl($d['monitoringParameters'],'#7c3aed'));
-    if(!empty($d['warnings'])) $html.=sec('Warnings',rl($d['warnings'],'#dc2626'));
-    if(!empty($d['notes'])) $html.=sec('Notes','<p class="text-gray-700 text-sm">'.h($d['notes']).'</p>');
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div class="r-value-lg" style="margin-bottom:8px">'.h($d['recommendedDose']??'').'</div>';
+    $html.=sec('Frequency','<span class="r-value">'.h($d['frequency']??'').'</span>');
+    $html.=sec('Route','<span class="r-value">'.h($d['route']??'').'</span>');
+    if(!empty($d['duration'])) $html.=sec('Duration','<span class="r-value">'.h($d['duration']).'</span>');
+    if(!empty($d['loadingDose'])) $html.=sec('Loading Dose','<span class="r-value">'.h($d['loadingDose']).'</span>');
+    if(!empty($d['pediatricDose'])) $html.=sec('Pediatric Dose','<span class="r-value">'.h($d['pediatricDose']).'</span>');
+    if(!empty($d['bsaDose'])) $html.=sec('BSA-Based Dose','<span class="r-value">'.h($d['bsaDose']).'</span>');
+    if(!empty($d['maxDose'])) $html.=sec('Max Dose','<span class="r-value">'.h($d['maxDose']).'</span>');
+    if(!empty($d['renalAdjustment'])) $html.=sec('Renal Adjustment','<span class="r-value">'.h($d['renalAdjustment']).'</span>');
+    if(!empty($d['hepaticAdjustment'])) $html.=sec('Hepatic Adjustment','<span class="r-value">'.h($d['hepaticAdjustment']).'</span>');
+    if(!empty($d['therapeuticDrugMonitoring'])) $html.=sec('Therapeutic Drug Monitoring','<span class="r-value">'.h($d['therapeuticDrugMonitoring']).'</span>');
+    if(!empty($d['administrationGuidance'])) $html.=sec('Administration Guidance','<span class="r-value">'.h($d['administrationGuidance']).'</span>');
+    if(!empty($d['precautions'])) $html.=sec('Precautions',rl($d['precautions']));
+    if(!empty($d['monitoringParameters'])) $html.=sec('Monitoring',rl($d['monitoringParameters']));
+    if(!empty($d['warnings'])) $html.=sec('Warnings',rl($d['warnings']));
+    if(!empty($d['notes'])) $html.=sec('Notes','<span class="r-value">'.h($d['notes']).'</span>');
     echo json_encode(['html'=>$html]); break;
 
-// ── PREGNANCY SAFETY
+// PREGNANCY SAFETY
 case 'pregnancy-safety':
-    $d=gemini("Pregnancy safety for: ".($body['drug']??'').", trimester: ".($body['trimester']??'1').". Return ONLY JSON: {\"fdaCategory\":\"A|B|C|D|X|N\",\"safety\":\"Safe|Caution|Avoid\",\"risk\":\"str\",\"fdaCategoryRationale\":\"str\",\"mechanismOfAction\":\"str\",\"trimesterSpecific\":\"str\",\"animalData\":\"str\",\"humanData\":\"str\",\"lactationSafety\":\"str\",\"breastfeedingRecommendation\":\"str\",\"maleReproductiveEffects\":\"str\",\"preconceptionCounseling\":\"str\",\"pregnancyRegistry\":\"str\",\"alternatives\":[\"str\"],\"recommendation\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $cats=['A'=>'text-emerald-700','B'=>'text-emerald-600','C'=>'text-amber-600','D'=>'text-red-600','X'=>'text-red-700'];
-    $cat=$d['fdaCategory']??'N'; $cc=$cats[$cat]??'text-gray-700';
-    $html='<div class="flex items-center gap-4 mb-4"><div class="text-center"><p class="text-xs text-gray-400 mb-1">FDA</p><p class="text-4xl font-black '.$cc.'">'.$cat.'</p></div><div class="flex-1">'.bdg($d['safety']??'').'<p class="text-gray-700 text-sm mt-2">'.h($d['risk']??'').'</p></div></div>';
-    if(!empty($d['fdaCategoryRationale'])) $html.=sec('FDA Category Rationale','<p class="text-gray-700 text-sm">'.h($d['fdaCategoryRationale']).'</p>');
-    if(!empty($d['trimesterSpecific'])) $html.=sec('Trimester Notes','<p class="text-gray-700 text-sm">'.h($d['trimesterSpecific']).'</p>');
-    if(!empty($d['mechanismOfAction'])) $html.=sec('Teratogenic Mechanism','<p class="text-gray-700 text-sm">'.h($d['mechanismOfAction']).'</p>');
-    if(!empty($d['animalData'])) $html.=sec('Animal Data','<p class="text-gray-700 text-sm">'.h($d['animalData']).'</p>');
-    if(!empty($d['humanData'])) $html.=sec('Human Data','<p class="text-gray-700 text-sm">'.h($d['humanData']).'</p>');
-    if(!empty($d['lactationSafety'])) $html.=sec('Lactation','<p class="text-gray-700 text-sm">'.h($d['lactationSafety']).'</p>');
-    if(!empty($d['breastfeedingRecommendation'])) $html.=sec('Breastfeeding','<p class="text-gray-700 text-sm">'.h($d['breastfeedingRecommendation']).'</p>');
-    if(!empty($d['maleReproductiveEffects'])) $html.=sec('Male Reproductive Effects','<p class="text-gray-700 text-sm">'.h($d['maleReproductiveEffects']).'</p>');
-    if(!empty($d['preconceptionCounseling'])) $html.=sec('Preconception Counseling','<p class="text-gray-700 text-sm">'.h($d['preconceptionCounseling']).'</p>');
-    if(!empty($d['pregnancyRegistry'])) $html.=sec('Pregnancy Registry','<p class="text-gray-700 text-sm">'.h($d['pregnancyRegistry']).'</p>');
+    $d=gemini("Pregnancy safety for: ".($body['drug']??'').", trimester: ".($body['trimester']??'1').". Return ONLY JSON: {\"fdaCategory\":\"A|B|C|D|X|N\",\"safety\":\"Safe|Caution|Avoid\",\"risk\":\"str\",\"fdaCategoryRationale\":\"str\",\"trimesterSpecific\":\"str\",\"mechanismOfAction\":\"str\",\"animalData\":\"str\",\"humanData\":\"str\",\"lactationSafety\":\"str\",\"breastfeedingRecommendation\":\"str\",\"maleReproductiveEffects\":\"str\",\"preconceptionCounseling\":\"str\",\"pregnancyRegistry\":\"str\",\"alternatives\":[\"str\"],\"recommendation\":\"str\"}");
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $cat=$d['fdaCategory']??'N'; $cc=['A'=>'#059669','B'=>'#059669','C'=>'#d97706','D'=>'#dc2626','X'=>'#dc2626'];
+    $html='<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="text-align:center"><span class="r-label">FDA</span><div style="font-size:28px;font-weight:900;color:'.($cc[$cat]??'#64748b').'">'.$cat.'</div></div>'.bdg($d['safety']??'').'</div>';
+    if(!empty($d['risk'])) $html.=sec('Risk Assessment','<span class="r-value">'.h($d['risk']).'</span>');
+    if(!empty($d['fdaCategoryRationale'])) $html.=sec('FDA Category Rationale','<span class="r-value">'.h($d['fdaCategoryRationale']).'</span>');
+    if(!empty($d['trimesterSpecific'])) $html.=sec('Trimester Notes','<span class="r-value">'.h($d['trimesterSpecific']).'</span>');
+    if(!empty($d['mechanismOfAction'])) $html.=sec('Teratogenic Mechanism','<span class="r-value">'.h($d['mechanismOfAction']).'</span>');
+    if(!empty($d['animalData'])) $html.=sec('Animal Data','<span class="r-value">'.h($d['animalData']).'</span>');
+    if(!empty($d['humanData'])) $html.=sec('Human Data','<span class="r-value">'.h($d['humanData']).'</span>');
+    if(!empty($d['lactationSafety'])) $html.=sec('Lactation','<span class="r-value">'.h($d['lactationSafety']).'</span>');
+    if(!empty($d['breastfeedingRecommendation'])) $html.=sec('Breastfeeding','<span class="r-value">'.h($d['breastfeedingRecommendation']).'</span>');
+    if(!empty($d['maleReproductiveEffects'])) $html.=sec('Male Reproductive Effects','<span class="r-value">'.h($d['maleReproductiveEffects']).'</span>');
+    if(!empty($d['preconceptionCounseling'])) $html.=sec('Preconception Counseling','<span class="r-value">'.h($d['preconceptionCounseling']).'</span>');
+    if(!empty($d['pregnancyRegistry'])) $html.=sec('Pregnancy Registry','<span class="r-value">'.h($d['pregnancyRegistry']).'</span>');
     if(!empty($d['alternatives'])) $html.=sec('Safer Alternatives',rl($d['alternatives']));
-    if(!empty($d['recommendation'])) $html.='<div class="bg-blue-50 rounded-xl p-3 text-sm text-blue-800 mt-2">'.h($d['recommendation']).'</div>';
+    if(!empty($d['recommendation'])) $html.=alert('blue',h($d['recommendation']));
     echo json_encode(['html'=>$html]); break;
 
-// ── G6PD CHECKER
+// G6PD CHECKER
 case 'g6pd-checker':
     $drug=$body['drug']??'';
     $d=gemini("G6PD safety for: {$drug}. Return ONLY JSON: {\"riskLevel\":\"Safe|Low Risk|Moderate Risk|High Risk|Contraindicated\",\"classification\":\"str\",\"description\":\"str\",\"mechanism\":\"str\",\"hemolyticPotential\":\"str\",\"onsetOfHemolysis\":\"str\",\"severityOfReaction\":\"str\",\"monitoringParameters\":[\"str\"],\"geneticCounseling\":\"str\",\"patientEducation\":\"str\",\"recommendation\":\"str\",\"alternatives\":[\"str\"]}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<div class="mb-4">'.bdg($d['riskLevel']??'Unknown').'</div>';
-    $html.=sec('Classification','<p class="text-gray-700 text-sm font-semibold">'.h($d['classification']??'').'</p>');
-    $html.=sec('Description','<p class="text-gray-700 text-sm">'.h($d['description']??'').'</p>');
-    if(!empty($d['mechanism'])) $html.=sec('Mechanism','<p class="text-gray-700 text-sm">'.h($d['mechanism']).'</p>');
-    if(!empty($d['hemolyticPotential'])) $html.=sec('Hemolytic Potential','<p class="text-gray-700 text-sm">'.h($d['hemolyticPotential']).'</p>');
-    if(!empty($d['onsetOfHemolysis'])) $html.=sec('Onset of Hemolysis','<p class="text-gray-700 text-sm">'.h($d['onsetOfHemolysis']).'</p>');
-    if(!empty($d['severityOfReaction'])) $html.=sec('Severity of Reaction','<p class="text-gray-700 text-sm">'.h($d['severityOfReaction']).'</p>');
-    if(!empty($d['monitoringParameters'])) $html.=sec('Monitoring',rl($d['monitoringParameters'],'#7c3aed'));
-    if(!empty($d['geneticCounseling'])) $html.=sec('Genetic Counseling','<p class="text-gray-700 text-sm">'.h($d['geneticCounseling']).'</p>');
-    if(!empty($d['patientEducation'])) $html.='<div class="mt-4 bg-blue-50 rounded-xl p-3 text-sm text-blue-800"><strong>Patient Education:</strong> '.h($d['patientEducation']).'</div>';
-    $html.=sec('Recommendation','<p class="text-gray-700 text-sm font-medium">'.h($d['recommendation']??'').'</p>');
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="margin-bottom:10px">'.bdg($d['riskLevel']??'Unknown').'</div>';
+    if(!empty($d['classification'])) $html.=sec('Classification','<span class="r-value">'.h($d['classification']).'</span>');
+    if(!empty($d['description'])) $html.=sec('Description','<span class="r-value">'.h($d['description']).'</span>');
+    if(!empty($d['mechanism'])) $html.=sec('Mechanism','<span class="r-value">'.h($d['mechanism']).'</span>');
+    if(!empty($d['hemolyticPotential'])) $html.=sec('Hemolytic Potential','<span class="r-value">'.h($d['hemolyticPotential']).'</span>');
+    if(!empty($d['onsetOfHemolysis'])) $html.=sec('Onset of Hemolysis','<span class="r-value">'.h($d['onsetOfHemolysis']).'</span>');
+    if(!empty($d['severityOfReaction'])) $html.=sec('Severity of Reaction','<span class="r-value">'.h($d['severityOfReaction']).'</span>');
+    if(!empty($d['monitoringParameters'])) $html.=sec('Monitoring',rl($d['monitoringParameters']));
+    if(!empty($d['geneticCounseling'])) $html.=sec('Genetic Counseling','<span class="r-value">'.h($d['geneticCounseling']).'</span>');
+    if(!empty($d['patientEducation'])) $html.=sec('Patient Education','<span class="r-value">'.h($d['patientEducation']).'</span>');
+    if(!empty($d['recommendation'])) $html.=sec('Recommendation','<span class="r-value">'.h($d['recommendation']).'</span>');
     if(!empty($d['alternatives'])) $html.=sec('Alternatives',rl($d['alternatives']));
     echo json_encode(['html'=>$html]); break;
 
-// ── DRUG COMPARISON
+// DRUG COMPARISON
 case 'drug-comparison':
     $d=gemini("Compare drugs: ".($body['drugA']??'')." vs ".($body['drugB']??'').". Return ONLY JSON: {\"summary\":\"str\",\"mechanismOfActionComparison\":\"str\",\"indicationsOverlap\":\"str\",\"contraindicationDifferences\":\"str\",\"monitoringRequirements\":\"str\",\"specialPopulations\":\"str\",\"guidelinePreference\":\"str\",\"comparison\":{\"efficacy\":{\"winner\":\"str\",\"reasoning\":\"str\"},\"safety\":{\"winner\":\"str\",\"reasoning\":\"str\"},\"cost\":{\"winner\":\"str\",\"reasoning\":\"str\"},\"convenience\":{\"winner\":\"str\",\"reasoning\":\"str\"}},\"considerations\":[\"str\"],\"recommendation\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html=sec('Summary','<p class="text-gray-700 text-sm">'.h($d['summary']??'').'</p>');
-    if(!empty($d['mechanismOfActionComparison'])) $html.=sec('Mechanism Comparison','<p class="text-gray-700 text-sm">'.h($d['mechanismOfActionComparison']).'</p>');
-    if(!empty($d['indicationsOverlap'])) $html.=sec('Indications Overlap','<p class="text-gray-700 text-sm">'.h($d['indicationsOverlap']).'</p>');
-    if(!empty($d['contraindicationDifferences'])) $html.=sec('Contraindication Differences','<p class="text-gray-700 text-sm">'.h($d['contraindicationDifferences']).'</p>');
-    if(!empty($d['monitoringRequirements'])) $html.=sec('Monitoring Requirements','<p class="text-gray-700 text-sm">'.h($d['monitoringRequirements']).'</p>');
-    if(!empty($d['specialPopulations'])) $html.=sec('Special Populations','<p class="text-gray-700 text-sm">'.h($d['specialPopulations']).'</p>');
-    if(!empty($d['guidelinePreference'])) $html.=sec('Guideline Preference','<p class="text-gray-700 text-sm">'.h($d['guidelinePreference']).'</p>');
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html=sec('Summary','<span class="r-value">'.h($d['summary']??'').'</span>');
+    if(!empty($d['mechanismOfActionComparison'])) $html.=sec('Mechanism Comparison','<span class="r-value">'.h($d['mechanismOfActionComparison']).'</span>');
+    if(!empty($d['indicationsOverlap'])) $html.=sec('Indications Overlap','<span class="r-value">'.h($d['indicationsOverlap']).'</span>');
+    if(!empty($d['contraindicationDifferences'])) $html.=sec('Contraindication Differences','<span class="r-value">'.h($d['contraindicationDifferences']).'</span>');
+    if(!empty($d['monitoringRequirements'])) $html.=sec('Monitoring Requirements','<span class="r-value">'.h($d['monitoringRequirements']).'</span>');
+    if(!empty($d['specialPopulations'])) $html.=sec('Special Populations','<span class="r-value">'.h($d['specialPopulations']).'</span>');
+    if(!empty($d['guidelinePreference'])) $html.=sec('Guideline Preference','<span class="r-value">'.h($d['guidelinePreference']).'</span>');
     if(!empty($d['comparison'])){
-        $html.='<div class="grid grid-cols-2 gap-3 my-4">';
-        foreach($d['comparison'] as $asp=>$data) $html.='<div class="border border-gray-100 rounded-xl p-3"><p class="text-xs font-bold text-gray-400 uppercase mb-1">'.h(ucfirst($asp)).'</p><p class="font-bold text-gray-900 text-sm">'.h($data['winner']??'').'</p><p class="text-xs text-gray-500 mt-1">'.h($data['reasoning']??'').'</p></div>';
+        $html.='<div class="r-grid" style="margin-bottom:10px">';
+        foreach($d['comparison'] as $asp=>$data) $html.='<div class="r-field"><span class="r-label">'.h(ucfirst($asp)).'</span><div><strong>'.h($data['winner']??'').'</strong></div><span class="r-value-sm">'.h($data['reasoning']??'').'</span></div>';
         $html.='</div>';
     }
     if(!empty($d['considerations'])) $html.=sec('Considerations',rl($d['considerations']));
-    if(!empty($d['recommendation'])) $html.='<div class="bg-emerald-50 rounded-xl p-3 text-sm text-emerald-800">'.h($d['recommendation']).'</div>';
+    if(!empty($d['recommendation'])) $html.=alert('green',h($d['recommendation']));
     echo json_encode(['html'=>$html]); break;
 
-// ── CLINICAL DECISION SUPPORT
+// CLINICAL DECISION SUPPORT
 case 'clinical-decision-support':
     $d=gemini("Clinical decision support. Symptoms: ".($body['symptoms']??'').", History: ".($body['hx']??'').". Return ONLY JSON: {\"assessment\":\"str\",\"differentialDiagnosis\":[{\"condition\":\"str\",\"probability\":\"High|Medium|Low\",\"reasoning\":\"str\"}],\"recommendedWorkup\":[\"str\"],\"managementPlan\":[\"str\"],\"urgency\":\"Emergency|Urgent|Routine\",\"referral\":\"str\",\"evidenceBasedGuidelines\":[\"str\"],\"riskFactors\":[\"str\"],\"prognosis\":\"str\",\"patientEducation\":\"str\",\"followUpTimeline\":\"str\",\"clinicalPearls\":[\"str\"]}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<div class="flex items-center gap-2 mb-4"><p class="text-sm font-semibold text-gray-600">Urgency:</p>'.bdg($d['urgency']??'routine').'</div>';
-    $html.=sec('Assessment','<p class="text-gray-700 text-sm leading-relaxed">'.h($d['assessment']??'').'</p>');
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="margin-bottom:10px"><strong>Urgency:</strong> '.bdg($d['urgency']??'routine').'</div>';
+    if(!empty($d['assessment'])) $html.=sec('Assessment','<span class="r-value">'.h($d['assessment']).'</span>');
     if(!empty($d['differentialDiagnosis'])){
-        $html.='<p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Differential Diagnosis</p>';
-        foreach($d['differentialDiagnosis'] as $dd) $html.='<div class="border-b border-gray-50 py-1.5"><div class="flex items-center justify-between"><span class="text-sm text-gray-700">'.h($dd['condition']??'').'</span>'.bdg($dd['probability']??'').'</div>'.(!empty($dd['reasoning'])?'<p class="text-xs text-gray-500 mt-0.5">'.h($dd['reasoning']).'</p>':'').'</div>';
-        $html.='<div class="mb-4"></div>';
+        $dd='';
+        foreach($d['differentialDiagnosis'] as $diag) $dd.='<div style="margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px"><strong>'.h($diag['condition']??'').'</strong>'.bdg($diag['probability']??'').'</div><span class="r-value-sm">'.h($diag['reasoning']??'').'</span></div>';
+        $html.=sec('Differential Diagnosis',$dd);
     }
-    if(!empty($d['evidenceBasedGuidelines'])) $html.=sec('Guidelines',rl($d['evidenceBasedGuidelines'],'#2563EB'));
-    if(!empty($d['riskFactors'])) $html.=sec('Risk Factors',rl($d['riskFactors'],'#ea580c'));
-    if(!empty($d['recommendedWorkup'])) $html.=sec('Workup',rl($d['recommendedWorkup'],'#2563EB'));
+    if(!empty($d['evidenceBasedGuidelines'])) $html.=sec('Guidelines',rl($d['evidenceBasedGuidelines']));
+    if(!empty($d['riskFactors'])) $html.=sec('Risk Factors',rl($d['riskFactors']));
+    if(!empty($d['recommendedWorkup'])) $html.=sec('Workup',rl($d['recommendedWorkup']));
     if(!empty($d['managementPlan'])) $html.=sec('Management',rl($d['managementPlan']));
-    if(!empty($d['prognosis'])) $html.=sec('Prognosis','<p class="text-gray-700 text-sm">'.h($d['prognosis']).'</p>');
-    if(!empty($d['followUpTimeline'])) $html.=sec('Follow-up Timeline','<p class="text-gray-700 text-sm">'.h($d['followUpTimeline']).'</p>');
-    if(!empty($d['clinicalPearls'])) $html.=sec('Clinical Pearls',rl($d['clinicalPearls'],'#7c3aed'));
-    if(!empty($d['referral'])) $html.=sec('Referral','<p class="text-gray-700 text-sm">'.h($d['referral']).'</p>');
-    if(!empty($d['patientEducation'])) $html.='<div class="mt-4 bg-blue-50 rounded-xl p-3 text-sm text-blue-800"><strong>Patient Education:</strong> '.h($d['patientEducation']).'</div>';
+    if(!empty($d['prognosis'])) $html.=sec('Prognosis','<span class="r-value">'.h($d['prognosis']).'</span>');
+    if(!empty($d['followUpTimeline'])) $html.=sec('Follow-up Timeline','<span class="r-value">'.h($d['followUpTimeline']).'</span>');
+    if(!empty($d['clinicalPearls'])) $html.=sec('Clinical Pearls',rl($d['clinicalPearls']));
+    if(!empty($d['referral'])) $html.=sec('Referral','<span class="r-value">'.h($d['referral']).'</span>');
+    if(!empty($d['patientEducation'])) $html.=sec('Patient Education','<span class="r-value">'.h($d['patientEducation']).'</span>');
     echo json_encode(['html'=>$html]); break;
 
-// ── DIAGNOSTIC CHECK
+// DIAGNOSTIC CHECK
 case 'diagnostic-check':
     $d=gemini("Diagnostic check. Patient: ".($body['age']??'').". Symptoms: ".($body['symptoms']??'').". Vitals: ".($body['vitals']??'').". Return ONLY JSON: {\"potentialConditions\":[{\"name\":\"str\",\"probability\":\"High|Medium|Low\",\"reasoning\":\"str\"}],\"recommendedTests\":[\"str\"],\"recommendedImaging\":[\"str\"],\"laboratoryTests\":[\"str\"],\"redFlags\":[\"str\"],\"nextSteps\":\"str\",\"diagnosticCriteria\":\"str\",\"riskStratification\":\"str\",\"specialistConsultation\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='';
-    if(!empty($d['redFlags'])) $html.='<div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4">'.sec('&#9888; Red Flags',rl($d['redFlags'],'#dc2626')).'</div>';
-    $html.='<p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Potential Conditions</p>';
-    foreach(($d['potentialConditions']??[]) as $c) $html.='<div class="border border-gray-100 rounded-xl p-3 mb-2"><div class="flex items-center justify-between mb-1"><span class="font-semibold text-gray-900 text-sm">'.h($c['name']??'').'</span>'.bdg($c['probability']??'').'</div><p class="text-xs text-gray-500">'.h($c['reasoning']??'').'</p></div>';
-    if(!empty($d['recommendedTests'])) $html.=sec('Tests',rl($d['recommendedTests'],'#2563EB'));
-    if(!empty($d['recommendedImaging'])) $html.=sec('Imaging',rl($d['recommendedImaging'],'#7c3aed'));
-    if(!empty($d['laboratoryTests'])) $html.=sec('Laboratory Tests',rl($d['laboratoryTests'],'#0891b2'));
-    if(!empty($d['diagnosticCriteria'])) $html.=sec('Diagnostic Criteria','<p class="text-gray-700 text-sm">'.h($d['diagnosticCriteria']).'</p>');
-    if(!empty($d['riskStratification'])) $html.=sec('Risk Stratification','<p class="text-gray-700 text-sm">'.h($d['riskStratification']).'</p>');
-    if(!empty($d['specialistConsultation'])) $html.=sec('Specialist Consultation','<p class="text-gray-700 text-sm">'.h($d['specialistConsultation']).'</p>');
-    if(!empty($d['nextSteps'])) $html.=sec('Next Steps','<p class="text-gray-700 text-sm">'.h($d['nextSteps']).'</p>');
+    if(!empty($d['redFlags'])) $html.=alert('red','<strong>Red Flags</strong>'.rl($d['redFlags']));
+    if(!empty($d['potentialConditions'])){
+        $pc='';
+        foreach($d['potentialConditions'] as $c) $pc.='<div style="margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px"><strong>'.h($c['name']??'').'</strong>'.bdg($c['probability']??'').'</div><span class="r-value-sm">'.h($c['reasoning']??'').'</span></div>';
+        $html.=sec('Potential Conditions',$pc);
+    }
+    if(!empty($d['recommendedTests'])) $html.=sec('Tests',rl($d['recommendedTests']));
+    if(!empty($d['recommendedImaging'])) $html.=sec('Imaging',rl($d['recommendedImaging']));
+    if(!empty($d['laboratoryTests'])) $html.=sec('Laboratory Tests',rl($d['laboratoryTests']));
+    if(!empty($d['diagnosticCriteria'])) $html.=sec('Diagnostic Criteria','<span class="r-value">'.h($d['diagnosticCriteria']).'</span>');
+    if(!empty($d['riskStratification'])) $html.=sec('Risk Stratification','<span class="r-value">'.h($d['riskStratification']).'</span>');
+    if(!empty($d['specialistConsultation'])) $html.=sec('Specialist Consultation','<span class="r-value">'.h($d['specialistConsultation']).'</span>');
+    if(!empty($d['nextSteps'])) $html.=sec('Next Steps','<span class="r-value">'.h($d['nextSteps']).'</span>');
     echo json_encode(['html'=>$html]); break;
 
-// ── SYMPTOM CHECKER
+// SYMPTOM CHECKER
 case 'symptom-checker':
     $d=gemini("Symptom checker triage. Patient: ".($body['age']??'')."yr ".($body['gender']??'').". Symptoms: ".($body['symptoms']??'').". Return ONLY JSON: {\"triageLevel\":\"emergency|urgent|routine|self-care\",\"summary\":\"str\",\"potentialCauses\":[\"str\"],\"durationOfSymptoms\":\"str\",\"associatedSymptoms\":[\"str\"],\"riskFactors\":[\"str\"],\"careAdvice\":[\"str\"],\"homeCareMeasures\":[\"str\"],\"urgentCareIndicators\":[\"str\"],\"emergencyIndicators\":[\"str\"],\"demographicConsiderations\":\"str\",\"whenToSeekCare\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<div class="flex items-center gap-2 mb-4"><p class="text-sm font-semibold text-gray-600">Triage Level:</p>'.bdg($d['triageLevel']??'routine').'</div>';
-    $html.=sec('Summary','<p class="text-gray-700 text-sm">'.h($d['summary']??'').'</p>');
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="margin-bottom:10px"><strong>Triage Level:</strong> '.bdg($d['triageLevel']??'routine').'</div>';
+    if(!empty($d['summary'])) $html.=sec('Summary','<span class="r-value">'.h($d['summary']).'</span>');
     if(!empty($d['potentialCauses'])) $html.=sec('Potential Causes',rl($d['potentialCauses']));
-    if(!empty($d['durationOfSymptoms'])) $html.=sec('Duration','<p class="text-gray-700 text-sm">'.h($d['durationOfSymptoms']).'</p>');
-    if(!empty($d['associatedSymptoms'])) $html.=sec('Associated Symptoms',rl($d['associatedSymptoms'],'#7c3aed'));
-    if(!empty($d['riskFactors'])) $html.=sec('Risk Factors',rl($d['riskFactors'],'#ea580c'));
-    if(!empty($d['careAdvice'])) $html.=sec('Care Advice',rl($d['careAdvice'],'#2563EB'));
-    if(!empty($d['homeCareMeasures'])) $html.=sec('Home Care',rl($d['homeCareMeasures'],'#059669'));
-    if(!empty($d['urgentCareIndicators'])) $html.='<div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-4 mb-2"><p class="text-xs font-bold text-amber-800 uppercase mb-1">&#9888; Urgent Care Indicators</p>'.rl($d['urgentCareIndicators'],'#d97706').'</div>';
-    if(!empty($d['emergencyIndicators'])) $html.='<div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4"><p class="text-xs font-bold text-red-800 uppercase mb-1">&#9888; Emergency Indicators</p>'.rl($d['emergencyIndicators'],'#dc2626').'</div>';
-    if(!empty($d['demographicConsiderations'])) $html.=sec('Demographic Considerations','<p class="text-gray-700 text-sm">'.h($d['demographicConsiderations']).'</p>');
-    if(!empty($d['whenToSeekCare'])) $html.='<div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800 mt-2"><strong>When to seek care:</strong> '.h($d['whenToSeekCare']).'</div>';
+    if(!empty($d['durationOfSymptoms'])) $html.=sec('Duration','<span class="r-value">'.h($d['durationOfSymptoms']).'</span>');
+    if(!empty($d['associatedSymptoms'])) $html.=sec('Associated Symptoms',rl($d['associatedSymptoms']));
+    if(!empty($d['riskFactors'])) $html.=sec('Risk Factors',rl($d['riskFactors']));
+    if(!empty($d['careAdvice'])) $html.=sec('Care Advice',rl($d['careAdvice']));
+    if(!empty($d['homeCareMeasures'])) $html.=sec('Home Care',rl($d['homeCareMeasures']));
+    if(!empty($d['urgentCareIndicators'])) $html.=alert('amber','<strong>Urgent Care Indicators</strong>'.rl($d['urgentCareIndicators']));
+    if(!empty($d['emergencyIndicators'])) $html.=alert('red','<strong>Emergency Indicators</strong>'.rl($d['emergencyIndicators']));
+    if(!empty($d['demographicConsiderations'])) $html.=sec('Demographic Considerations','<span class="r-value">'.h($d['demographicConsiderations']).'</span>');
+    if(!empty($d['whenToSeekCare'])) $html.=alert('amber','<strong>When to seek care:</strong> '.h($d['whenToSeekCare']));
     echo json_encode(['html'=>$html]); break;
 
-// ── ICD-10 LOOKUP
+// ICD-10 LOOKUP
 case 'icd10-lookup':
     $d=gemini("ICD-10 codes for: \"".($body['diagnosis']??'')."\" context: ".($body['context']??'').". Return ONLY JSON: {\"mappings\":[{\"primaryCode\":\"str\",\"description\":\"str\",\"confidence\":0.9,\"reasoning\":\"str\",\"clinicalCriteria\":\"str\",\"documentationRequirements\":\"str\",\"codingGuidelines\":\"str\",\"chapterCategory\":\"str\",\"billingImplications\":\"str\",\"secondaryCodes\":[{\"code\":\"str\",\"description\":\"str\"}]}]}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='';
     foreach(($d['mappings']??[]) as $m){
         $conf=round(($m['confidence']??0)*100);
-        $html.='<div class="border border-gray-100 rounded-xl p-4 mb-3"><div class="flex items-start justify-between mb-2"><div><span class="font-black text-blue-700 text-xl">'.h($m['primaryCode']??'').'</span><span class="text-gray-500 text-sm ml-2">'.h($m['description']??'').'</span></div><span class="text-xs bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full font-bold">'.$conf.'% match</span></div>';
-        $html.='<p class="text-xs text-gray-500 mb-2">'.h($m['reasoning']??'').'</p>';
-        if(!empty($m['clinicalCriteria'])) $html.='<p class="text-xs text-gray-500 mb-1"><strong>Clinical Criteria:</strong> '.h($m['clinicalCriteria']).'</p>';
-        if(!empty($m['documentationRequirements'])) $html.='<p class="text-xs text-gray-500 mb-1"><strong>Documentation:</strong> '.h($m['documentationRequirements']).'</p>';
-        if(!empty($m['codingGuidelines'])) $html.='<p class="text-xs text-gray-500 mb-1"><strong>Coding Guidelines:</strong> '.h($m['codingGuidelines']).'</p>';
-        if(!empty($m['chapterCategory'])) $html.='<p class="text-xs text-gray-500 mb-1"><strong>Chapter:</strong> '.h($m['chapterCategory']).'</p>';
-        if(!empty($m['billingImplications'])) $html.='<p class="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1 mt-1"><strong>Billing:</strong> '.h($m['billingImplications']).'</p>';
-        if(!empty($m['secondaryCodes'])){$html.='<div class="border-t border-gray-50 pt-2 mt-2"><p class="text-xs text-gray-400 mb-1">Secondary codes:</p>';foreach($m['secondaryCodes'] as $sc) $html.='<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mr-1">'.h($sc['code']).' — '.h($sc['description']).'</span>';$html.='</div>';}
-        $html.='</div>';
+        $html.='<div class="r-section"><div class="r-section-header no-collapse"><span class="r-section-title" style="font-size:18px;color:var(--blue)">'.h($m['primaryCode']??'').'</span><span class="badge badge-blue">'.$conf.'%</span></div><div class="r-section-body">';
+        $html.='<span class="r-value">'.h($m['description']??'').'</span>';
+        $html.='<span class="r-value-sm">'.h($m['reasoning']??'').'</span>';
+        if(!empty($m['clinicalCriteria'])) $html.='<div class="r-field"><span class="r-label">Clinical Criteria</span><span class="r-value-sm">'.h($m['clinicalCriteria']).'</span></div>';
+        if(!empty($m['documentationRequirements'])) $html.='<div class="r-field"><span class="r-label">Documentation</span><span class="r-value-sm">'.h($m['documentationRequirements']).'</span></div>';
+        if(!empty($m['codingGuidelines'])) $html.='<div class="r-field"><span class="r-label">Coding Guidelines</span><span class="r-value-sm">'.h($m['codingGuidelines']).'</span></div>';
+        if(!empty($m['chapterCategory'])) $html.='<div class="r-field"><span class="r-label">Chapter</span><span class="r-value-sm">'.h($m['chapterCategory']).'</span></div>';
+        if(!empty($m['billingImplications'])) $html.='<div class="r-field"><span class="r-label">Billing</span><span class="r-value-sm">'.h($m['billingImplications']).'</span></div>';
+        if(!empty($m['secondaryCodes'])){$sc='';foreach($m['secondaryCodes'] as $scx) $sc.='<span class="r-tag">'.h($scx['code']).' — '.h($scx['description']).'</span>';$html.='<div class="r-field"><span class="r-label">Secondary Codes</span><div class="r-tags">'.$sc.'</div></div>';}
+        $html.='</div></div>';
     }
     echo json_encode(['html'=>$html]); break;
 
-// ── SMART REPORT OIC
+// SMART REPORT OIC
 case 'smart-report-oic':
     $txt=$body['text']??''; $typ=$body['type']??'Radiology'; $mod=$body['modality']??'';
-    $d=gemini("Analyze {$typ} ({$mod}): \"{$txt}\". Return ONLY JSON: {\"studyType\":\"str\",\"clinicalFindings\":[\"str\"],\"impression\":\"str\",\"recommendations\":[\"str\"],\"severity\":\"Normal|Mild|Moderate|Severe|Critical\",\"urgency\":\"Routine|Urgent|Emergency\",\"potentialICD10\":[{\"code\":\"str\",\"description\":\"str\"}],\"followUpSuggestions\":[\"str\"],\"technique\":\"str\",\"comparisonStudy\":\"str\",\"clinicalIndication\":\"str\",\"anatomyVisualized\":[\"str\"],\"technicalQuality\":\"str\",\"incidentalFindings\":[\"str\"],\"structuredReport\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<div class="flex gap-2 mb-4">'.bdg($d['severity']??'Normal').bdg($d['urgency']??'Routine').'</div>';
-    if(!empty($d['clinicalIndication'])) $html.=sec('Indication','<p class="text-gray-700 text-sm">'.h($d['clinicalIndication']).'</p>');
-    if(!empty($d['studyType'])) $html.=sec('Study','<p class="font-semibold text-gray-900">'.h($d['studyType']).'</p>');
-    if(!empty($d['technique'])) $html.=sec('Technique','<p class="text-gray-700 text-sm">'.h($d['technique']).'</p>');
-    if(!empty($d['comparisonStudy'])) $html.=sec('Comparison','<p class="text-gray-700 text-sm">'.h($d['comparisonStudy']).'</p>');
-    if(!empty($d['anatomyVisualized'])) $html.=sec('Anatomy Visualized',rl($d['anatomyVisualized'],'#7c3aed'));
-    if(!empty($d['technicalQuality'])) $html.=sec('Technical Quality','<p class="text-gray-700 text-sm">'.h($d['technicalQuality']).'</p>');
+    $imgData=null; $imgMime=null;
+    if(!empty($_FILES['scan']) && $_FILES['scan']['error']===UPLOAD_ERR_OK){
+        $allowed=['image/jpeg','image/png','image/gif','image/webp'];
+        $mime=mime_content_type($_FILES['scan']['tmp_name']);
+        if(in_array($mime,$allowed) && $_FILES['scan']['size']<2097152){
+            $imgData=base64_encode(file_get_contents($_FILES['scan']['tmp_name']));
+            $imgMime=$mime;
+        } else {
+            echo json_encode(['html'=>alert('red','Unsupported file type or file too large (max 2 MB, JPG/PNG/WEBP).')]);exit;
+        }
+    }
+    $prompt = $imgData
+        ? "Analyze this medical {$typ} ({$mod}) image. Also consider these notes: \"{$txt}\". Return ONLY JSON: {\"studyType\":\"str\",\"clinicalFindings\":[\"str\"],\"impression\":\"str\",\"recommendations\":[\"str\"],\"severity\":\"Normal|Mild|Moderate|Severe|Critical\",\"urgency\":\"Routine|Urgent|Emergency\",\"potentialICD10\":[{\"code\":\"str\",\"description\":\"str\"}],\"followUpSuggestions\":[\"str\"],\"technique\":\"str\",\"comparisonStudy\":\"str\",\"clinicalIndication\":\"str\",\"anatomyVisualized\":[\"str\"],\"technicalQuality\":\"str\",\"incidentalFindings\":[\"str\"],\"structuredReport\":\"str\",\"imageDescription\":\"str\"}"
+        : "Analyze {$typ} ({$mod}): \"{$txt}\". Return ONLY JSON: {\"studyType\":\"str\",\"clinicalFindings\":[\"str\"],\"impression\":\"str\",\"recommendations\":[\"str\"],\"severity\":\"Normal|Mild|Moderate|Severe|Critical\",\"urgency\":\"Routine|Urgent|Emergency\",\"potentialICD10\":[{\"code\":\"str\",\"description\":\"str\"}],\"followUpSuggestions\":[\"str\"],\"technique\":\"str\",\"comparisonStudy\":\"str\",\"clinicalIndication\":\"str\",\"anatomyVisualized\":[\"str\"],\"technicalQuality\":\"str\",\"incidentalFindings\":[\"str\"],\"structuredReport\":\"str\"}";
+    $d = $imgData ? geminiVision($prompt, $imgData, $imgMime) : gemini($prompt);
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="display:flex;gap:6px;margin-bottom:10px">'.bdg($d['severity']??'Normal').bdg($d['urgency']??'Routine').'</div>';
+    if(!empty($imgData) && !empty($d['imageDescription'])) $html.=sec('Image Analysis','<span class="r-value">'.h($d['imageDescription']).'</span>');
+    if(!empty($d['clinicalIndication'])) $html.=sec('Indication','<span class="r-value">'.h($d['clinicalIndication']).'</span>');
+    if(!empty($d['studyType'])) $html.=sec('Study','<span class="r-value">'.h($d['studyType']).'</span>');
+    if(!empty($d['technique'])) $html.=sec('Technique','<span class="r-value">'.h($d['technique']).'</span>');
+    if(!empty($d['comparisonStudy'])) $html.=sec('Comparison','<span class="r-value">'.h($d['comparisonStudy']).'</span>');
+    if(!empty($d['anatomyVisualized'])) $html.=sec('Anatomy Visualized',rl($d['anatomyVisualized']));
+    if(!empty($d['technicalQuality'])) $html.=sec('Technical Quality','<span class="r-value">'.h($d['technicalQuality']).'</span>');
     if(!empty($d['clinicalFindings'])) $html.=sec('Findings',rl($d['clinicalFindings']));
-    if(!empty($d['incidentalFindings'])) $html.=sec('Incidental Findings',rl($d['incidentalFindings'],'#ea580c'));
-    if(!empty($d['impression'])) $html.=sec('Impression','<p class="text-gray-700 text-sm font-medium leading-relaxed">'.h($d['impression']).'</p>');
-    if(!empty($d['recommendations'])) $html.=sec('Recommendations',rl($d['recommendations'],'#2563EB'));
-    if(!empty($d['potentialICD10'])){$html.='<p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">ICD-10</p><div class="flex flex-wrap gap-1.5 mb-4">';foreach($d['potentialICD10'] as $c) $html.='<span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded font-mono">'.h($c['code']).' — '.h($c['description']).'</span>';$html.='</div>';}
-    if(!empty($d['followUpSuggestions'])) $html.=sec('Follow-up',rl($d['followUpSuggestions'],'#7c3aed'));
-    if(!empty($d['structuredReport'])) $html.=sec('Structured Report','<pre class="text-xs text-gray-700 whitespace-pre-wrap font-mono bg-gray-50 rounded-xl p-3">'.h($d['structuredReport']).'</pre>');
+    if(!empty($d['incidentalFindings'])) $html.=sec('Incidental Findings',rl($d['incidentalFindings']));
+    if(!empty($d['impression'])) $html.=sec('Impression','<span class="r-value">'.h($d['impression']).'</span>');
+    if(!empty($d['recommendations'])) $html.=sec('Recommendations',rl($d['recommendations']));
+    if(!empty($d['potentialICD10'])){$icd='';foreach($d['potentialICD10'] as $c) $icd.='<span class="r-tag" style="font-family:monospace">'.h($c['code']).' — '.h($c['description']).'</span>';$html.=sec('ICD-10 Codes','<div class="r-tags">'.$icd.'</div>');}
+    if(!empty($d['followUpSuggestions'])) $html.=sec('Follow-up',rl($d['followUpSuggestions']));
+    if(!empty($d['structuredReport'])) $html.=sec('Structured Report','<pre style="font-size:12px;color:#475569;white-space:pre-wrap;font-family:monospace">'.h($d['structuredReport']).'</pre>');
     echo json_encode(['html'=>$html]); break;
 
-// ── REPORT COMPOSER
+// REPORT COMPOSER
 case 'report-composer':
     $d=gemini("Generate ".($body['type']??'Progress Note')." for patient: ".($body['patient']??'').". Chief complaint: ".($body['chiefComplaint']??'').". Findings: ".($body['findings']??'').". Return ONLY JSON: {\"reportTitle\":\"str\",\"subjective\":\"str\",\"objective\":\"str\",\"assessment\":\"str\",\"plan\":\"str\",\"chiefComplaint\":\"str\",\"historyOfPresentIllness\":\"str\",\"pastMedicalHistory\":\"str\",\"medicationsAtHome\":\"str\",\"socialHistory\":\"str\",\"reviewOfSystems\":\"str\",\"diagnosisList\":[\"str\"]}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<div class="font-mono text-sm border border-gray-200 rounded-xl p-5 bg-gray-50"><p class="font-bold text-center text-base mb-3">'.h($d['reportTitle']??'Medical Report').'</p><p class="text-gray-400 text-xs text-center mb-4">'.date('Y-m-d').'</p>';
-    if(!empty($d['chiefComplaint'])) $html.='<div class="mb-3"><p class="font-bold text-gray-900">Chief Complaint</p><p class="text-gray-700 ml-2">'.h($d['chiefComplaint']).'</p></div>';
-    if(!empty($d['historyOfPresentIllness'])) $html.='<div class="mb-3"><p class="font-bold text-gray-900">HPI</p><p class="text-gray-700 ml-2">'.h($d['historyOfPresentIllness']).'</p></div>';
-    if(!empty($d['pastMedicalHistory'])) $html.='<div class="mb-3"><p class="font-bold text-gray-900">PMH</p><p class="text-gray-700 ml-2">'.h($d['pastMedicalHistory']).'</p></div>';
-    if(!empty($d['medicationsAtHome'])) $html.='<div class="mb-3"><p class="font-bold text-gray-900">Medications</p><p class="text-gray-700 ml-2">'.h($d['medicationsAtHome']).'</p></div>';
-    if(!empty($d['socialHistory'])) $html.='<div class="mb-3"><p class="font-bold text-gray-900">Social History</p><p class="text-gray-700 ml-2">'.h($d['socialHistory']).'</p></div>';
-    if(!empty($d['reviewOfSystems'])) $html.='<div class="mb-3"><p class="font-bold text-gray-900">ROS</p><p class="text-gray-700 ml-2">'.h($d['reviewOfSystems']).'</p></div>';
-    foreach(['subjective'=>'S — Subjective','objective'=>'O — Objective','assessment'=>'A — Assessment','plan'=>'P — Plan'] as $k=>$l) if(!empty($d[$k])) $html.='<div class="mb-3"><p class="font-bold text-gray-900">'.$l.'</p><p class="text-gray-700 ml-2">'.h($d[$k]).'</p></div>';
-    if(!empty($d['diagnosisList'])){$html.='<div class="mb-3 border-t pt-2"><p class="font-bold text-gray-900">Diagnoses</p><ul class="ml-2 list-disc list-inside">';foreach($d['diagnosisList'] as $dx) $html.='<li class="text-gray-700 text-sm">'.h($dx).'</li>';$html.='</ul></div>';}
-    $html.='<p class="text-xs text-gray-400 border-t pt-2 mt-3">Generated by Arab MedTechAI</p></div>';
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="font-family:monospace;font-size:13px;border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px"><div style="text-align:center;font-weight:700;margin-bottom:12px">'.h($d['reportTitle']??'Medical Report').'</div>';
+    $html.='<div style="text-align:center;color:var(--slate5);font-size:11px;margin-bottom:12px">'.date('Y-m-d').'</div>';
+    if(!empty($d['chiefComplaint'])) $html.='<div class="r-field"><span class="r-label">Chief Complaint</span><span class="r-value-sm">'.h($d['chiefComplaint']).'</span></div>';
+    if(!empty($d['historyOfPresentIllness'])) $html.='<div class="r-field"><span class="r-label">HPI</span><span class="r-value-sm">'.h($d['historyOfPresentIllness']).'</span></div>';
+    if(!empty($d['pastMedicalHistory'])) $html.='<div class="r-field"><span class="r-label">PMH</span><span class="r-value-sm">'.h($d['pastMedicalHistory']).'</span></div>';
+    if(!empty($d['medicationsAtHome'])) $html.='<div class="r-field"><span class="r-label">Medications</span><span class="r-value-sm">'.h($d['medicationsAtHome']).'</span></div>';
+    if(!empty($d['socialHistory'])) $html.='<div class="r-field"><span class="r-label">Social History</span><span class="r-value-sm">'.h($d['socialHistory']).'</span></div>';
+    if(!empty($d['reviewOfSystems'])) $html.='<div class="r-field"><span class="r-label">ROS</span><span class="r-value-sm">'.h($d['reviewOfSystems']).'</span></div>';
+    foreach(['subjective'=>'S — Subjective','objective'=>'O — Objective','assessment'=>'A — Assessment','plan'=>'P — Plan'] as $k=>$l) if(!empty($d[$k])) $html.='<div class="r-field"><span class="r-label">'.$l.'</span><span class="r-value-sm">'.h($d[$k]).'</span></div>';
+    if(!empty($d['diagnosisList'])){$dx='<ul class="r-list">';foreach($d['diagnosisList'] as $di) $dx.='<li>'.h($di).'</li>';$dx.='</ul>';$html.='<div class="r-field"><span class="r-label">Diagnoses</span>'.$dx.'</div>';}
+    $html.='<div style="text-align:center;font-size:10px;color:var(--slate5);border-top:1px solid var(--border);padding-top:8px;margin-top:8px">Generated by Arab MedTechAI</div></div>';
     echo json_encode(['html'=>$html]); break;
 
-// ── LAB ANALYZER
+// LAB ANALYZER
 case 'lab-analyzer':
     $d=gemini("Analyze lab results: ".($body['text']??'').". Return ONLY JSON: {\"summary\":\"str\",\"abnormalValues\":[{\"test\":\"str\",\"value\":\"str\",\"flag\":\"High|Low|Critical\",\"interpretation\":\"str\",\"normalRange\":\"str\"}],\"overallAssessment\":\"str\",\"recommendations\":[\"str\"],\"urgency\":\"Routine|Urgent|Emergency\",\"trendsAnalysis\":\"str\",\"criticalValues\":[\"str\"],\"organSystemImpact\":\"str\",\"medicationEffectsOnLabs\":[\"str\"],\"confirmatoryTesting\":[\"str\"],\"nutritionalAssessment\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<div class="flex items-center gap-2 mb-4"><p class="text-sm font-semibold text-gray-600">Urgency:</p>'.bdg($d['urgency']??'Routine').'</div>';
-    $html.=sec('Overall Assessment','<p class="text-gray-700 text-sm">'.h($d['overallAssessment']??'').'</p>');
-    if(!empty($d['abnormalValues'])){$html.='<p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Abnormal Values</p>';foreach($d['abnormalValues'] as $v) $html.='<div class="flex items-start justify-between border border-red-100 bg-red-50 rounded-xl p-3 mb-2"><div><p class="font-semibold text-gray-900 text-sm">'.h($v['test']??'').'</p><p class="text-xs text-gray-500">'.h($v['interpretation']??'').'</p></div><div class="text-right"><span class="font-bold text-red-600">'.h($v['value']??'').'</span><br>'.bdg($v['flag']??'').(!empty($v['normalRange'])?'<span class="text-xs text-gray-400 mt-1 block">NR: '.h($v['normalRange']).'</span>':'').'</div></div>';}
-    if(!empty($d['criticalValues'])) $html.=sec('Critical Values',rl($d['criticalValues'],'#dc2626'));
-    if(!empty($d['summary'])) $html.=sec('Clinical Summary','<p class="text-gray-700 text-sm">'.h($d['summary']).'</p>');
-    if(!empty($d['trendsAnalysis'])) $html.=sec('Trends Analysis','<p class="text-gray-700 text-sm">'.h($d['trendsAnalysis']).'</p>');
-    if(!empty($d['organSystemImpact'])) $html.=sec('Organ System Impact','<p class="text-gray-700 text-sm">'.h($d['organSystemImpact']).'</p>');
-    if(!empty($d['medicationEffectsOnLabs'])) $html.=sec('Medication Effects on Labs',rl($d['medicationEffectsOnLabs'],'#ea580c'));
-    if(!empty($d['confirmatoryTesting'])) $html.=sec('Confirmatory Testing',rl($d['confirmatoryTesting'],'#7c3aed'));
-    if(!empty($d['nutritionalAssessment'])) $html.=sec('Nutritional Assessment','<p class="text-gray-700 text-sm">'.h($d['nutritionalAssessment']).'</p>');
-    if(!empty($d['recommendations'])) $html.=sec('Recommendations',rl($d['recommendations'],'#2563EB'));
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="margin-bottom:10px"><strong>Urgency:</strong> '.bdg($d['urgency']??'Routine').'</div>';
+    if(!empty($d['overallAssessment'])) $html.=sec('Overall Assessment','<span class="r-value">'.h($d['overallAssessment']).'</span>');
+    if(!empty($d['summary'])) $html.=sec('Clinical Summary','<span class="r-value">'.h($d['summary']).'</span>');
+    if(!empty($d['abnormalValues'])){$av='';foreach($d['abnormalValues'] as $v){$av.='<div class="r-alert r-alert-red" style="margin-bottom:6px"><div><div style="display:flex;align-items:center;gap:8px"><strong>'.h($v['test']??'').'</strong>'.bdg($v['flag']??'').' <span style="color:var(--red);font-weight:700">'.h($v['value']??'').'</span></div>';if(!empty($v['normalRange'])) $av.='<span style="font-size:11px;color:var(--slate5)">NR: '.h($v['normalRange']).'</span>';$av.='<div style="font-size:12px;margin-top:3px">'.h($v['interpretation']??'').'</div></div></div>';}$html.=sec('Abnormal Values',$av);}
+    if(!empty($d['criticalValues'])) $html.=sec('Critical Values',rl($d['criticalValues']));
+    if(!empty($d['trendsAnalysis'])) $html.=sec('Trends Analysis','<span class="r-value">'.h($d['trendsAnalysis']).'</span>');
+    if(!empty($d['organSystemImpact'])) $html.=sec('Organ System Impact','<span class="r-value">'.h($d['organSystemImpact']).'</span>');
+    if(!empty($d['medicationEffectsOnLabs'])) $html.=sec('Medication Effects on Labs',rl($d['medicationEffectsOnLabs']));
+    if(!empty($d['confirmatoryTesting'])) $html.=sec('Confirmatory Testing',rl($d['confirmatoryTesting']));
+    if(!empty($d['nutritionalAssessment'])) $html.=sec('Nutritional Assessment','<span class="r-value">'.h($d['nutritionalAssessment']).'</span>');
+    if(!empty($d['recommendations'])) $html.=sec('Recommendations',rl($d['recommendations']));
     echo json_encode(['html'=>$html]); break;
 
-// ── IMAGING READER
+// IMAGING READER
 case 'imaging-reader':
     $mod=$body['modality']??'MRI'; $part=$body['bodyPart']??'';
     $d=gemini("Analyze {$mod} {$part}: ".($body['text']??'').". Return ONLY JSON: {\"studyDescription\":\"str\",\"findings\":[\"str\"],\"impression\":\"str\",\"severity\":\"Normal|Mild|Moderate|Severe|Critical\",\"urgency\":\"Routine|Urgent|Emergency\",\"recommendations\":[\"str\"],\"technique\":\"str\",\"comparisonStudy\":\"str\",\"clinicalIndication\":\"str\",\"anatomyVisualized\":[\"str\"],\"technicalQuality\":\"str\",\"incidentalFindings\":[\"str\"],\"structuredReport\":\"str\",\"clinicalCorrelation\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<div class="flex gap-2 mb-4">'.bdg($d['severity']??'Normal').bdg($d['urgency']??'Routine').'</div>';
-    if(!empty($d['clinicalIndication'])) $html.=sec('Indication','<p class="text-gray-700 text-sm">'.h($d['clinicalIndication']).'</p>');
-    if(!empty($d['studyDescription'])) $html.=sec('Study','<p class="font-semibold text-gray-900">'.h($d['studyDescription']).'</p>');
-    if(!empty($d['technique'])) $html.=sec('Technique','<p class="text-gray-700 text-sm">'.h($d['technique']).'</p>');
-    if(!empty($d['comparisonStudy'])) $html.=sec('Comparison','<p class="text-gray-700 text-sm">'.h($d['comparisonStudy']).'</p>');
-    if(!empty($d['anatomyVisualized'])) $html.=sec('Anatomy Visualized',rl($d['anatomyVisualized'],'#7c3aed'));
-    if(!empty($d['technicalQuality'])) $html.=sec('Technical Quality','<p class="text-gray-700 text-sm">'.h($d['technicalQuality']).'</p>');
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="display:flex;gap:6px;margin-bottom:10px">'.bdg($d['severity']??'Normal').bdg($d['urgency']??'Routine').'</div>';
+    if(!empty($d['clinicalIndication'])) $html.=sec('Indication','<span class="r-value">'.h($d['clinicalIndication']).'</span>');
+    if(!empty($d['studyDescription'])) $html.=sec('Study','<span class="r-value">'.h($d['studyDescription']).'</span>');
+    if(!empty($d['technique'])) $html.=sec('Technique','<span class="r-value">'.h($d['technique']).'</span>');
+    if(!empty($d['comparisonStudy'])) $html.=sec('Comparison','<span class="r-value">'.h($d['comparisonStudy']).'</span>');
+    if(!empty($d['anatomyVisualized'])) $html.=sec('Anatomy Visualized',rl($d['anatomyVisualized']));
+    if(!empty($d['technicalQuality'])) $html.=sec('Technical Quality','<span class="r-value">'.h($d['technicalQuality']).'</span>');
     if(!empty($d['findings'])) $html.=sec('Findings',rl($d['findings']));
-    if(!empty($d['incidentalFindings'])) $html.=sec('Incidental Findings',rl($d['incidentalFindings'],'#ea580c'));
-    if(!empty($d['impression'])) $html.=sec('Impression','<p class="text-gray-700 text-sm font-medium">'.h($d['impression']).'</p>');
-    if(!empty($d['clinicalCorrelation'])) $html.=sec('Clinical Correlation','<p class="text-gray-700 text-sm">'.h($d['clinicalCorrelation']).'</p>');
-    if(!empty($d['recommendations'])) $html.=sec('Recommendations',rl($d['recommendations'],'#7c3aed'));
-    if(!empty($d['structuredReport'])) $html.=sec('Structured Report','<pre class="text-xs text-gray-700 whitespace-pre-wrap font-mono bg-gray-50 rounded-xl p-3">'.h($d['structuredReport']).'</pre>');
+    if(!empty($d['incidentalFindings'])) $html.=sec('Incidental Findings',rl($d['incidentalFindings']));
+    if(!empty($d['impression'])) $html.=sec('Impression','<span class="r-value">'.h($d['impression']).'</span>');
+    if(!empty($d['clinicalCorrelation'])) $html.=sec('Clinical Correlation','<span class="r-value">'.h($d['clinicalCorrelation']).'</span>');
+    if(!empty($d['recommendations'])) $html.=sec('Recommendations',rl($d['recommendations']));
+    if(!empty($d['structuredReport'])) $html.=sec('Structured Report','<pre style="font-size:12px;color:#475569;white-space:pre-wrap;font-family:monospace">'.h($d['structuredReport']).'</pre>');
     echo json_encode(['html'=>$html]); break;
 
-// ── PATHOLOGY READER
+// PATHOLOGY READER
 case 'pathology-reader':
     $d=gemini("Pathology report. Specimen: ".($body['specimenType']??'Biopsy').". Report: ".($body['text']??'').". Return ONLY JSON: {\"diagnosis\":\"str\",\"specimenType\":\"str\",\"grossDescription\":\"str\",\"microscopicDescription\":\"str\",\"staging\":{\"t\":\"str\",\"n\":\"str\",\"m\":\"str\"},\"pathologicalStaging\":\"str\",\"grade\":\"str\",\"biomarkers\":[{\"name\":\"str\",\"result\":\"str\",\"interpretation\":\"str\"}],\"immunohistochemistry\":[{\"marker\":\"str\",\"result\":\"str\",\"interpretation\":\"str\"}],\"molecularTesting\":\"str\",\"tumorBurden\":\"str\",\"marginStatus\":\"str\",\"lymphovascularInvasion\":\"str\",\"recommendations\":[\"str\"]}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html=sec('Diagnosis','<p class="text-lg font-black text-gray-900">'.h($d['diagnosis']??'').'</p>');
-    if(!empty($d['specimenType'])) $html.=sec('Specimen','<p class="text-gray-700 text-sm">'.h($d['specimenType']).'</p>');
-    if(!empty($d['grossDescription'])) $html.=sec('Gross Description','<p class="text-gray-700 text-sm">'.h($d['grossDescription']).'</p>');
-    if(!empty($d['microscopicDescription'])) $html.=sec('Microscopic','<p class="text-gray-700 text-sm">'.h($d['microscopicDescription']).'</p>');
-    if(!empty($d['staging']['t'])) $html.=sec('TNM Staging','<p class="text-gray-700 text-sm">T: '.h($d['staging']['t']).' | N: '.h($d['staging']['n']).' | M: '.h($d['staging']['m']).'</p>');
-    if(!empty($d['pathologicalStaging'])) $html.=sec('Pathological Staging','<p class="text-gray-700 text-sm">'.h($d['pathologicalStaging']).'</p>');
-    if(!empty($d['grade'])) $html.=sec('Grade','<p class="text-gray-700 text-sm">'.h($d['grade']).'</p>');
-    if(!empty($d['tumorBurden'])) $html.=sec('Tumor Burden','<p class="text-gray-700 text-sm">'.h($d['tumorBurden']).'</p>');
-    if(!empty($d['marginStatus'])) $html.=sec('Margin Status','<p class="text-gray-700 text-sm">'.h($d['marginStatus']).'</p>');
-    if(!empty($d['lymphovascularInvasion'])) $html.=sec('Lymphovascular Invasion','<p class="text-gray-700 text-sm">'.h($d['lymphovascularInvasion']).'</p>');
-    if(!empty($d['immunohistochemistry'])){$html.='<p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">IHC Markers</p>';foreach($d['immunohistochemistry'] as $ihc) $html.='<div class="flex justify-between border-b border-gray-50 py-1.5 text-sm"><span class="text-gray-700">'.h($ihc['marker']??'').'</span><span class="font-semibold">'.h($ihc['result']??'').(!empty($ihc['interpretation'])?' <span class="text-xs text-gray-500">('.h($ihc['interpretation']).')</span>':'').'</span></div>';$html.='<div class="mb-4"></div>';}
-    if(!empty($d['biomarkers'])){$html.='<p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Biomarkers</p>';foreach($d['biomarkers'] as $b) $html.='<div class="flex justify-between border-b border-gray-50 py-1.5 text-sm"><span class="text-gray-700">'.h($b['name']??'').'</span><span class="font-semibold">'.h($b['result']??'').'</span></div>';$html.='<div class="mb-4"></div>';}
-    if(!empty($d['molecularTesting'])) $html.=sec('Molecular Testing','<p class="text-gray-700 text-sm">'.h($d['molecularTesting']).'</p>');
-    if(!empty($d['recommendations'])) $html.=sec('Recommendations',rl($d['recommendations'],'#e11d48'));
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div class="r-value-lg" style="margin-bottom:8px">'.h($d['diagnosis']??'').'</div>';
+    if(!empty($d['specimenType'])) $html.=sec('Specimen','<span class="r-value">'.h($d['specimenType']).'</span>');
+    if(!empty($d['grossDescription'])) $html.=sec('Gross Description','<span class="r-value">'.h($d['grossDescription']).'</span>');
+    if(!empty($d['microscopicDescription'])) $html.=sec('Microscopic','<span class="r-value">'.h($d['microscopicDescription']).'</span>');
+    if(!empty($d['staging']['t'])) $html.=sec('TNM Staging','<span class="r-value">T: '.h($d['staging']['t']).' | N: '.h($d['staging']['n']).' | M: '.h($d['staging']['m']).'</span>');
+    if(!empty($d['pathologicalStaging'])) $html.=sec('Pathological Staging','<span class="r-value">'.h($d['pathologicalStaging']).'</span>');
+    if(!empty($d['grade'])) $html.=sec('Grade','<span class="r-value">'.h($d['grade']).'</span>');
+    if(!empty($d['tumorBurden'])) $html.=sec('Tumor Burden','<span class="r-value">'.h($d['tumorBurden']).'</span>');
+    if(!empty($d['marginStatus'])) $html.=sec('Margin Status','<span class="r-value">'.h($d['marginStatus']).'</span>');
+    if(!empty($d['lymphovascularInvasion'])) $html.=sec('Lymphovascular Invasion','<span class="r-value">'.h($d['lymphovascularInvasion']).'</span>');
+    if(!empty($d['immunohistochemistry'])){$ihc='';foreach($d['immunohistochemistry'] as $ic) $ihc.='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light);font-size:13px"><span>'.h($ic['marker']??'').'</span><span style="font-weight:600">'.h($ic['result']??'').(!empty($ic['interpretation'])?' <span style="font-size:11px;color:var(--slate5)">('.h($ic['interpretation']).')</span>':'').'</span></div>';$html.=sec('IHC Markers',$ihc);}
+    if(!empty($d['biomarkers'])){$bms='';foreach($d['biomarkers'] as $b) $bms.='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light);font-size:13px"><span>'.h($b['name']??'').'</span><span style="font-weight:600">'.h($b['result']??'').'</span></div>';$html.=sec('Biomarkers',$bms);}
+    if(!empty($d['molecularTesting'])) $html.=sec('Molecular Testing','<span class="r-value">'.h($d['molecularTesting']).'</span>');
+    if(!empty($d['recommendations'])) $html.=sec('Recommendations',rl($d['recommendations']));
     echo json_encode(['html'=>$html]); break;
 
-// ── DISCHARGE SUMMARY
+// DISCHARGE SUMMARY
 case 'discharge-summary':
     $d=gemini("Discharge summary. Diagnosis: ".($body['diagnosis']??'').". Course: ".($body['course']??'').". Meds: ".($body['medications']??'').". Return ONLY JSON: {\"diagnoses\":{\"primary\":\"str\",\"secondary\":[\"str\"]},\"hospitalCourse\":\"str\",\"procedures\":[\"str\"],\"dischargeMedications\":[{\"name\":\"str\",\"dose\":\"str\",\"frequency\":\"str\",\"duration\":\"str\"}],\"followUpPlan\":[\"str\"],\"patientInstructions\":\"str\",\"admissionDate\":\"str\",\"dischargeDate\":\"str\",\"attendingPhysician\":\"str\",\"dischargeDisposition\":\"str\",\"pendingResults\":[\"str\"],\"conditionAtDischarge\":\"str\",\"functionalStatus\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html=sec('Primary Diagnosis','<p class="text-lg font-black text-gray-900">'.h($d['diagnoses']['primary']??'').'</p>');
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div class="r-value-lg" style="margin-bottom:8px">'.h($d['diagnoses']['primary']??'').'</div>';
     if(!empty($d['diagnoses']['secondary'])) $html.=sec('Secondary Diagnoses',rl($d['diagnoses']['secondary']));
-    if(!empty($d['admissionDate']) || !empty($d['dischargeDate'])) $html.=sec('Dates','<p class="text-gray-700 text-sm">Admit: '.h($d['admissionDate']??'—').' | Discharge: '.h($d['dischargeDate']??'—').'</p>');
-    if(!empty($d['attendingPhysician'])) $html.=sec('Attending','<p class="text-gray-700 text-sm">'.h($d['attendingPhysician']).'</p>');
-    if(!empty($d['dischargeDisposition'])) $html.=sec('Disposition','<p class="text-gray-700 text-sm">'.h($d['dischargeDisposition']).'</p>');
-    $html.=sec('Hospital Course','<p class="text-gray-700 text-sm leading-relaxed">'.h($d['hospitalCourse']??'').'</p>');
+    if(!empty($d['admissionDate']) || !empty($d['dischargeDate'])) $html.=sec('Dates','<span class="r-value">Admit: '.h($d['admissionDate']??'—').' | Discharge: '.h($d['dischargeDate']??'—').'</span>');
+    if(!empty($d['attendingPhysician'])) $html.=sec('Attending','<span class="r-value">'.h($d['attendingPhysician']).'</span>');
+    if(!empty($d['dischargeDisposition'])) $html.=sec('Disposition','<span class="r-value">'.h($d['dischargeDisposition']).'</span>');
+    if(!empty($d['hospitalCourse'])) $html.=sec('Hospital Course','<span class="r-value">'.h($d['hospitalCourse']).'</span>');
     if(!empty($d['procedures'])) $html.=sec('Procedures',rl($d['procedures']));
-    if(!empty($d['conditionAtDischarge'])) $html.=sec('Condition at Discharge','<p class="text-gray-700 text-sm">'.h($d['conditionAtDischarge']).'</p>');
-    if(!empty($d['functionalStatus'])) $html.=sec('Functional Status','<p class="text-gray-700 text-sm">'.h($d['functionalStatus']).'</p>');
-    if(!empty($d['dischargeMedications'])){$html.='<p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Discharge Medications</p>';foreach($d['dischargeMedications'] as $m) $html.='<div class="border border-gray-100 rounded-xl p-3 mb-2"><p class="font-semibold text-gray-900 text-sm">'.h($m['name']??'').'</p><p class="text-xs text-gray-500">'.h($m['dose']??'').' — '.h($m['frequency']??'').' × '.h($m['duration']??'').'</p></div>';$html.='<div class="mb-4"></div>';}
-    if(!empty($d['pendingResults'])) $html.=sec('Pending Results',rl($d['pendingResults'],'#ea580c'));
-    if(!empty($d['followUpPlan'])) $html.=sec('Follow-up',rl($d['followUpPlan'],'#0891b2'));
-    if(!empty($d['patientInstructions'])) $html.=sec('Patient Instructions','<p class="text-gray-700 text-sm">'.h($d['patientInstructions']).'</p>');
+    if(!empty($d['conditionAtDischarge'])) $html.=sec('Condition at Discharge','<span class="r-value">'.h($d['conditionAtDischarge']).'</span>');
+    if(!empty($d['functionalStatus'])) $html.=sec('Functional Status','<span class="r-value">'.h($d['functionalStatus']).'</span>');
+    if(!empty($d['dischargeMedications'])){$dm='';foreach($d['dischargeMedications'] as $mx) $dm.='<div style="margin-bottom:6px;border-bottom:1px solid var(--border-light);padding-bottom:6px"><strong>'.h($mx['name']??'').'</strong><br><span style="font-size:12px;color:var(--slate4)">'.h($mx['dose']??'').' — '.h($mx['frequency']??'').' × '.h($mx['duration']??'').'</span></div>';$html.=sec('Discharge Medications',$dm);}
+    if(!empty($d['pendingResults'])) $html.=sec('Pending Results',rl($d['pendingResults']));
+    if(!empty($d['followUpPlan'])) $html.=sec('Follow-up',rl($d['followUpPlan']));
+    if(!empty($d['patientInstructions'])) $html.=sec('Patient Instructions','<span class="r-value">'.h($d['patientInstructions']).'</span>');
     echo json_encode(['html'=>$html]); break;
 
-// ── CLINICAL NOTES
+// CLINICAL NOTES
 case 'clinical-notes':
     $d=gemini("Generate ".($body['noteType']??'SOAP Note')." for ".($body['age']??'')."yr ".($body['gender']??'').". Info: ".($body['info']??'').". Return ONLY JSON: {\"noteType\":\"str\",\"subjective\":\"str\",\"objective\":{\"vitalSigns\":\"str\",\"physicalExam\":\"str\"},\"assessment\":\"str\",\"plan\":\"str\",\"icd10Suggestions\":[\"str\"],\"reviewOfSystems\":\"str\",\"medicationList\":[\"str\"],\"allergies\":[\"str\"],\"pastMedicalHistory\":\"str\",\"familyHistory\":\"str\",\"socialHistory\":\"str\",\"assessmentPlanDetailed\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<div class="border border-gray-200 rounded-xl p-5 font-mono text-sm bg-gray-50"><p class="font-bold text-center mb-4">'.h($d['noteType']??'Clinical Note').'</p>';
-    if(!empty($d['subjective'])) $html.='<div class="mb-3"><p class="font-bold">S — Subjective</p><p class="text-gray-700 ml-2">'.h($d['subjective']).'</p></div>';
-    if(!empty($d['reviewOfSystems'])) $html.='<div class="mb-3"><p class="font-bold">ROS</p><p class="text-gray-700 ml-2">'.h($d['reviewOfSystems']).'</p></div>';
-    if(!empty($d['pastMedicalHistory'])) $html.='<div class="mb-3"><p class="font-bold">PMH</p><p class="text-gray-700 ml-2">'.h($d['pastMedicalHistory']).'</p></div>';
-    if(!empty($d['familyHistory'])) $html.='<div class="mb-3"><p class="font-bold">Family History</p><p class="text-gray-700 ml-2">'.h($d['familyHistory']).'</p></div>';
-    if(!empty($d['socialHistory'])) $html.='<div class="mb-3"><p class="font-bold">Social History</p><p class="text-gray-700 ml-2">'.h($d['socialHistory']).'</p></div>';
-    if(!empty($d['medicationList'])) $html.='<div class="mb-3"><p class="font-bold">Medications</p><ul class="ml-2 list-disc list-inside">';foreach(($d['medicationList']??[]) as $med) $html.='<li class="text-gray-700 text-sm">'.h($med).'</li>';$html.='</ul></div>';
-    if(!empty($d['allergies'])) $html.='<div class="mb-3"><p class="font-bold">Allergies</p><ul class="ml-2 list-disc list-inside">';foreach(($d['allergies']??[]) as $a) $html.='<li class="text-red-600 text-sm">'.h($a).'</li>';$html.='</ul></div>';
-    if(!empty($d['objective'])) $html.='<div class="mb-3"><p class="font-bold">O — Objective</p><p class="text-gray-700 ml-2"><strong>Vitals:</strong> '.h($d['objective']['vitalSigns']??'').'</p><p class="text-gray-700 ml-2"><strong>Exam:</strong> '.h($d['objective']['physicalExam']??'').'</p></div>';
-    if(!empty($d['assessment'])) $html.='<div class="mb-3"><p class="font-bold">A — Assessment</p><p class="text-gray-700 ml-2">'.h($d['assessment']).'</p></div>';
-    if(!empty($d['plan'])) $html.='<div class="mb-3"><p class="font-bold">P — Plan</p><p class="text-gray-700 ml-2">'.h($d['plan']).'</p></div>';
-    if(!empty($d['assessmentPlanDetailed'])) $html.='<div class="mb-3 border-t pt-2"><p class="font-bold">A/P Detailed</p><p class="text-gray-700 ml-2">'.h($d['assessmentPlanDetailed']).'</p></div>';
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="font-family:monospace;font-size:13px;border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px"><div style="text-align:center;font-weight:700;margin-bottom:12px">'.h($d['noteType']??'Clinical Note').'</div>';
+    if(!empty($d['subjective'])) $html.='<div class="r-field"><span class="r-label">S — Subjective</span><span class="r-value-sm">'.h($d['subjective']).'</span></div>';
+    if(!empty($d['reviewOfSystems'])) $html.='<div class="r-field"><span class="r-label">ROS</span><span class="r-value-sm">'.h($d['reviewOfSystems']).'</span></div>';
+    if(!empty($d['pastMedicalHistory'])) $html.='<div class="r-field"><span class="r-label">PMH</span><span class="r-value-sm">'.h($d['pastMedicalHistory']).'</span></div>';
+    if(!empty($d['familyHistory'])) $html.='<div class="r-field"><span class="r-label">Family History</span><span class="r-value-sm">'.h($d['familyHistory']).'</span></div>';
+    if(!empty($d['socialHistory'])) $html.='<div class="r-field"><span class="r-label">Social History</span><span class="r-value-sm">'.h($d['socialHistory']).'</span></div>';
+    if(!empty($d['medicationList'])){$ml='<ul class="r-list">';foreach($d['medicationList'] as $med) $ml.='<li>'.h($med).'</li>';$ml.='</ul>';$html.='<div class="r-field"><span class="r-label">Medications</span>'.$ml.'</div>';}
+    if(!empty($d['allergies'])){$al='<ul class="r-list">';foreach($d['allergies'] as $a) $al.='<li style="color:var(--red)">'.h($a).'</li>';$al.='</ul>';$html.='<div class="r-field"><span class="r-label">Allergies</span>'.$al.'</div>';}
+    if(!empty($d['objective'])) $html.='<div class="r-field"><span class="r-label">O — Objective</span><span class="r-value-sm"><strong>Vitals:</strong> '.h($d['objective']['vitalSigns']??'').'<br><strong>Exam:</strong> '.h($d['objective']['physicalExam']??'').'</span></div>';
+    if(!empty($d['assessment'])) $html.='<div class="r-field"><span class="r-label">A — Assessment</span><span class="r-value-sm">'.h($d['assessment']).'</span></div>';
+    if(!empty($d['plan'])) $html.='<div class="r-field"><span class="r-label">P — Plan</span><span class="r-value-sm">'.h($d['plan']).'</span></div>';
+    if(!empty($d['assessmentPlanDetailed'])) $html.='<div class="r-field"><span class="r-label">A/P Detailed</span><span class="r-value-sm">'.h($d['assessmentPlanDetailed']).'</span></div>';
     $html.='</div>';
-    if(!empty($d['icd10Suggestions'])) $html.='<div class="mt-3"><p class="text-xs text-gray-400 mb-1">ICD-10 suggestions:</p><div class="flex flex-wrap gap-1">'.implode('',array_map(fn($c)=>'<span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-mono">'.h($c).'</span>',$d['icd10Suggestions'])).'</div></div>';
+    if(!empty($d['icd10Suggestions'])){$icd='';foreach($d['icd10Suggestions'] as $c) $icd.='<span class="r-tag" style="font-family:monospace">'.h($c).'</span>';$html.='<div style="margin-top:10px"><span class="r-label">ICD-10 suggestions</span><div class="r-tags">'.$icd.'</div></div>';}
     echo json_encode(['html'=>$html]); break;
 
-// ── MEDICATION SAFETY
+// MEDICATION SAFETY
 case 'medication-safety':
     $d=gemini("Medication safety: ".($body['drug']??'').". Allergies: ".($body['allergies']??'').". Current meds: ".($body['currentMeds']??'').". Return ONLY JSON: {\"overallSafety\":\"Safe|Caution|High Risk\",\"lasaRisk\":\"Yes|No\",\"highAlert\":\"Yes|No\",\"allergyConflict\":\"str or null\",\"interactions\":[{\"drug\":\"str\",\"severity\":\"str\",\"description\":\"str\"}],\"safetyRecommendations\":[\"str\"],\"monitoringParameters\":[\"str\"],\"duplicateTherapy\":[\"str\"],\"dosingErrors\":[\"str\"],\"renalDosingAdjustment\":\"str\",\"hepaticDosingAdjustment\":\"str\",\"pregnancyRiskAssessment\":\"str\",\"geriatricConsiderations\":\"str\",\"pediatricConsiderations\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<div class="flex gap-2 mb-4">'.bdg($d['overallSafety']??'Caution');
-    if(($d['highAlert']??'')=='Yes') $html.='<span class="text-xs font-bold bg-red-100 text-red-700 px-2.5 py-1 rounded-full">&#9888; HIGH ALERT</span>';
-    if(($d['lasaRisk']??'')=='Yes') $html.='<span class="text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full">LASA Risk</span>';
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="display:flex;gap:6px;margin-bottom:10px">'.bdg($d['overallSafety']??'Caution');
+    if(($d['highAlert']??'')=='Yes') $html.='<span class="badge badge-red">HIGH ALERT</span>';
+    if(($d['lasaRisk']??'')=='Yes') $html.='<span class="badge badge-amber">LASA Risk</span>';
     $html.='</div>';
-    if(!empty($d['allergyConflict'])) $html.='<div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-red-800 text-sm"><strong>&#9888; Allergy Conflict:</strong> '.h($d['allergyConflict']).'</div>';
-    if(!empty($d['interactions'])){$html.='<p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Interactions</p>';foreach($d['interactions'] as $ix) $html.='<div class="border border-gray-100 rounded-xl p-3 mb-2"><div class="flex items-center justify-between mb-1"><span class="font-semibold text-sm">'.h($ix['drug']??'').'</span>'.bdg($ix['severity']??'').'</div><p class="text-xs text-gray-500">'.h($ix['description']??'').'</p></div>';$html.='<div class="mb-4"></div>';}
-    if(!empty($d['duplicateTherapy'])) $html.=sec('Duplicate Therapy',rl($d['duplicateTherapy'],'#ea580c'));
-    if(!empty($d['dosingErrors'])) $html.=sec('Dosing Errors',rl($d['dosingErrors'],'#dc2626'));
-    if(!empty($d['renalDosingAdjustment'])) $html.=sec('Renal Adjustment','<p class="text-amber-700 text-sm">'.h($d['renalDosingAdjustment']).'</p>');
-    if(!empty($d['hepaticDosingAdjustment'])) $html.=sec('Hepatic Adjustment','<p class="text-amber-700 text-sm">'.h($d['hepaticDosingAdjustment']).'</p>');
-    if(!empty($d['pregnancyRiskAssessment'])) $html.=sec('Pregnancy Risk','<p class="text-gray-700 text-sm">'.h($d['pregnancyRiskAssessment']).'</p>');
-    if(!empty($d['geriatricConsiderations'])) $html.=sec('Geriatric Considerations','<p class="text-gray-700 text-sm">'.h($d['geriatricConsiderations']).'</p>');
-    if(!empty($d['pediatricConsiderations'])) $html.=sec('Pediatric Considerations','<p class="text-gray-700 text-sm">'.h($d['pediatricConsiderations']).'</p>');
+    if(!empty($d['allergyConflict'])) $html.=alert('red','<strong>Allergy Conflict:</strong> '.h($d['allergyConflict']));
+    if(!empty($d['interactions'])){$ixs='';foreach($d['interactions'] as $ix) $ixs.='<div style="margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px"><strong>'.h($ix['drug']??'').'</strong>'.bdg($ix['severity']??'').'</div><span class="r-value-sm">'.h($ix['description']??'').'</span></div>';$html.=sec('Interactions',$ixs);}
+    if(!empty($d['duplicateTherapy'])) $html.=sec('Duplicate Therapy',rl($d['duplicateTherapy']));
+    if(!empty($d['dosingErrors'])) $html.=sec('Dosing Errors',rl($d['dosingErrors']));
+    if(!empty($d['renalDosingAdjustment'])) $html.=sec('Renal Adjustment','<span class="r-value">'.h($d['renalDosingAdjustment']).'</span>');
+    if(!empty($d['hepaticDosingAdjustment'])) $html.=sec('Hepatic Adjustment','<span class="r-value">'.h($d['hepaticDosingAdjustment']).'</span>');
+    if(!empty($d['pregnancyRiskAssessment'])) $html.=sec('Pregnancy Risk','<span class="r-value">'.h($d['pregnancyRiskAssessment']).'</span>');
+    if(!empty($d['geriatricConsiderations'])) $html.=sec('Geriatric Considerations','<span class="r-value">'.h($d['geriatricConsiderations']).'</span>');
+    if(!empty($d['pediatricConsiderations'])) $html.=sec('Pediatric Considerations','<span class="r-value">'.h($d['pediatricConsiderations']).'</span>');
     if(!empty($d['safetyRecommendations'])) $html.=sec('Recommendations',rl($d['safetyRecommendations']));
-    if(!empty($d['monitoringParameters'])) $html.=sec('Monitoring',rl($d['monitoringParameters'],'#7c3aed'));
+    if(!empty($d['monitoringParameters'])) $html.=sec('Monitoring',rl($d['monitoringParameters']));
     echo json_encode(['html'=>$html]); break;
 
-// ── FORMULARY
+// FORMULARY
 case 'formulary':
     $d=gemini("Formulary search: ".($body['query']??'').". Status: ".($body['status']??'').". Route: ".($body['route']??'').". Return ONLY JSON: {\"results\":[{\"name\":\"str\",\"genericName\":\"str\",\"formularyStatus\":\"Formulary|Non-Formulary|Restricted\",\"route\":\"str\",\"therapeuticClass\":\"str\",\"restrictions\":\"str\",\"alternatives\":[\"str\"],\"costInformation\":\"str\",\"copayLevel\":\"str\",\"priorAuthorizationRequired\":\"Yes|No\",\"stepTherapyRequired\":\"Yes|No\",\"quantityLimits\":\"str\",\"formularyTier\":\"str\"}]}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $sc=['Formulary'=>'bg-emerald-100 text-emerald-700','Non-Formulary'=>'bg-red-100 text-red-700','Restricted'=>'bg-amber-100 text-amber-700'];
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='';
     foreach(($d['results']??[]) as $r){
-        $cls=$sc[$r['formularyStatus']??'']??'bg-gray-100 text-gray-600';
-        $html.='<div class="border border-gray-100 rounded-xl p-4 mb-3"><div class="flex items-start justify-between mb-2"><div><p class="font-black text-gray-900">'.h($r['name']??'').'</p><p class="text-xs text-gray-500">'.h($r['genericName']??'').'</p></div><span class="text-xs font-bold px-2.5 py-1 rounded-full '.$cls.'">'.h($r['formularyStatus']??'').'</span></div>';
-        $html.='<p class="text-xs text-gray-500 mb-1">'.h($r['therapeuticClass']??'').' — '.h($r['route']??'').'</p>';
-        if(!empty($r['formularyTier'])) $html.='<p class="text-xs text-gray-500 mb-1"><strong>Tier:</strong> '.h($r['formularyTier']).'</p>';
-        if(!empty($r['costInformation'])) $html.='<p class="text-xs text-gray-500 mb-1"><strong>Cost:</strong> '.h($r['costInformation']).'</p>';
-        if(!empty($r['copayLevel'])) $html.='<p class="text-xs text-gray-500 mb-1"><strong>Copay:</strong> '.h($r['copayLevel']).'</p>';
-        if(!empty($r['priorAuthorizationRequired']) && $r['priorAuthorizationRequired']=='Yes') $html.='<span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded mr-1">PA Required</span>';
-        if(!empty($r['stepTherapyRequired']) && $r['stepTherapyRequired']=='Yes') $html.='<span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded mr-1">Step Therapy</span>';
-        if(!empty($r['quantityLimits'])) $html.='<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mr-1">QL: '.h($r['quantityLimits']).'</span>';
-        if(!empty($r['restrictions'])) $html.='<p class="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1 mt-1">'.h($r['restrictions']).'</p>';
-        if(!empty($r['alternatives'])) $html.='<p class="text-xs text-gray-400 mt-2">Alternatives: '.h(implode(', ',$r['alternatives'])).'</p>';
-        $html.='</div>';
+        $html.='<div class="r-section"><div class="r-section-header no-collapse"><span class="r-section-title">'.h($r['name']??'').'</span>'.bdg($r['formularyStatus']??'').'</div><div class="r-section-body">';
+        $html.='<span class="r-value-sm">'.h($r['genericName']??'').'</span>';
+        $html.='<div style="font-size:12px;color:var(--slate4);margin-bottom:4px">'.h($r['therapeuticClass']??'').' — '.h($r['route']??'').'</div>';
+        if(!empty($r['formularyTier'])) $html.='<div class="r-field"><span class="r-label">Tier</span><span class="r-value-sm">'.h($r['formularyTier']).'</span></div>';
+        if(!empty($r['costInformation'])) $html.='<div class="r-field"><span class="r-label">Cost</span><span class="r-value-sm">'.h($r['costInformation']).'</span></div>';
+        if(!empty($r['copayLevel'])) $html.='<div class="r-field"><span class="r-label">Copay</span><span class="r-value-sm">'.h($r['copayLevel']).'</span></div>';
+        if(!empty($r['priorAuthorizationRequired']) && $r['priorAuthorizationRequired']=='Yes') $html.='<span class="badge badge-amber">PA Required</span>';
+        if(!empty($r['stepTherapyRequired']) && $r['stepTherapyRequired']=='Yes') $html.='<span class="badge badge-amber">Step Therapy</span>';
+        if(!empty($r['quantityLimits'])) $html.='<span class="badge badge-gray">QL: '.h($r['quantityLimits']).'</span>';
+        if(!empty($r['restrictions'])) $html.='<div class="r-alert r-alert-amber" style="margin-top:6px">'.h($r['restrictions']).'</div>';
+        if(!empty($r['alternatives'])) $html.='<div style="font-size:12px;color:var(--slate4);margin-top:6px">Alternatives: '.h(implode(', ',$r['alternatives'])).'</div>';
+        $html.='</div></div>';
     }
-    echo json_encode(['html'=>$html?:'<p class="text-gray-500">No results found.</p>']); break;
+    echo json_encode(['html'=>$html?:'<span class="r-value-sm">No results found.</span>']); break;
 
-// ── IV COMPATIBILITY
+// IV COMPATIBILITY
 case 'iv-compatibility':
     $drugs=implode(', ',array_filter([$body['drugA']??'',$body['drugB']??'',$body['drugC']??'']));
     $d=gemini("IV compatibility for: {$drugs} in ".($body['diluent']??'Normal Saline').". Return ONLY JSON: {\"overallCompatibility\":\"Compatible|Incompatible|Conditionally Compatible\",\"pairs\":[{\"drug1\":\"str\",\"drug2\":\"str\",\"compatibility\":\"Compatible|Incompatible|Conditionally Compatible\",\"evidence\":\"str\",\"notes\":\"str\"}],\"recommendation\":\"str\",\"alternativeApproach\":\"str\",\"ySiteCompatibility\":\"str\",\"syringeCompatibility\":\"str\",\"stabilityData\":\"str\",\"lightSensitivity\":\"str\",\"concentrationDependentInfo\":\"str\",\"administrationGuidelines\":[\"str\"]}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $cc=['Compatible'=>'bg-emerald-100 text-emerald-700','Incompatible'=>'bg-red-100 text-red-700','Conditionally Compatible'=>'bg-amber-100 text-amber-700'];
-    $ov=$d['overallCompatibility']??'Unknown'; $ocl=$cc[$ov]??'bg-gray-100 text-gray-600';
-    $html='<div class="text-center mb-4"><span class="text-xs font-bold px-4 py-2 rounded-full '.$ocl.'">'.h($ov).'</span></div>';
-    foreach(($d['pairs']??[]) as $p){$pcl=$cc[$p['compatibility']??'']??'bg-gray-100 text-gray-600';$html.='<div class="border border-gray-100 rounded-xl p-4 mb-3"><div class="flex items-center justify-between mb-2"><span class="font-semibold text-sm text-gray-900">'.h($p['drug1']??'').' + '.h($p['drug2']??'').'</span><span class="text-xs font-bold px-2.5 py-1 rounded-full '.$pcl.'">'.h($p['compatibility']??'').'</span></div><p class="text-xs text-gray-500">'.h($p['evidence']??'').'</p>';if(!empty($p['notes'])) $html.='<p class="text-xs text-blue-700 bg-blue-50 rounded px-2 py-1 mt-1">'.h($p['notes']).'</p>';$html.='</div>';}
-    if(!empty($d['ySiteCompatibility'])) $html.=sec('Y-Site Compatibility','<p class="text-gray-700 text-sm">'.h($d['ySiteCompatibility']).'</p>');
-    if(!empty($d['syringeCompatibility'])) $html.=sec('Syringe Compatibility','<p class="text-gray-700 text-sm">'.h($d['syringeCompatibility']).'</p>');
-    if(!empty($d['stabilityData'])) $html.=sec('Stability Data','<p class="text-gray-700 text-sm">'.h($d['stabilityData']).'</p>');
-    if(!empty($d['lightSensitivity'])) $html.=sec('Light Sensitivity','<p class="text-gray-700 text-sm">'.h($d['lightSensitivity']).'</p>');
-    if(!empty($d['concentrationDependentInfo'])) $html.=sec('Concentration-Dependent','<p class="text-gray-700 text-sm">'.h($d['concentrationDependentInfo']).'</p>');
-    if(!empty($d['administrationGuidelines'])) $html.=sec('Administration Guidelines',rl($d['administrationGuidelines'],'#2563EB'));
-    if(!empty($d['recommendation'])) $html.=sec('Recommendation','<p class="text-gray-700 text-sm">'.h($d['recommendation']).'</p>');
-    if(!empty($d['alternativeApproach'])) $html.='<div class="bg-blue-50 rounded-xl p-3 text-sm text-blue-800">'.h($d['alternativeApproach']).'</div>';
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $ov=$d['overallCompatibility']??'Unknown';
+    $html='<div style="text-align:center;margin-bottom:10px">'.bdg($ov).'</div>';
+    foreach(($d['pairs']??[]) as $p){
+        $html.='<div class="r-section"><div class="r-section-header no-collapse"><span class="r-section-title">'.h($p['drug1']??'').' + '.h($p['drug2']??'').'</span>'.bdg($p['compatibility']??'').'</div><div class="r-section-body">';
+        if(!empty($p['evidence'])) $html.='<span class="r-value-sm">'.h($p['evidence']).'</span>';
+        if(!empty($p['notes'])) $html.='<span class="r-value-sm" style="color:var(--blue)">'.h($p['notes']).'</span>';
+        $html.='</div></div>';
+    }
+    if(!empty($d['ySiteCompatibility'])) $html.=sec('Y-Site Compatibility','<span class="r-value">'.h($d['ySiteCompatibility']).'</span>');
+    if(!empty($d['syringeCompatibility'])) $html.=sec('Syringe Compatibility','<span class="r-value">'.h($d['syringeCompatibility']).'</span>');
+    if(!empty($d['stabilityData'])) $html.=sec('Stability Data','<span class="r-value">'.h($d['stabilityData']).'</span>');
+    if(!empty($d['lightSensitivity'])) $html.=sec('Light Sensitivity','<span class="r-value">'.h($d['lightSensitivity']).'</span>');
+    if(!empty($d['concentrationDependentInfo'])) $html.=sec('Concentration-Dependent','<span class="r-value">'.h($d['concentrationDependentInfo']).'</span>');
+    if(!empty($d['administrationGuidelines'])) $html.=sec('Administration Guidelines',rl($d['administrationGuidelines']));
+    if(!empty($d['recommendation'])) $html.=sec('Recommendation','<span class="r-value">'.h($d['recommendation']).'</span>');
+    if(!empty($d['alternativeApproach'])) $html.=alert('blue',h($d['alternativeApproach']));
     echo json_encode(['html'=>$html]); break;
 
-// ── CLINICAL PATHWAYS
+// CLINICAL PATHWAYS
 case 'clinical-pathways':
     $d=gemini("Clinical pathway for: ".($body['condition']??'').". Return ONLY JSON: {\"condition\":\"str\",\"overview\":\"str\",\"initialAssessment\":[\"str\"],\"diagnosticWorkup\":[\"str\"],\"treatmentSteps\":[{\"step\":1,\"action\":\"str\",\"timeframe\":\"str\",\"notes\":\"str\"}],\"monitoring\":[\"str\"],\"inclusionCriteria\":[\"str\"],\"exclusionCriteria\":[\"str\"],\"outcomeMeasures\":[\"str\"],\"dischargeCriteria\":[\"str\"],\"followUpSchedule\":\"str\",\"referralCriteria\":[\"str\"],\"patientResources\":[\"str\"]}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<h3 class="font-black text-gray-900 text-xl mb-3">'.h($d['condition']??'').'</h3>';
-    if(!empty($d['overview'])) $html.=sec('Overview','<p class="text-gray-700 text-sm leading-relaxed">'.h($d['overview']).'</p>');
-    if(!empty($d['inclusionCriteria'])) $html.=sec('Inclusion Criteria',rl($d['inclusionCriteria'],'#059669'));
-    if(!empty($d['exclusionCriteria'])) $html.=sec('Exclusion Criteria',rl($d['exclusionCriteria'],'#dc2626'));
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div class="r-value-lg" style="margin-bottom:8px">'.h($d['condition']??'').'</div>';
+    if(!empty($d['overview'])) $html.=sec('Overview','<span class="r-value">'.h($d['overview']).'</span>');
+    if(!empty($d['inclusionCriteria'])) $html.=sec('Inclusion Criteria',rl($d['inclusionCriteria']));
+    if(!empty($d['exclusionCriteria'])) $html.=sec('Exclusion Criteria',rl($d['exclusionCriteria']));
     if(!empty($d['initialAssessment'])) $html.=sec('Initial Assessment',rl($d['initialAssessment']));
-    if(!empty($d['diagnosticWorkup'])) $html.=sec('Diagnostic Workup',rl($d['diagnosticWorkup'],'#7c3aed'));
-    if(!empty($d['treatmentSteps'])){$html.='<p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Treatment Steps</p>';foreach($d['treatmentSteps'] as $step) $html.='<div class="flex gap-3 mb-3"><div class="flex-shrink-0 w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">'.h((string)($step['step']??'')).'</div><div><p class="font-semibold text-gray-900 text-sm">'.h($step['action']??'').'</p><p class="text-xs text-gray-400">'.h($step['timeframe']??'').'</p>'.(!empty($step['notes'])?'<p class="text-xs text-gray-500 mt-0.5">'.h($step['notes']).'</p>':'').'</div></div>';}
-    if(!empty($d['outcomeMeasures'])) $html.=sec('Outcome Measures',rl($d['outcomeMeasures'],'#0891b2'));
-    if(!empty($d['dischargeCriteria'])) $html.=sec('Discharge Criteria',rl($d['dischargeCriteria'],'#2563EB'));
-    if(!empty($d['followUpSchedule'])) $html.=sec('Follow-up Schedule','<p class="text-gray-700 text-sm">'.h($d['followUpSchedule']).'</p>');
-    if(!empty($d['referralCriteria'])) $html.=sec('Referral Criteria',rl($d['referralCriteria'],'#ea580c'));
-    if(!empty($d['monitoring'])) $html.=sec('Monitoring',rl($d['monitoring'],'#0891b2'));
-    if(!empty($d['patientResources'])) $html.=sec('Patient Resources',rl($d['patientResources'],'#059669'));
+    if(!empty($d['diagnosticWorkup'])) $html.=sec('Diagnostic Workup',rl($d['diagnosticWorkup']));
+    if(!empty($d['treatmentSteps'])){$ts='';foreach($d['treatmentSteps'] as $step) $ts.='<div style="display:flex;gap:10px;margin-bottom:8px"><div style="flex-shrink:0;width:24px;height:24px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">'.h((string)($step['step']??'')).'</div><div><strong style="font-size:14px">'.h($step['action']??'').'</strong><br><span style="font-size:11px;color:var(--slate4)">'.h($step['timeframe']??'').'</span>'.(!empty($step['notes'])?'<br><span style="font-size:12px;color:var(--slate3)">'.h($step['notes']).'</span>':'').'</div></div>';$html.=sec('Treatment Steps',$ts);}
+    if(!empty($d['outcomeMeasures'])) $html.=sec('Outcome Measures',rl($d['outcomeMeasures']));
+    if(!empty($d['dischargeCriteria'])) $html.=sec('Discharge Criteria',rl($d['dischargeCriteria']));
+    if(!empty($d['followUpSchedule'])) $html.=sec('Follow-up Schedule','<span class="r-value">'.h($d['followUpSchedule']).'</span>');
+    if(!empty($d['referralCriteria'])) $html.=sec('Referral Criteria',rl($d['referralCriteria']));
+    if(!empty($d['monitoring'])) $html.=sec('Monitoring',rl($d['monitoring']));
+    if(!empty($d['patientResources'])) $html.=sec('Patient Resources',rl($d['patientResources']));
     echo json_encode(['html'=>$html]); break;
 
-// ── CLINICAL CALCULATORS (AI-backed ones)
+// CLINICAL CALCULATORS
 case 'clinical-calculators':
     $d=gemini("Calculate ".($body['calculator']??'')." score. Data: ".($body['data']??'').". Return ONLY JSON: {\"calculator\":\"str\",\"result\":\"str\",\"score\":\"str\",\"interpretation\":\"str\",\"riskCategory\":\"str\",\"recommendations\":[\"str\"],\"calculationMethodology\":\"str\",\"variablesUsed\":[\"str\"],\"clinicalApplication\":\"str\",\"evidenceLevel\":\"str\",\"validationStudies\":\"str\",\"caveats\":[\"str\"]}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<p class="text-3xl font-black text-orange-500 mb-1">'.h($d['result']??$d['score']??'').'</p>';
-    if(!empty($d['riskCategory'])) $html.='<div class="mb-3">'.bdg($d['riskCategory']).'</div>';
-    $html.=sec('Interpretation','<p class="text-gray-700 text-sm">'.h($d['interpretation']??'').'</p>');
-    if(!empty($d['calculationMethodology'])) $html.=sec('Methodology','<p class="text-gray-700 text-sm">'.h($d['calculationMethodology']).'</p>');
-    if(!empty($d['variablesUsed'])) $html.=sec('Variables',rl($d['variablesUsed'],'#7c3aed'));
-    if(!empty($d['clinicalApplication'])) $html.=sec('Clinical Application','<p class="text-gray-700 text-sm">'.h($d['clinicalApplication']).'</p>');
-    if(!empty($d['evidenceLevel'])) $html.=sec('Evidence Level','<p class="text-gray-700 text-sm">'.h($d['evidenceLevel']).'</p>');
-    if(!empty($d['validationStudies'])) $html.=sec('Validation Studies','<p class="text-gray-700 text-sm">'.h($d['validationStudies']).'</p>');
-    if(!empty($d['caveats'])) $html.=sec('Caveats',rl($d['caveats'],'#ea580c'));
-    if(!empty($d['recommendations'])) $html.=sec('Recommendations',rl($d['recommendations'],'#ea580c'));
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="font-size:28px;font-weight:900;margin-bottom:4px">'.h($d['result']??$d['score']??'').'</div>';
+    if(!empty($d['riskCategory'])) $html.='<div style="margin-bottom:8px">'.bdg($d['riskCategory']).'</div>';
+    if(!empty($d['interpretation'])) $html.=sec('Interpretation','<span class="r-value">'.h($d['interpretation']).'</span>');
+    if(!empty($d['calculationMethodology'])) $html.=sec('Methodology','<span class="r-value">'.h($d['calculationMethodology']).'</span>');
+    if(!empty($d['variablesUsed'])) $html.=sec('Variables',rl($d['variablesUsed']));
+    if(!empty($d['clinicalApplication'])) $html.=sec('Clinical Application','<span class="r-value">'.h($d['clinicalApplication']).'</span>');
+    if(!empty($d['evidenceLevel'])) $html.=sec('Evidence Level','<span class="r-value">'.h($d['evidenceLevel']).'</span>');
+    if(!empty($d['validationStudies'])) $html.=sec('Validation Studies','<span class="r-value">'.h($d['validationStudies']).'</span>');
+    if(!empty($d['caveats'])) $html.=sec('Caveats',rl($d['caveats']));
+    if(!empty($d['recommendations'])) $html.=sec('Recommendations',rl($d['recommendations']));
     echo json_encode(['html'=>$html]); break;
 
-// ── STEWARDSHIP
+// STEWARDSHIP
 case 'stewardship':
     $d=gemini("AMS review. Antibiotic: ".($body['antibiotic']??'').". Indication: ".($body['indication']??'').". Culture: ".($body['culture']??'').". Day ".($body['dayOfTherapy']??'')." of therapy. Return ONLY JSON: {\"appropriateness\":\"Appropriate|Inappropriate|Needs Review\",\"recommendation\":\"Continue|De-escalate|Discontinue|Modify\",\"justification\":\"str\",\"deEscalationOption\":\"str\",\"suggestedDuration\":\"str\",\"monitoringParameters\":[\"str\"],\"resistanceRisk\":\"Low|Moderate|High\",\"durationAssessment\":\"str\",\"cultureResults\":\"str\",\"sensitivityPatterns\":\"str\",\"ivToOralConversion\":\"str\",\"renalDosingAdjustment\":\"str\",\"allergyAssessment\":\"str\",\"stewardshipCategory\":\"str\"}");
-    if(isset($d['error'])){echo json_encode(['html'=>'<p class="text-red-500">'.h($d['error']).'</p>']);exit;}
-    $html='<div class="flex gap-2 mb-4">'.bdg($d['appropriateness']??'Needs Review').bdg($d['recommendation']??'').'</div>';
-    $html.=sec('Justification','<p class="text-gray-700 text-sm leading-relaxed">'.h($d['justification']??'').'</p>');
-    if(!empty($d['stewardshipCategory'])) $html.=sec('AMS Category','<p class="text-gray-700 text-sm">'.h($d['stewardshipCategory']).'</p>');
-    if(!empty($d['cultureResults'])) $html.=sec('Culture Results','<p class="text-gray-700 text-sm">'.h($d['cultureResults']).'</p>');
-    if(!empty($d['sensitivityPatterns'])) $html.=sec('Sensitivity Patterns','<p class="text-gray-700 text-sm">'.h($d['sensitivityPatterns']).'</p>');
-    if(!empty($d['durationAssessment'])) $html.=sec('Duration Assessment','<p class="text-gray-700 text-sm">'.h($d['durationAssessment']).'</p>');
-    if(!empty($d['deEscalationOption'])) $html.='<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 mb-4 text-emerald-800 text-sm"><strong>De-escalation:</strong> '.h($d['deEscalationOption']).'</div>';
-    if(!empty($d['ivToOralConversion'])) $html.=sec('IV-to-Oral Conversion','<p class="text-emerald-700 text-sm">'.h($d['ivToOralConversion']).'</p>');
-    if(!empty($d['renalDosingAdjustment'])) $html.=sec('Renal Adjustment','<p class="text-amber-700 text-sm">'.h($d['renalDosingAdjustment']).'</p>');
-    if(!empty($d['suggestedDuration'])) $html.=sec('Duration','<p class="text-gray-700 text-sm">'.h($d['suggestedDuration']).'</p>');
-    if(!empty($d['allergyAssessment'])) $html.=sec('Allergy Assessment','<p class="text-gray-700 text-sm">'.h($d['allergyAssessment']).'</p>');
-    if(!empty($d['monitoringParameters'])) $html.=sec('Monitoring',rl($d['monitoringParameters'],'#4338ca'));
-    $html.='<div class="flex items-center gap-2 mt-2"><p class="text-xs text-gray-500">Resistance Risk:</p>'.bdg($d['resistanceRisk']??'Low').'</div>';
+    if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
+    $html='<div style="display:flex;gap:6px;margin-bottom:10px">'.bdg($d['appropriateness']??'Needs Review').bdg($d['recommendation']??'').'</div>';
+    if(!empty($d['justification'])) $html.=sec('Justification','<span class="r-value">'.h($d['justification']).'</span>');
+    if(!empty($d['stewardshipCategory'])) $html.=sec('AMS Category','<span class="r-value">'.h($d['stewardshipCategory']).'</span>');
+    if(!empty($d['cultureResults'])) $html.=sec('Culture Results','<span class="r-value">'.h($d['cultureResults']).'</span>');
+    if(!empty($d['sensitivityPatterns'])) $html.=sec('Sensitivity Patterns','<span class="r-value">'.h($d['sensitivityPatterns']).'</span>');
+    if(!empty($d['durationAssessment'])) $html.=sec('Duration Assessment','<span class="r-value">'.h($d['durationAssessment']).'</span>');
+    if(!empty($d['deEscalationOption'])) $html.=alert('green','<strong>De-escalation:</strong> '.h($d['deEscalationOption']));
+    if(!empty($d['ivToOralConversion'])) $html.=sec('IV-to-Oral Conversion','<span class="r-value">'.h($d['ivToOralConversion']).'</span>');
+    if(!empty($d['renalDosingAdjustment'])) $html.=sec('Renal Adjustment','<span class="r-value">'.h($d['renalDosingAdjustment']).'</span>');
+    if(!empty($d['suggestedDuration'])) $html.=sec('Duration','<span class="r-value">'.h($d['suggestedDuration']).'</span>');
+    if(!empty($d['allergyAssessment'])) $html.=sec('Allergy Assessment','<span class="r-value">'.h($d['allergyAssessment']).'</span>');
+    if(!empty($d['monitoringParameters'])) $html.=sec('Monitoring',rl($d['monitoringParameters']));
+    if(!empty($d['resistanceRisk'])) $html.=sec('Resistance Risk','<span class="badge '.(['Low'=>'badge-green','Moderate'=>'badge-amber','High'=>'badge-red'][$d['resistanceRisk']]??'badge-gray').'">'.h($d['resistanceRisk']).'</span>');
     echo json_encode(['html'=>$html]); break;
 
 default:
