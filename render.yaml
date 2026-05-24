@@ -1,0 +1,27 @@
+# Render configuration for PHP application
+services:
+  - type: php
+    name: medtechai-org
+    env: php:8.1
+    buildCommand: []
+    startCommand: php -S 0.0.0.0:8000
+    disk:
+      - name: php
+        size: 512
+    # Add environment variables in Render dashboard:
+    # GROQ_API_KEY, GEMINI_API_KEY, OPENROUTER_API_KEY
+    # Optional: Set these via .env file in repository (not recommended for production)
+    # env:
+    #   GROQ_API_KEY: "your_key"
+    #   GEMINI_API_KEY: "your_key"
+    #   OPENROUTER_API_KEY: "your_key"
+    # For production, set via Render dashboard > Environment
+
+    # If you need custom nginx configuration, create nginx.conf and uncomment below:
+    # nginxConfig: nginx.conf
+
+# This config assumes PHP files are in the root directory
+# The PHP built-in server will handle PHP processing
+
+# For static file serving and rewrite rules, we need custom nginx.conf
+# See nginx.conf for SPA fallback and API routing
