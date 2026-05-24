@@ -1,27 +1,103 @@
-﻿<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Clinical Decision Support | Arab MedTechAI Tools</title><meta name="description" content="AI-powered treatment protocols, management plans, and evidence-based recommendations from patient presentation."/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/tools/shared.css"/>
-<style>:root{--accent:#2563eb;--accent-bg:#dbeafe}</style>
-</head><body>
-<nav class="nav"><a href="/" class="nav-logo">MedTech<span>AI</span></a><span class="nav-sep">/</span><a href="/tools/" class="nav-back"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>All Tools</a><div class="nav-spacer"></div><a href="/contact/" class="nav-cta">Get Access</a></nav>
-<div class="breadcrumb"><a href="/">Home</a><span>/</span><a href="/tools/">Tools</a><span>/</span><span style="color:#475569;font-weight:600">Clinical Decision Support</span></div>
-<div class="tool-header"><div class="tool-icon"><svg width="26" height="26" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/></svg></div><div class="tool-info"><div class="tool-cat">Clinical Support</div><div class="tool-name">Clinical Decision Support</div><div class="tool-desc">AI-powered treatment protocols, management plans, and evidence-based recommendations from patient presentation.</div></div></div>
-<div class="main"><div><div class="card"><div class="card-header"><div class="card-header-dot"></div><span class="card-header-title">Enter Details</span></div><div class="card-body">
-<div class="field"><label>Symptoms &amp; Clinical Findings <span style="color:#dc2626">*</span></label><textarea id="f_sx" placeholder="e.g. 68yr male, fever 38.8°C, productive cough, SpO2 92%, CXR shows right lower lobe consolidation, WBC 14.5…"></textarea></div>
-<div class="field"><label>Medical History</label><input id="f_hx" type="text" placeholder="e.g. DM type 2, Hypertension, previous TB"/></div>
-<div class="field"><label>Current Medications</label><input id="f_meds" type="text" placeholder="e.g. Metformin 1g BD, Amlodipine 5mg"/></div>
-<script>function getFormData(){var s=document.getElementById("f_sx").value.trim();if(!s){alert("Enter symptoms and clinical findings");return null;}return{symptoms:s,hx:document.getElementById("f_hx").value};}</script><div class="field" style="margin-top:18px;margin-bottom:0"><button class="btn" id="submitBtn" onclick="runTool()"><span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span></button></div></div></div></div>
-<div><div id="placeholderCard" class="card" style="border-style:dashed;box-shadow:none"><div class="empty-result"><p style="font-size:32px;margin-bottom:10px;opacity:.4"><svg width="26" height="26" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/></svg></p><p class="em-title">Results appear here</p><p class="em-sub">Fill the form &amp; click Run Tool &nbsp;<kbd style="font-size:10px;background:#f1f5f9;border:1px solid #e2e8f0;padding:2px 5px;border-radius:4px">Ctrl+Enter</kbd></p></div></div>
-<div class="card result-panel" id="resultPanel"><div class="result-top"><span class="result-top-title">Result</span><div class="result-actions"><button class="result-action-btn" onclick="window.print()">Print</button><button class="result-action-btn" onclick="resetTool()">Clear</button></div></div><div class="result-body" id="resultBody"></div></div></div></div>
-<div class="disclaimer-bar"><div><svg width="13" height="13" fill="none" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><p><strong>Clinical decision support only.</strong> AI results must be reviewed by a qualified healthcare professional before clinical use.</p></div></div>
-<footer class="page-footer"><div class="page-footer-inner"><span class="page-footer-logo">MedTech<span>AI</span></span><div class="page-footer-links"><a href="/tools/">All Tools</a><a href="/">Home</a><a href="/contact/">Contact</a></div><p class="page-footer-copy">&copy; 2025 Arab MedTechAI Organization &mdash; AI: Groq · Gemini · OpenRouter</p></div></footer>
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clinical Decision Support — Arab MedTechAI</title>
+  <meta name="description" content="AI-powered treatment protocols, management plans, and evidence-based recommendations from patient presentation."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/tools/shared.css"/>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/tools/" class="nav-back">&#8592; All Tools</a>
+  <span class="nav-sep">|</span>
+  <a href="/" class="nav-logo">MedTech<span>AI</span></a>
+</nav>
+
+<div class="breadcrumb">
+  <a href="/">Home</a><span>/</span>
+  <a href="/tools/">Tools</a><span>/</span>
+  <span>Clinical Decision Support</span>
+</div>
+
+<div class="tool-header">
+  <div class="tool-icon" style="background:#eef2ff">
+    <svg width="22" height="22" fill="none" stroke="#4f46e5" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/></svg>
+  </div>
+  <div>
+    <span class="tool-cat" style="background:#eef2ff;color:#4f46e5">Clinical Support</span>
+    <h1 class="tool-name">Clinical Decision Support</h1>
+    <p class="tool-desc">AI-powered treatment protocols, management plans, and evidence-based recommendations from patient presentation.</p>
+  </div>
+</div>
+
+<div class="main">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-header-dot" style="background:var(--primary)"></span>
+      <span class="card-header-title">Enter Details</span>
+    </div>
+    <div class="card-body">
+      <div class="field"><label>Symptoms &amp; Clinical Findings</label><textarea id="f_sx" placeholder="e.g. 68yr male, fever 38.8°C, productive cough, SpO2 92%, CXR shows right lower lobe consolidation, WBC 14.5…"></textarea></div>
+      <div class="field"><label>Medical History</label><input id="f_hx" type="text" placeholder="e.g. DM type 2, Hypertension, previous TB"/></div>
+      <div class="field"><label>Current Medications</label><input id="f_meds" type="text" placeholder="e.g. Metformin 1g BD, Amlodipine 5mg"/></div>
+      <button class="btn btn-primary btn-block" id="submitBtn" onclick="runTool()">
+        <span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span>
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <div class="card" id="placeholderCard">
+      <div class="placeholder-card">
+        <svg width="32" height="32" fill="none" stroke="#94a3b8" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/></svg>
+        <h3>Clinical Decision Support</h3>
+        <p>Enter patient symptoms and history, then click Run Tool.</p>
+      </div>
+    </div>
+
+    <div class="result-panel" id="resultPanel">
+      <div id="resultBody"></div>
+      <div style="margin-top:12px;display:flex;gap:8px" class="no-print">
+        <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
+        <button class="btn btn-outline btn-sm" onclick="resetTool()">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer style="text-align:center;padding:24px;font-size:12px;color:var(--slate5);border-top:1px solid var(--border-light);margin-top:auto">
+  &copy; 2025 Arab MedTechAI Organization &mdash; AI: Groq &middot; Gemini &middot; OpenRouter
+</footer>
+
 <script>
 var EP='/api/tools/clinical-decision-support';
-async function runTool(){var btn=document.getElementById('submitBtn'),sp=document.getElementById('spinner'),txt=document.getElementById('btnText'),body=getFormData();if(!body)return;btn.disabled=true;sp.classList.add('on');txt.textContent='Processing…';try{var res=await fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});var data=await res.json();show(data.html||fb(data));}catch(e){show('<div class="r-error"><p>Connection error — check server API keys are configured.</p></div>');}finally{btn.disabled=false;sp.classList.remove('on');txt.textContent='Run Tool';}}
-function show(html){document.getElementById('placeholderCard').style.display='none';var rp=document.getElementById('resultPanel');rp.classList.add('on');document.getElementById('resultBody').innerHTML=html;rp.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function getFormData(){var s=document.getElementById('f_sx').value.trim();if(!s){alert('Enter symptoms and clinical findings');return null;}return{symptoms:s,hx:document.getElementById('f_hx').value,currentMeds:document.getElementById('f_meds').value};}
+async function runTool(){
+  var btn=document.getElementById('submitBtn'),sp=document.getElementById('spinner'),txt=document.getElementById('btnText'),body=getFormData();
+  if(!body)return;
+  btn.disabled=true;sp.classList.add('on');txt.textContent='Processing…';
+  try{
+    var res=await fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    var data=await res.json();
+    show(data.html||fb(data));
+  }catch(e){show('<div class="r-error"><span class="r-error-icon">&#9888;</span><div><strong>Connection Error</strong><br>Check that the server is running and API keys are set.</div></div>');}
+  finally{btn.disabled=false;sp.classList.remove('on');txt.textContent='Run Tool';}
+}
+function show(html){
+  document.getElementById('placeholderCard').style.display='none';
+  var rp=document.getElementById('resultPanel');rp.classList.add('on');
+  document.getElementById('resultBody').innerHTML=html;
+  document.querySelectorAll('.r-section-header').forEach(function(h){h.addEventListener('click',function(){this.classList.toggle('collapsed');});});
+  rp.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 function resetTool(){document.getElementById('placeholderCard').style.display='';document.getElementById('resultPanel').classList.remove('on');document.getElementById('resultBody').innerHTML='';}
-function fb(d){if(d.error)return'<div class="r-error"><p>'+d.error+'</p></div>';if(d.raw_text)return'<p class="r-text">'+d.raw_text.replace(/\n/g,'<br>')+'</p>';return'<pre style="font-size:11px;overflow:auto">'+JSON.stringify(d,null,2)+'</pre>';}
+function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon">&#9888;</span><div>'+d.error+'</div></div>';if(d.raw_text)return'<p>'+d.raw_text.replace(/\n/g,'<br>')+'</p>';return'<pre style="font-size:11px;overflow:auto">'+JSON.stringify(d,null,2)+'</pre>';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
-</script></body></html>
+</script>
+
+</body>
+</html>

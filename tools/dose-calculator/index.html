@@ -1,81 +1,100 @@
-﻿<!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Dose Calculator | Arab MedTechAI Tools</title>
-<meta name="description" content="Pediatric and adult dosage calculation with weight-based dosing, renal function adjustment, and maximum dose safety alerts."/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/tools/shared.css"/>
-<style>:root{--accent:#16a34a;--accent-bg:#dcfce7}</style>
-</head><body>
-<nav class="nav">
-  <a href="/" class="nav-logo">MedTech<span>AI</span></a>
-  <span class="nav-sep">/</span>
-  <a href="/tools/" class="nav-back"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>All Tools</a>
-  <div class="nav-spacer"></div>
-  <a href="/contact/" class="nav-cta">Get Access</a>
-</nav>
-<div class="breadcrumb"><a href="/">Home</a><span>/</span><a href="/tools/">Tools</a><span>/</span><span style="color:#475569;font-weight:600">Dose Calculator</span></div>
-<div class="tool-header">
-  <div class="tool-icon"><svg width="26" height="26" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg></div>
-  <div class="tool-info">
-    <div class="tool-cat">Pharmacy Tools</div>
-    <div class="tool-name">Dose Calculator</div>
-    <div class="tool-desc">Pediatric and adult dosage calculation with weight-based dosing, renal function adjustment, and maximum dose safety alerts.</div>
-  </div>
-</div>
-<div class="main">
-  <div>
-    <div class="card">
-      <div class="card-header"><div class="card-header-dot"></div><span class="card-header-title">Enter Details</span></div>
-      <div class="card-body">
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dose Calculator — Arab MedTechAI</title>
+  <meta name="description" content="Pediatric and adult dosage calculation with weight-based dosing, renal function adjustment, and maximum dose safety alerts."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/tools/shared.css"/>
+</head>
+<body>
 
-<div class="field"><label>Drug Name <span style="color:#dc2626">*</span></label><input id="f_drug" type="text" placeholder="e.g. Amoxicillin" autocomplete="off"/></div>
-<div class="field-row">
-<div class="field"><label>Weight (kg) <span style="color:#dc2626">*</span></label><input id="f_wt" type="number" placeholder="e.g. 70" min="0.5" max="300"/></div>
-<div class="field"><label>Age</label><input id="f_age" type="text" placeholder="e.g. 6 years / Adult"/></div>
+<!-- Nav -->
+<nav class="nav">
+  <a href="/tools/" class="nav-back">&#8592; All Tools</a>
+  <span class="nav-sep">|</span>
+  <a href="/" class="nav-logo">MedTech<span>AI</span></a>
+</nav>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb">
+  <a href="/">Home</a><span>/</span>
+  <a href="/tools/">Tools</a><span>/</span>
+  <span>Dose Calculator</span>
 </div>
-<div class="field"><label>Indication</label><input id="f_ind" type="text" placeholder="e.g. Community-acquired pneumonia"/></div>
-<div class="field"><label>Renal Function</label><select id="f_ren"><option>Normal</option><option>Mild impairment (CrCl 50–80)</option><option>Moderate impairment (CrCl 30–50)</option><option>Severe impairment (CrCl &lt;30)</option><option>Dialysis (ESRD)</option></select></div>
-<script>function getFormData(){var d=document.getElementById("f_drug").value.trim(),w=document.getElementById("f_wt").value;if(!d||!w){alert("Enter drug name and weight");return null;}return{drug:d,weight:w,age:document.getElementById("f_age").value,indication:document.getElementById("f_ind").value,renal:document.getElementById("f_ren").value};}</script>
-        <div class="field" style="margin-top:18px;margin-bottom:0">
-          <button class="btn" id="submitBtn" onclick="runTool()">
-            <span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span>
-          </button>
-        </div>
-      </div>
-    </div>
+
+<!-- Tool Header -->
+<div class="tool-header">
+  <div class="tool-icon" style="background:#dbeafe">
+    <svg width="22" height="22" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
   </div>
   <div>
-    <div id="placeholderCard" class="card" style="border-style:dashed;box-shadow:none">
-      <div class="empty-result">
-        <p style="font-size:32px"><svg width="26" height="26" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg></p>
-        <p class="em-title">Results appear here</p>
-        <p class="em-sub">Fill the form &amp; click Run Tool &nbsp; <kbd style="font-size:10px;background:#f1f5f9;border:1px solid #e2e8f0;padding:2px 5px;border-radius:4px">Ctrl+Enter</kbd></p>
+    <span class="tool-cat" style="background:#dbeafe;color:#1e40af">Pharmacy</span>
+    <h1 class="tool-name">Dose Calculator</h1>
+    <p class="tool-desc">Pediatric and adult dosage calculation with weight-based dosing, renal function adjustment, and maximum dose safety alerts.</p>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <!-- Form Card -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-header-dot" style="background:var(--primary)"></span>
+      <span class="card-header-title">Enter Details</span>
+    </div>
+    <div class="card-body">
+      <div class="field"><label>Drug Name</label><input id="f_drug" type="text" placeholder="e.g. Amoxicillin" autocomplete="off"/></div>
+      <div class="field-row">
+        <div class="field"><label>Weight (kg)</label><input id="f_wt" type="number" placeholder="e.g. 70" min="0.5" max="300"/></div>
+        <div class="field"><label>Age</label><input id="f_age" type="text" placeholder="e.g. 6 years / Adult"/></div>
+      </div>
+      <div class="field"><label>Indication</label><input id="f_ind" type="text" placeholder="e.g. Community-acquired pneumonia"/></div>
+      <div class="field"><label>Renal Function</label>
+        <select id="f_ren">
+          <option>Normal</option>
+          <option>Mild impairment (CrCl 50–80)</option>
+          <option>Moderate impairment (CrCl 30–50)</option>
+          <option>Severe impairment (CrCl &lt;30)</option>
+          <option>Dialysis (ESRD)</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" id="submitBtn" onclick="runTool()">
+        <span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Results Card -->
+  <div>
+    <div class="card" id="placeholderCard">
+      <div class="placeholder-card">
+        <svg width="32" height="32" fill="none" stroke="#94a3b8" stroke-width="1.5" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+        <h3>Dose Calculator</h3>
+        <p>Enter drug details and patient parameters, then click Run Tool.</p>
       </div>
     </div>
-    <div class="card result-panel" id="resultPanel">
-      <div class="result-top">
-        <span class="result-top-title">Result</span>
-        <div class="result-actions">
-          <button class="result-action-btn" onclick="window.print()">Print</button>
-          <button class="result-action-btn" onclick="resetTool()">Clear</button>
-        </div>
+
+    <div class="result-panel" id="resultPanel">
+      <div id="resultBody"></div>
+      <div style="margin-top:12px;display:flex;gap:8px" class="no-print">
+        <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
+        <button class="btn btn-outline btn-sm" onclick="resetTool()">Clear</button>
       </div>
-      <div class="result-body" id="resultBody"></div>
     </div>
   </div>
 </div>
-<div class="disclaimer-bar"><div>
-  <svg width="13" height="13" fill="none" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-  <p><strong>Clinical decision support only.</strong> AI-generated results must be reviewed by a qualified healthcare professional before any clinical use.</p>
-</div></div>
-<footer class="page-footer"><div class="page-footer-inner">
-  <span class="page-footer-logo">MedTech<span>AI</span></span>
-  <div class="page-footer-links"><a href="/tools/">All Tools</a><a href="/">Home</a><a href="/contact/">Contact</a></div>
-  <p class="page-footer-copy">&copy; 2025 Arab MedTechAI Organization &mdash; AI: Groq · Gemini · OpenRouter</p>
-</div></footer>
+
+<!-- Footer -->
+<footer style="text-align:center;padding:24px;font-size:12px;color:var(--slate5);border-top:1px solid var(--border-light);margin-top:auto">
+  &copy; 2025 Arab MedTechAI Organization &mdash; AI: Groq &middot; Gemini &middot; OpenRouter
+</footer>
+
 <script>
 var EP='/api/tools/dose-calculator';
+function getFormData(){var d=document.getElementById('f_drug').value.trim(),w=document.getElementById('f_wt').value;if(!d||!w){alert('Enter drug name and weight');return null;}return{drug:d,weight:w,age:document.getElementById('f_age').value,indication:document.getElementById('f_ind').value,renal:document.getElementById('f_ren').value};}
 async function runTool(){
   var btn=document.getElementById('submitBtn'),sp=document.getElementById('spinner'),txt=document.getElementById('btnText'),body=getFormData();
   if(!body)return;
@@ -84,17 +103,20 @@ async function runTool(){
     var res=await fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     var data=await res.json();
     show(data.html||fb(data));
-  }catch(e){show('<div class="r-error"><p>Connection error — check that the server is running and GEMINI_API_KEY / GROQ_API_KEY is set.</p></div>');}
+  }catch(e){show('<div class="r-error"><span class="r-error-icon">&#9888;</span><div><strong>Connection Error</strong><br>Check that the server is running and API keys are set.</div></div>');}
   finally{btn.disabled=false;sp.classList.remove('on');txt.textContent='Run Tool';}
 }
 function show(html){
   document.getElementById('placeholderCard').style.display='none';
   var rp=document.getElementById('resultPanel');rp.classList.add('on');
   document.getElementById('resultBody').innerHTML=html;
+  document.querySelectorAll('.r-section-header').forEach(function(h){h.addEventListener('click',function(){this.classList.toggle('collapsed');});});
   rp.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function resetTool(){document.getElementById('placeholderCard').style.display='';document.getElementById('resultPanel').classList.remove('on');document.getElementById('resultBody').innerHTML='';}
-function fb(d){if(d.error)return'<div class="r-error"><p>'+d.error+'</p></div>';if(d.raw_text)return'<p class="r-text">'+d.raw_text.replace(/\n/g,'<br>')+'</p>';return'<pre style="font-size:11px;overflow:auto">'+JSON.stringify(d,null,2)+'</pre>';}
+function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon">&#9888;</span><div>'+d.error+'</div></div>';if(d.raw_text)return'<p>'+d.raw_text.replace(/\n/g,'<br>')+'</p>';return'<pre style="font-size:11px;overflow:auto">'+JSON.stringify(d,null,2)+'</pre>';}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
-</body></html>
+
+</body>
+</html>
