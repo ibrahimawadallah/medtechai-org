@@ -5,54 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>About | MedTechAI</title>
   <meta name="description" content="Arab MedTechAI Organization - founded 2020 in Abu Dhabi, UAE. Building AI-powered medical systems and digital health platforms for the Arab world."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/tools/shared.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Inter,system-ui,sans-serif;color:#1e293b;background:#fff;line-height:1.5;-webkit-font-smoothing:antialiased}
-    a{text-decoration:none;color:#2563eb}
-    a:hover{text-decoration:underline}
     .wrap{max-width:960px;margin:0 auto;padding:0 20px}
-    .hdr{display:flex;align-items:center;justify-content:space-between;height:48px;padding:0 20px;background:#0f172a}
-    .hdr-logo{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.3px}
-    .hdr-logo em{font-style:normal;color:#38bdf8}
-    .hdr-nav{display:flex;gap:4px}
-    .hdr-nav a{padding:6px 12px;font-size:13px;font-weight:500;color:#94a3b8;border-radius:4px}
-    .hdr-nav a:hover{background:rgba(255,255,255,.08);text-decoration:none;color:#fff}
-    .hdr-nav a.act{color:#38bdf8}
-    .sec-h{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
-    .ftr{padding:20px 0;border-top:1px solid #f1f5f9;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:#94a3b8}
-    .ftr-links{display:flex;gap:14px}
-    .ftr-links a{color:#94a3b8}
-    .ftr-links a:hover{color:#475569;text-decoration:underline}
-    .content p{font-size:14px;color:#475569;line-height:1.7;margin-bottom:14px}
+    .content p{font-size:14px;color:var(--slate3);line-height:1.7;margin-bottom:14px}
     .tl-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9}
     .tl-item:last-child{border-bottom:none}
-    .tl-year{font-size:14px;font-weight:700;color:#059669;white-space:nowrap;min-width:70px}
-    .tl-desc{font-size:14px;color:#475569;line-height:1.6}
-    .tl-desc strong{color:#1e293b}
+    .tl-year{font-size:14px;font-weight:700;color:var(--green);white-space:nowrap;min-width:70px}
+    .tl-desc{font-size:14px;color:var(--slate3);line-height:1.6}
+    .tl-desc strong{color:var(--slate)}
     .plat-list{list-style:none;padding:0}
-    .plat-list li{padding:6px 0;font-size:14px;color:#475569}
-    .contact-line{font-size:14px;color:#475569;padding:4px 0}
-    .contact-line a{color:#2563eb}
+    .plat-list li{padding:6px 0;font-size:14px;color:var(--slate3)}
+    .contact-line{font-size:14px;color:var(--slate3);padding:4px 0}
+    .contact-line a{color:var(--blue)}
+    .nav-home{color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500}
+    .nav-home:hover{background:rgba(255,255,255,.08);color:#fff;text-decoration:none}
+    .nav-home.act{color:#38bdf8}
   </style>
 </head>
 <body>
 
-<div class="wrap">
-<header class="hdr">
-  <a href="/" class="hdr-logo">MedTech<em>AI</em></a>
-  <nav class="hdr-nav">
-    <a href="/">Home</a>
-    <a href="/tools/">Tools</a>
-    <a href="/about/" class="act">About</a>
-    <a href="/contact/">Contact</a>
-  </nav>
-</header>
+<nav class="nav" style="gap:16px">
+  <a href="/" class="nav-logo">MedTech<span>AI</span></a>
+  <span style="flex:1"></span>
+  <a href="/" class="nav-home">Home</a>
+  <a href="/tools/" class="nav-home">Tools</a>
+  <a href="/about/" class="nav-home act">About</a>
+  <a href="/contact/" class="nav-home">Contact</a>
+</nav>
 
+<div class="wrap">
   <main style="padding:40px 0">
 
     <section style="margin-bottom:40px">
-      <h2 class="sec-h">About</h2>
+      <h2 class="sec-h" style="font-size:12px;font-weight:700;color:var(--slate4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">About</h2>
       <div class="content">
         <p>The Arab MedTechAI Organization was founded in 2020 in Abu Dhabi, United Arab Emirates. Our mission is to build and deploy AI-powered medical systems that serve the Arab world — bridging the gap between advanced artificial intelligence and regional healthcare needs.</p>
         <p>We develop intelligent clinical platforms that are culturally aligned, clinically reliable, and accessible across the region. From AI pharmacy tools to clinical decision support systems, our work empowers healthcare professionals with technology that enhances decision-making and improves patient outcomes.</p>
@@ -61,7 +50,7 @@
     </section>
 
     <section style="margin-bottom:40px">
-      <h2 class="sec-h">Timeline</h2>
+      <h2 class="sec-h" style="font-size:12px;font-weight:700;color:var(--slate4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Timeline</h2>
       <div class="tl-item"><span class="tl-year">2020</span><span class="tl-desc"><strong>Organization Founded</strong> &mdash; Arab MedTechAI Organization established in Abu Dhabi with a mission to bring AI to Arab healthcare.</span></div>
       <div class="tl-item"><span class="tl-year">2022</span><span class="tl-desc"><strong>AI Pharmacy Platform Launched</strong> &mdash; pharmacy.medtechai.net goes live — AI-powered drug lookup, dosing, and interaction checking for pharmacists.</span></div>
       <div class="tl-item"><span class="tl-year">2024</span><span class="tl-desc"><strong>Medical AI Platform &amp; Quran AI</strong> &mdash; Expanded with med.medtechai.net for clinical decision support and quran.medtechai.net — bringing AI to Islamic scholarship.</span></div>
@@ -69,7 +58,7 @@
     </section>
 
     <section style="margin-bottom:40px">
-      <h2 class="sec-h">Platforms</h2>
+      <h2 class="sec-h" style="font-size:12px;font-weight:700;color:var(--slate4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Platforms</h2>
       <ul class="plat-list">
         <li>AI Pharmacy — <a href="https://pharmacy.medtechai.net">pharmacy.medtechai.net</a></li>
         <li>Medical AI — <a href="https://med.medtechai.net">med.medtechai.net</a></li>
@@ -78,18 +67,18 @@
     </section>
 
     <section>
-      <h2 class="sec-h">Contact</h2>
+      <h2 class="sec-h" style="font-size:12px;font-weight:700;color:var(--slate4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Contact</h2>
       <div class="contact-line">Abu Dhabi, United Arab Emirates</div>
       <div class="contact-line">Email: <a href="mailto:contact@medtechai.net">contact@medtechai.net</a></div>
       <div class="contact-line">Phone: <a href="tel:+971525397947">+971 52 539 7947</a></div>
     </section>
 
   </main>
-
 </div>
-<footer class="ftr wrap">
-  <span>&copy; 2025 Arab MedTechAI Organization</span>
-  <div class="ftr-links">
+
+<footer class="footer">
+  &copy; 2025 Arab MedTechAI Organization &mdash; AI: Groq &middot; Gemini &middot; OpenRouter
+  <div class="footer-links">
     <a href="/terms/">Terms</a>
     <a href="/hipaa-compliance/">Compliance</a>
     <a href="/contact/">Contact</a>

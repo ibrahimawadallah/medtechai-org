@@ -131,8 +131,17 @@ function bdg(string $l): string {
     return '<span class="badge '.$cl.'">'.h(strtoupper($l)).'</span>';
 }
 
-function sec(string $t, string $c): string {
-    return '<div class="r-section"><div class="r-section-header no-collapse"><span class="r-section-title">'.h($t).'</span></div><div class="r-section-body">'.$c.'</div></div>';
+function autoAccent(string $t): string {
+    $t2=strtolower($t);
+    $m=['indications'=>'primary','indication'=>'primary','summary'=>'primary','impression'=>'primary','study type'=>'primary','study'=>'primary','technique'=>'primary','assessment'=>'primary','overall assessment'=>'primary','overview'=>'primary','diagnosis'=>'primary','clinical indication'=>'primary','clinical summary'=>'primary','clinical application'=>'primary','clinical correlation'=>'primary','structured report'=>'primary','diagnostic criteria'=>'primary','recommendations'=>'green','recommendation'=>'green','management'=>'green','management plan'=>'green','care advice'=>'green','home care'=>'green','administration'=>'green','administration guidance'=>'green','patient education'=>'green','patient management'=>'green','alternative'=>'green','next steps'=>'green','plan'=>'green','workup'=>'green','procedures'=>'green','discharge medications'=>'green','safe'=>'primary','green'=>'primary',
+    'warning'=>'red','red flag'=>'red','contraindication'=>'red','contraindicated'=>'red','contraindication differences'=>'red','allergy'=>'red','critical value'=>'red','red'=>'red','risk factor'=>'amber','risk factors'=>'amber','adverse'=>'amber','interaction'=>'amber','dosing error'=>'amber','precaution'=>'amber','caveats'=>'amber','risk'=>'amber','safety'=>'amber','considerations'=>'amber','consideration'=>'amber','monitoring'=>'teal','monitoring recommendation'=>'teal','follow-up'=>'teal','follow up'=>'teal','followup'=>'teal','trends analysis'=>'teal','trends'=>'teal','prognosis'=>'teal','outcome'=>'teal','pregnancy'=>'purple','lactation'=>'purple','breastfeeding'=>'purple','genetic'=>'purple','molecular'=>'purple','biomarker'=>'purple','biomarkers'=>'purple','fda category'=>'purple','teratogenic'=>'purple','male reproductive'=>'purple','secondar'=>'purple','special populations'=>'purple','demographic'=>'purple','pregnancy risk'=>'purple','preconception'=>'purple','pregnancy registry'=>'purple','diagnoses'=>'purple','secondary diagnoses'=>'purple','icd-10'=>'purple','icd10'=>'purple'];
+    foreach($m as $k=>$v) if(str_contains($t2,$k)) return $v;
+    return 'primary';
+}
+function sec(string $t, string $c, string $accent = ''): string {
+    if(!$accent) $accent=autoAccent($t);
+    $ac=$accent?' '.$accent:'';
+    return '<div class="r-section'.$ac.'"><div class="r-section-header no-collapse"><span class="r-section-title">'.h($t).'</span></div><div class="r-section-body">'.$c.'</div></div>';
 }
 
 function alert(string $type, string $text): string {
@@ -240,19 +249,19 @@ case 'interaction-checker':
     $d=gemini("Drug interactions for: {$dl}. Return ONLY JSON: {\"interactions\":[{\"drugs\":[\"A\",\"B\"],\"severity\":\"high|moderate|low\",\"description\":\"str\",\"mechanism\":\"str\",\"clinicalSignificance\":\"str\",\"onset\":\"str\",\"management\":\"str\"}],\"overallRisk\":\"high|moderate|low\",\"summary\":\"str\",\"riskFactors\":[\"str\"],\"monitoringRecommendation\":\"str\",\"patientManagement\":\"str\",\"alternativeCombinations\":[\"str\"]}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="margin-bottom:10px"><strong>Overall Risk:</strong> '.bdg($d['overallRisk']??'low').'</div>';
-    if(!empty($d['summary'])) $html.=sec('Summary','<span class="r-value">'.h($d['summary']).'</span>');
-    if(!empty($d['riskFactors'])) $html.=sec('Risk Factors',rl($d['riskFactors']));
+    if(!empty($d['summary'])) $html.=sec('Summary','<span class="r-value">'.h($d['summary']).'','primary');
+    if(!empty($d['riskFactors'])) $html.=sec('Risk Factors',rl($d['riskFactors']),'amber');
     foreach(($d['interactions']??[]) as $ix){
-        $html.='<div class="r-section"><div class="r-section-header no-collapse"><span class="r-section-title">'.h(implode(' + ',$ix['drugs']??[])).'</span>'.bdg($ix['severity']??'').'</div><div class="r-section-body"><span class="r-value">'.h($ix['description']??'').'</span>';
+        $html.='<div class="r-section amber"><div class="r-section-header no-collapse"><span class="r-section-title">'.h(implode(' + ',$ix['drugs']??[])).'</span>'.bdg($ix['severity']??'').'</div><div class="r-section-body"><span class="r-value">'.h($ix['description']??'').'</span>';
         if(!empty($ix['mechanism'])) $html.='<div class="r-field"><span class="r-label">Mechanism</span><span class="r-value-sm">'.h($ix['mechanism']).'</span></div>';
         if(!empty($ix['clinicalSignificance'])) $html.='<div class="r-field"><span class="r-label">Significance</span><span class="r-value-sm">'.h($ix['clinicalSignificance']).'</span></div>';
         if(!empty($ix['onset'])) $html.='<div class="r-field"><span class="r-label">Onset</span><span class="r-value-sm">'.h($ix['onset']).'</span></div>';
         if(!empty($ix['management'])) $html.='<div class="r-field"><span class="r-label">Management</span><span class="r-value-sm">'.h($ix['management']).'</span></div>';
         $html.='</div></div>';
     }
-    if(!empty($d['monitoringRecommendation'])) $html.=sec('Monitoring Recommendation','<span class="r-value">'.h($d['monitoringRecommendation']).'</span>');
-    if(!empty($d['patientManagement'])) $html.=sec('Patient Management','<span class="r-value">'.h($d['patientManagement']).'</span>');
-    if(!empty($d['alternativeCombinations'])) $html.=sec('Alternative Combinations',rl($d['alternativeCombinations']));
+    if(!empty($d['monitoringRecommendation'])) $html.=sec('Monitoring Recommendation','<span class="r-value">'.h($d['monitoringRecommendation']).'','teal');
+    if(!empty($d['patientManagement'])) $html.=sec('Patient Management','<span class="r-value">'.h($d['patientManagement']).'','green');
+    if(!empty($d['alternativeCombinations'])) $html.=sec('Alternative Combinations',rl($d['alternativeCombinations']),'green');
     echo json_encode(['html'=>$html]); break;
 
 // DOSE CALCULATOR
@@ -404,7 +413,7 @@ case 'icd10-lookup':
     $html='';
     foreach(($d['mappings']??[]) as $m){
         $conf=round(($m['confidence']??0)*100);
-        $html.='<div class="r-section"><div class="r-section-header no-collapse"><span class="r-section-title" style="font-size:18px;color:var(--blue)">'.h($m['primaryCode']??'').'</span><span class="badge badge-blue">'.$conf.'%</span></div><div class="r-section-body">';
+        $html.='<div class="r-section purple"><div class="r-section-header no-collapse"><span class="r-section-title" style="font-size:18px;color:var(--purple)">'.h($m['primaryCode']??'').'</span><span class="badge badge-purple">'.$conf.'%</span></div><div class="r-section-body">';
         $html.='<span class="r-value">'.h($m['description']??'').'</span>';
         $html.='<span class="r-value-sm">'.h($m['reasoning']??'').'</span>';
         if(!empty($m['clinicalCriteria'])) $html.='<div class="r-field"><span class="r-label">Clinical Criteria</span><span class="r-value-sm">'.h($m['clinicalCriteria']).'</span></div>';
@@ -593,7 +602,7 @@ case 'formulary':
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='';
     foreach(($d['results']??[]) as $r){
-        $html.='<div class="r-section"><div class="r-section-header no-collapse"><span class="r-section-title">'.h($r['name']??'').'</span>'.bdg($r['formularyStatus']??'').'</div><div class="r-section-body">';
+        $html.='<div class="r-section primary"><div class="r-section-header no-collapse"><span class="r-section-title">'.h($r['name']??'').'</span>'.bdg($r['formularyStatus']??'').'</div><div class="r-section-body">';
         $html.='<span class="r-value-sm">'.h($r['genericName']??'').'</span>';
         $html.='<div style="font-size:12px;color:var(--slate4);margin-bottom:4px">'.h($r['therapeuticClass']??'').' — '.h($r['route']??'').'</div>';
         if(!empty($r['formularyTier'])) $html.='<div class="r-field"><span class="r-label">Tier</span><span class="r-value-sm">'.h($r['formularyTier']).'</span></div>';
@@ -616,7 +625,7 @@ case 'iv-compatibility':
     $ov=$d['overallCompatibility']??'Unknown';
     $html='<div style="text-align:center;margin-bottom:10px">'.bdg($ov).'</div>';
     foreach(($d['pairs']??[]) as $p){
-        $html.='<div class="r-section"><div class="r-section-header no-collapse"><span class="r-section-title">'.h($p['drug1']??'').' + '.h($p['drug2']??'').'</span>'.bdg($p['compatibility']??'').'</div><div class="r-section-body">';
+        $html.='<div class="r-section primary"><div class="r-section-header no-collapse"><span class="r-section-title">'.h($p['drug1']??'').' + '.h($p['drug2']??'').'</span>'.bdg($p['compatibility']??'').'</div><div class="r-section-body">';
         if(!empty($p['evidence'])) $html.='<span class="r-value-sm">'.h($p['evidence']).'</span>';
         if(!empty($p['notes'])) $html.='<span class="r-value-sm" style="color:var(--blue)">'.h($p['notes']).'</span>';
         $html.='</div></div>';

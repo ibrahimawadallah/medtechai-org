@@ -24,7 +24,11 @@ body{display:block}
 .tool-srch button:hover{background:var(--blue-h)}
 
 /* Category section */
-.cat{margin-bottom:28px}
+.cat{border-left:3px solid var(--slate6);padding-left:14px;margin-bottom:28px}
+.cat[data-cat=pharmacy]{border-left-color:var(--blue)}
+.cat[data-cat=clinical]{border-left-color:var(--teal)}
+.cat[data-cat=smart-report]{border-left-color:var(--green)}
+.cat[data-cat=advanced]{border-left-color:var(--purple)}
 .cat-h{font-size:13px;font-weight:700;padding:6px 12px;border-radius:var(--radius);margin-bottom:10px}
 .cat[data-cat=pharmacy] .cat-h{background:var(--blue-bg);color:#1e40af}
 .cat[data-cat=clinical] .cat-h{background:var(--teal-bg);color:#155e75}
@@ -130,6 +134,16 @@ body{display:block}
 function filterTools(){var f=document.getElementById('toolFilter').value.toLowerCase();var m=document.getElementById('noMatch');var v=0;document.querySelectorAll('.cat').forEach(function(c){var cv=0;c.querySelectorAll('.tool-item').forEach(function(i){var t=i.getAttribute('data-term')||'';if(!f||t.indexOf(f)>-1){i.style.display='';cv++}else{i.style.display='none'}});if(cv===0){c.style.display='none'}else{c.style.display='';v++}});m.style.display=v===0?'block':'none'}
 document.getElementById('toolFilter').focus();
 </script>
+
+<footer class="footer">
+  &copy; 2025 Arab MedTechAI Organization &mdash; AI: Groq &middot; Gemini &middot; OpenRouter
+  <div class="footer-links">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+    <a href="/terms/">Terms</a>
+    <a href="/hipaa-compliance/">HIPAA</a>
+  </div>
+</footer>
 
 </body>
 </html>

@@ -8,79 +8,60 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/tools/shared.css">
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{font-family:Inter,system-ui,sans-serif;color:#1e293b;background:#fff;line-height:1.5;-webkit-font-smoothing:antialiased}
-    a{text-decoration:none;color:#2563eb}
-    a:hover{text-decoration:underline}
     .wrap{max-width:960px;margin:0 auto;padding:0 20px}
-    /* Header — dark nav */
-    .hdr{display:flex;align-items:center;justify-content:space-between;height:48px;padding:0 20px;background:#0f172a}
-    .hdr-logo{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.3px}
-    .hdr-logo em{font-style:normal;color:#38bdf8}
-    .hdr-nav{display:flex;gap:4px}
-    .hdr-nav a{padding:6px 12px;font-size:13px;font-weight:500;color:#94a3b8;border-radius:4px}
-    .hdr-nav a:hover{background:rgba(255,255,255,.08);text-decoration:none;color:#fff}
-    .hdr-nav a.act{color:#38bdf8}
-    /* Hero - minimal search */
     .hero{padding:48px 0 0;text-align:center}
-    .hero h1{font-size:22px;font-weight:700;color:#0f172a;margin-bottom:4px}
-    .hero p{font-size:13px;color:#94a3b8;margin-bottom:20px}
+    .hero h1{font-size:22px;font-weight:700;color:var(--slate);margin-bottom:4px}
+    .hero p{font-size:13px;color:var(--slate4);margin-bottom:20px}
     .srch{width:100%;max-width:520px;margin:0 auto;display:flex}
-    .srch input{flex:1;height:40px;padding:0 14px;border:1px solid #d1d5db;border-right:none;border-radius:6px 0 0 6px;font-size:14px;font-family:inherit;color:#1e293b;outline:none}
-    .srch input:focus{border-color:#2563eb}
-    .srch button{height:40px;padding:0 18px;background:#2563eb;color:#fff;border:none;border-radius:0 6px 6px 0;font-size:13px;font-weight:600;cursor:pointer}
-    .srch button:hover{background:#1d4ed8}
-    .qlinks{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px;font-size:12px;color:#94a3b8}
-    .qlinks a{color:#2563eb;font-weight:500}
-    /* Nav sections */
+    .srch input{flex:1;height:40px;padding:0 14px;border:1px solid var(--border);border-right:none;border-radius:6px 0 0 6px;font-size:14px;font-family:inherit;color:var(--slate);outline:none}
+    .srch input:focus{border-color:var(--blue)}
+    .srch button{height:40px;padding:0 18px;background:var(--blue);color:#fff;border:none;border-radius:0 6px 6px 0;font-size:13px;font-weight:600;cursor:pointer}
+    .srch button:hover{background:var(--blue-h)}
+    .qlinks{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px;font-size:12px;color:var(--slate4)}
+    .qlinks a{color:var(--blue);font-weight:500}
     .sec{padding:28px 0;border-bottom:1px solid #f1f5f9}
     .sec:last-of-type{border-bottom:none}
-    .sec-h{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+    .sec-h{font-size:12px;font-weight:700;color:var(--slate4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
     .plat-list{display:flex;gap:20px;font-size:14px}
-    .plat-list a{color:#2563eb;font-weight:500}
+    .plat-list a{color:var(--blue);font-weight:500}
     .plat-list a:hover{text-decoration:underline}
-    .plat-list span{color:#94a3b8;font-size:12px}
-    /* Tool categories grid */
-    .cat-grid{display:grid;grid-template-columns:1fr;gap:2px}
+    .plat-list span{color:var(--slate5);font-size:12px}
+    .cat-grid{display:grid;grid-template-columns:1fr;gap:6px}
     @media(min-width:600px){.cat-grid{grid-template-columns:1fr 1fr}}
-    .cat-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fafafa;border-radius:4px;font-size:13px}
+    .cat-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:var(--radius);font-size:13px;border-left:3px solid var(--slate6);background:var(--bg)}
     .cat-item:hover{background:#f1f5f9}
-    .cat-item a{color:#1e293b;font-weight:500}
-    .cat-item a:hover{color:#2563eb;text-decoration:none}
-    .cat-count{font-size:11px;color:#94a3b8;background:#f1f5f9;padding:2px 8px;border-radius:6px;font-weight:600}
-    /* Text links list */
+    .cat-item a{color:var(--slate);font-weight:600}
+    .cat-item a:hover{color:var(--blue);text-decoration:none}
+    .cat-count{font-size:11px;color:var(--slate5);background:#f1f5f9;padding:2px 8px;border-radius:6px;font-weight:600}
+    .cat-item.pharmacy{border-left-color:var(--blue)}
+    .cat-item.clinical{border-left-color:var(--teal)}
+    .cat-item.smart-report{border-left-color:var(--green)}
+    .cat-item.advanced{border-left-color:var(--purple)}
     .tool-links{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px}
-    .tool-links a{color:#475569}
-    .tool-links a:hover{color:#2563eb;text-decoration:underline}
-    .tool-links .sep{color:#e2e8f0}
-    /* About */
-    .abt{font-size:13px;color:#64748b;line-height:1.7;margin-bottom:8px}
+    .tool-links a{color:var(--slate3)}
+    .tool-links a:hover{color:var(--blue);text-decoration:underline}
+    .tool-links .sep{color:var(--border)}
+    .abt{font-size:13px;color:var(--slate4);line-height:1.7;margin-bottom:8px}
     .abt a{font-weight:500}
-    .abt strong{color:#475569}
-    /* Footer */
-    .ftr{padding:20px 0;border-top:1px solid #f1f5f9;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:#94a3b8}
-    .ftr-links{display:flex;gap:14px}
-    .ftr-links a{color:#94a3b8}
-    .ftr-links a:hover{color:#475569;text-decoration:underline}
+    .abt strong{color:var(--slate3)}
+    .nav-home{color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500}
+    .nav-home:hover{background:rgba(255,255,255,.08);color:#fff;text-decoration:none}
+    .nav-home.act{color:#38bdf8}
   </style>
 </head>
 <body>
-  <header class="hdr">
-    <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 20px">
-      <a href="/" class="hdr-logo">MedTech<em>AI</em></a>
-      <nav class="hdr-nav">
-        <a href="/" class="act">Home</a>
-        <a href="/tools/">Tools</a>
-        <a href="/about/">About</a>
-        <a href="/contact/">Contact</a>
-      </nav>
-    </div>
-  </header>
+  <nav class="nav" style="gap:16px">
+    <a href="/" class="nav-logo">MedTech<span>AI</span></a>
+    <span style="flex:1"></span>
+    <a href="/" class="nav-home act">Home</a>
+    <a href="/tools/" class="nav-home">Tools</a>
+    <a href="/about/" class="nav-home">About</a>
+    <a href="/contact/" class="nav-home">Contact</a>
+  </nav>
 
   <div class="wrap">
-    <!-- Search -->
     <section class="hero">
       <h1>MedTechAI</h1>
       <p>Clinical tools, drug reference, and AI-powered platforms</p>
@@ -97,7 +78,6 @@
       </div>
     </section>
 
-    <!-- Platforms -->
     <section class="sec">
       <div class="sec-h">Platforms</div>
       <div class="plat-list">
@@ -110,18 +90,16 @@
       </div>
     </section>
 
-    <!-- Tools by Category -->
     <section class="sec">
       <div class="sec-h">All Tools by Category</div>
       <div class="cat-grid">
-        <div class="cat-item"><a href="/tools/#pharmacy">Pharmacy Tools</a><span class="cat-count">6</span></div>
-        <div class="cat-item"><a href="/tools/#clinical">Clinical Support</a><span class="cat-count">4</span></div>
-        <div class="cat-item"><a href="/tools/#smart-report">Smart Reports</a><span class="cat-count">7</span></div>
-        <div class="cat-item"><a href="/tools/#advanced">Advanced Clinical</a><span class="cat-count">6</span></div>
+        <div class="cat-item pharmacy"><a href="/tools/#pharmacy">Pharmacy Tools</a><span class="cat-count">6</span></div>
+        <div class="cat-item clinical"><a href="/tools/#clinical">Clinical Support</a><span class="cat-count">4</span></div>
+        <div class="cat-item smart-report"><a href="/tools/#smart-report">Smart Reports</a><span class="cat-count">7</span></div>
+        <div class="cat-item advanced"><a href="/tools/#advanced">Advanced Clinical</a><span class="cat-count">6</span></div>
       </div>
     </section>
 
-    <!-- About -->
     <section class="sec">
       <div class="sec-h">About</div>
       <p class="abt">
@@ -131,12 +109,11 @@
         <strong>Contact:</strong> <a href="/contact/">contact@medtechai.net</a> &mdash; <a href="/terms/">Terms</a> &mdash; <a href="/hipaa-compliance/">Compliance</a>
       </p>
     </section>
-
   </div>
 
-  <footer class="ftr wrap">
-    <span>&copy; 2025 Arab MedTechAI Organization</span>
-    <div class="ftr-links">
+  <footer class="footer">
+    &copy; 2025 Arab MedTechAI Organization &mdash; AI: Groq &middot; Gemini &middot; OpenRouter
+    <div class="footer-links">
       <a href="/terms/">Terms</a>
       <a href="/hipaa-compliance/">Compliance</a>
       <a href="/contact/">Contact</a>
