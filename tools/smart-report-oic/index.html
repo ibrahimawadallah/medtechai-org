@@ -48,13 +48,13 @@
           <select id="f_mod"><option>MRI</option><option>CT Scan</option><option>X-Ray</option><option>Ultrasound</option><option>PET Scan</option><option>Text only</option></select>
         </div>
       </div>
-      <div class="field"><label>Medical Findings / Paste Report Text</label><textarea id="f_text" placeholder="Paste report text, clinical findings, or describe the scan/image content in detail…" style="min-height:120px"></textarea></div>
+      <div class="field"><label>Medical Findings / Paste Report Text</label><textarea id="f_text" class="textarea-lg" placeholder="Paste report text, clinical findings, or describe the scan/image content in detail…"></textarea></div>
       <div class="field">
         <label>Upload Scan Image (optional)</label>
         <div class="upload-area" id="uploadArea" onclick="document.getElementById('f_scan').click()">
-          <input type="file" id="f_scan" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="handleFile(this)">
+<input type="file" id="f_scan" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="handleFile(this)">
           <div id="uploadPlaceholder"><span>Click to select a scan image (JPG/PNG/WEBP, max 2 MB)</span></div>
-          <div id="uploadPreview" style="display:none">
+          <div id="uploadPreview" class="hidden">
             <img id="previewImg" style="max-height:180px;border:1px solid var(--border);border-radius:3px;display:block;margin-bottom:6px">
             <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeFile()">Remove Image</button>
           </div>
@@ -76,7 +76,7 @@
 
     <div class="result-panel" id="resultPanel">
       <div id="resultBody"></div>
-      <div style="margin-top:12px;display:flex;gap:8px" class="no-print">
+      <div class="btn-bar no-print">
         <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
         <button class="btn btn-outline btn-sm" onclick="resetTool()">Clear</button>
       </div>

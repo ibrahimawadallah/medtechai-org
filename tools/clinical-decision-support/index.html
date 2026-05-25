@@ -44,13 +44,13 @@
       <div class="field"><label>Medical History</label><input id="f_hx" type="text" placeholder="e.g. DM type 2, Hypertension, previous TB"/></div>
       <div class="field"><label>Current Medications</label><input id="f_meds" type="text" placeholder="e.g. Metformin 1g BD, Amlodipine 5mg"/></div>
             <div class="field">
-        <label>Upload File <span style="font-weight:400;color:var(--slate4)">(optional — photo or PDF)</span></label>
+        <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
         <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
-          <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" style="display:none" onchange="handleUpload(this)">
+          <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" class="hidden" onchange="handleUpload(this)">
           <div id="upPlaceholder"><span>Click or drag a photo or PDF here (max 5 MB)</span></div>
-          <div id="upPreview" style="display:none">
-            <img id="upImg" style="max-height:140px;border:1px solid var(--border);border-radius:3px;display:block;margin-bottom:6px">
-            <div id="upName" style="font-size:11px;color:var(--slate4);margin-bottom:4px"></div>
+          <div id="upPreview" class="hidden">
+            <img id="upImg" class="preview-image">
+            <div id="upName" class="file-name"></div>
             <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeUpload()">Remove</button>
           </div>
         </div>
@@ -71,7 +71,7 @@
 
     <div class="result-panel" id="resultPanel">
       <div id="resultBody"></div>
-      <div style="margin-top:12px;display:flex;gap:8px" class="no-print">
+      <div class="btn-bar no-print">
         <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
         <button class="btn btn-outline btn-sm" onclick="resetTool()">Clear</button>
       </div>

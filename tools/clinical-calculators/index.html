@@ -41,7 +41,7 @@
     </div>
     <div class="card-body">
       <div class="field"><label>Select Calculator</label>
-        <div style="display:flex;flex-wrap:wrap;gap:4px" id="calcGroup">
+        <div class="tag-group" id="calcGroup">
           <span class="field-tag" onclick="selectCalc(this,'BMI')">BMI</span>
           <span class="field-tag" onclick="selectCalc(this,'GFR (CKD-EPI)')">GFR</span>
           <span class="field-tag" onclick="selectCalc(this,'Corrected Calcium')">Corrected Ca²⁺</span>
@@ -55,15 +55,15 @@
         </div>
       </div>
       <div id="calcFields" class="field" style="display:none"><label id="calcLabel">Calculator</label><div id="calcInputs"></div></div>
-      <div class="field" style="display:none" id="aiCalcField"><label>Patient Data</label><textarea id="f_data" placeholder="Describe patient data for this calculator…"></textarea></div>
+      <div class="field" style="display:none" id="aiCalcField"><label>Patient Data</label><textarea id="f_data" placeholder="E.g.: 72-year-old female with CHF, hypertension, diabetes, prior stroke. Or paste lab values like Na⁺ 128, glucose 320."></textarea></div>
       <div class="field">
-        <label>Upload File <span style="font-weight:400;color:var(--slate4)">(optional — photo or PDF)</span></label>
+        <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
         <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
-          <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" style="display:none" onchange="handleUpload(this)">
+          <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" class="hidden" onchange="handleUpload(this)">
           <div id="upPlaceholder"><span>Click or drag a photo or PDF here (max 5 MB)</span></div>
-          <div id="upPreview" style="display:none">
-            <img id="upImg" style="max-height:140px;border:1px solid var(--border);border-radius:3px;display:block;margin-bottom:6px">
-            <div id="upName" style="font-size:11px;color:var(--slate4);margin-bottom:4px"></div>
+          <div id="upPreview" class="hidden">
+            <img id="upImg" class="preview-image">
+            <div id="upName" class="file-name"></div>
             <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeUpload()">Remove</button>
           </div>
         </div>
@@ -84,7 +84,7 @@
 
     <div class="result-panel" id="resultPanel">
       <div id="resultBody"></div>
-      <div style="margin-top:12px;display:flex;gap:8px" class="no-print">
+      <div class="btn-bar no-print">
         <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
         <button class="btn btn-outline btn-sm" onclick="resetTool()">Clear</button>
       </div>
@@ -115,7 +115,7 @@ function selectCalc(el,name){
 }
 function getFormData(){
   if(!selected){alert('Select a calculator first');return null;}
-  if(localCalcs[selected]){var f={};localCalcs[selected].fields.forEach(function(field){var el=document.getElementById('cf_'+field.id);f[field.id]=field.type==='number'?parseFloat(el.value)||0:el.value;});var res=localCalcs[selected].calc(f);setTimeout(function(){show("<div class='r-section'><div class='r-label'>"+selected+"</div><div class='r-value' style='font-size:28px;color:var(--emerald)'>"+res.result+"</div></div><div class='r-section'><div class='r-section-body'><p>"+res.interpretation+"</p></div></div>");},50);return null;}
+  if(localCalcs[selected]){var f={};localCalcs[selected].fields.forEach(function(field){var el=document.getElementById('cf_'+field.id);f[field.id]=field.type==='number'?parseFloat(el.value)||0:el.value;});var res=localCalcs[selected].calc(f);setTimeout(function(){show("<div class='r-section'><div class='r-label'>"+selected+"</div><div class='r-value' style='font-size:28px;color:var(--teal)'>"+res.result+"</div></div><div class='r-section'><div class='r-section-body'><p>"+res.interpretation+"</p></div></div>");},50);return null;}
   var d = {calculator:selected,data:document.getElementById('f_data')?document.getElementById('f_data').value:''};
   if (_upFile) {
     var fd = new FormData();

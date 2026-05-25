@@ -48,20 +48,20 @@
       <div class="field"><label>Drug A</label><input id="f_a" type="text" placeholder="e.g. Atorvastatin" autocomplete="off"/></div>
       <div class="field"><label>Drug B</label><input id="f_b" type="text" placeholder="e.g. Rosuvastatin" autocomplete="off"/></div>
       <div class="field"><label>Common Comparisons</label>
-        <div style="display:flex;flex-wrap:wrap;gap:4px">
+        <div class="tag-group">
           <span class="field-tag" onclick="setPair('Atorvastatin','Rosuvastatin')">Atorvastatin vs Rosuvastatin</span>
           <span class="field-tag" onclick="setPair('Metformin','Glipizide')">Metformin vs Glipizide</span>
           <span class="field-tag" onclick="setPair('Ibuprofen','Naproxen')">Ibuprofen vs Naproxen</span>
         </div>
       </div>
             <div class="field">
-        <label>Upload File <span style="font-weight:400;color:var(--slate4)">(optional — photo or PDF)</span></label>
+        <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
         <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
-          <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" style="display:none" onchange="handleUpload(this)">
+          <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" class="hidden" onchange="handleUpload(this)">
           <div id="upPlaceholder"><span>Click or drag a photo or PDF here (max 5 MB)</span></div>
-          <div id="upPreview" style="display:none">
-            <img id="upImg" style="max-height:140px;border:1px solid var(--border);border-radius:3px;display:block;margin-bottom:6px">
-            <div id="upName" style="font-size:11px;color:var(--slate4);margin-bottom:4px"></div>
+          <div id="upPreview" class="hidden">
+            <img id="upImg" class="preview-image">
+            <div id="upName" class="file-name"></div>
             <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeUpload()">Remove</button>
           </div>
         </div>
@@ -83,7 +83,7 @@
 
     <div class="result-panel" id="resultPanel">
       <div id="resultBody"></div>
-      <div style="margin-top:12px;display:flex;gap:8px" class="no-print">
+      <div class="btn-bar no-print">
         <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
         <button class="btn btn-outline btn-sm" onclick="resetTool()">Clear</button>
       </div>

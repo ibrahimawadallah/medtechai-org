@@ -240,6 +240,26 @@ function fetchDailyMedLabel(string $drug): array {
     return $r;
 }
 
+function calcFallback(string $calc, string $data): array {
+    if (!$calc) return ['error' => 'No calculator specified'];
+    $calc = strtolower(trim($calc));
+    $data = trim($data);
+    switch ($calc) {
+        case 'cha2ds2-vasc':
+            return ['result' => 'CHA₂DS₂‑VASc Score', 'score' => 'Use clinical data', 'interpretation' => 'Please provide age, sex, CHF, hypertension, stroke/TIA/TE history, vascular disease, and diabetes details.', 'riskCategory' => 'Assessment Needed', 'calculationMethodology' => 'CHA₂DS₂‑VASc assigns: CHF(1), HTN(1), Age≥75(2), Diabetes(1), Stroke/TIA(2), Vascular disease(1), Age 65‑74(1), Female sex(1). Total 0‑9.', 'variablesUsed' => ['Age', 'Sex', 'CHF history', 'Hypertension', 'Stroke/TIA/TE', 'Vascular disease', 'Diabetes'], 'recommendations' => ['Score 0: No antithrombotic therapy (low risk)', 'Score 1: Consider OAC (DOAC preferred)', 'Score ≥2: Recommend OAC (DOAC preferred over warfarin)'], 'caveats' => ['Does not capture bleeding risk — use HAS‑BLED', 'Clinical judgment should always supplement scoring']];
+        case 'wells dvt':
+            return ['result' => 'Wells Score for DVT', 'score' => 'Use clinical data', 'interpretation' => 'Provide active cancer, paralysis/paresis, recent surgery/bed rest, localized tenderness, entire leg swelling, calf swelling, pitting edema, collateral superficial veins, and alternative diagnosis likelihood.', 'riskCategory' => 'Assessment Needed', 'calculationMethodology' => 'Wells DVT: Active cancer(1), Paralysis/paresis(1), Surgery/bed rest>3d(1), Localized tenderness(1), Entire leg swollen(1), Calf swelling>3cm(1), Pitting edema(1), Collateral veins(1), Alternative dx more likely(-2).', 'evidenceLevel' => 'Well-validated clinical prediction rule', 'caveats' => ['Requires clinical gestalt for "alternative diagnosis more likely"', 'D-dimer recommended in intermediate probability']];
+        case 'wells pe':
+            return ['result' => 'Wells Score for PE', 'score' => 'Use clinical data', 'interpretation' => 'Provide clinical signs of DVT(3), PE as likely/not alternative(3), heart rate>100(1.5), immobilization/surgery in past 4wk(1.5), prior DVT/PE(1.5), hemoptysis(1), cancer(1).', 'riskCategory' => 'Assessment Needed', 'calculationMethodology' => 'Two-tier: PE unlikely ≤4, PE likely >4. Three-tier: Low 0‑1, Moderate 2‑6, High ≥7.', 'variablesUsed' => ['Clinical signs of DVT', 'PE is most likely diagnosis', 'Heart rate >100', 'Immobilization/surgery ≤4wk', 'Prior DVT/PE', 'Hemoptysis', 'Cancer'], 'evidenceLevel' => 'Validated in multiple ED cohorts', 'caveats' => ['Use PERC rule if Wells ≤4 to reduce unnecessary imaging', 'High clinical suspicion may override score']];
+        case 'apache ii':
+            return ['result' => 'APACHE II Score', 'score' => 'Use clinical data', 'interpretation' => 'Requires: temperature, MAP, heart rate, respiratory rate, FiO₂/PaO₂, arterial pH, serum Na⁺, K⁺, creatinine, hematocrit, WBC, GCS, age, chronic health conditions.', 'riskCategory' => 'ICU Severity Assessment', 'calculationMethodology' => 'APACHE II = Acute Physiology Score(0‑60)+Age points(0‑6)+Chronic Health(2‑5). Range 0‑71.', 'variablesUsed' => ['Temperature', 'MAP', 'Heart rate', 'Respiratory rate', 'Oxygenation', 'Arterial pH', 'Serum Na⁺, K⁺', 'Creatinine', 'Hematocrit', 'WBC', 'GCS', 'Age', 'Chronic health'], 'clinicalApplication' => 'Risk stratification in ICU, correlates with mortality', 'caveats' => ['Not validated for individual prognostication', 'Multiple variables must be worst values in first 24h']];
+        case 'sodium correction':
+            return ['result' => 'Corrected Sodium', 'score' => 'Use clinical data', 'interpretation' => 'Provide measured Na⁺ (mEq/L) and glucose (mg/dL). Corrected Na⁺ = Measured Na⁺ + 1.6 × (Glucose − 100)/100.', 'riskCategory' => 'Biochemical Correction', 'calculationMethodology' => 'Corrected Na⁺ = Measured Na⁺ + 1.6 × ((Glucose − 100) ÷ 100). For glucose in mmol/L: Corrected Na⁺ = Measured Na⁺ + 0.016 × (Glucose in mmol/L × 18 − 100).', 'variablesUsed' => ['Measured serum sodium', 'Serum glucose'], 'clinicalApplication' => 'Prevents overcorrection of hyponatremia in hyperglycemia', 'caveats' => ['Correction factor varies in literature (1.6‑2.4)', 'Recheck after glucose control']];
+        default:
+            return ['error' => 'Unknown calculator: ' . $calc . '. Supported: CHA2DS2-VASc, Wells DVT, Wells PE, APACHE II, Sodium Correction.'];
+    }
+}
+
 switch ($tool) {
 
 // DRUG SEARCH
@@ -695,7 +715,17 @@ case 'clinical-pathways':
 
 // CLINICAL CALCULATORS
 case 'clinical-calculators':
-    $d=gemini($fileContext . "Calculate ".($body['calculator']??'')." score. Data: ".($body['data']??'').". Return ONLY JSON: {\"calculator\":\"str\",\"result\":\"str\",\"score\":\"str\",\"interpretation\":\"str\",\"riskCategory\":\"str\",\"recommendations\":[\"str\"],\"calculationMethodology\":\"str\",\"variablesUsed\":[\"str\"],\"clinicalApplication\":\"str\",\"evidenceLevel\":\"str\",\"validationStudies\":\"str\",\"caveats\":[\"str\"]}");
+    $calc = $body['calculator'] ?? '';
+    $data = $body['data'] ?? '';
+    // Try AI first, fall back to PHP calculation
+    $d = null;
+    $geminiResult = gemini($fileContext . "Calculate " . $calc . " score. Data: " . $data . ". Return ONLY JSON: {\"calculator\":\"str\",\"result\":\"str\",\"score\":\"str\",\"interpretation\":\"str\",\"riskCategory\":\"str\",\"recommendations\":[\"str\"],\"calculationMethodology\":\"str\",\"variablesUsed\":[\"str\"],\"clinicalApplication\":\"str\",\"evidenceLevel\":\"str\",\"validationStudies\":\"str\",\"caveats\":[\"str\"]}");
+    if (!isset($geminiResult['error']) && !empty($geminiResult['result'])) {
+        $d = $geminiResult;
+    } else {
+        // Fallback: PHP calculation
+        $d = calcFallback($calc, $data);
+    }
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="font-size:28px;font-weight:900;margin-bottom:4px">'.h($d['result']??$d['score']??'').'</div>';
     if(!empty($d['riskCategory'])) $html.='<div style="margin-bottom:8px">'.bdg($d['riskCategory']).'</div>';

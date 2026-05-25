@@ -163,5 +163,18 @@ a:hover{text-decoration:underline}
 /* Print */
 @media print{.nav,.cat-banner,.breadcrumb,.main>.card,.btn,.no-print,.footer{display:none!important}.main{display:block!important}.result-panel{display:block!important}.r-section{break-inside:avoid}}
 
+/* Shared component classes for tool pages */
+.btn-bar{margin-top:12px;display:flex;gap:8px}
+.tag-group{display:flex;flex-wrap:wrap;gap:4px}
+.optional{font-weight:400;color:var(--slate4)}
+.hidden{display:none}
+.preview-image{max-height:140px;border:1px solid var(--border);border-radius:3px;display:block;margin-bottom:6px}
+.file-name{font-size:11px;color:var(--slate4);margin-bottom:4px}
+.textarea-sm{min-height:80px}
+.textarea-lg{min-height:120px}
+.textarea-xl{min-height:140px}
+.textarea-mono{font-family:monospace;font-size:12px}
+.field-tag-group{display:flex;flex-wrap:wrap;gap:8px}
+
 /* Mobile */
 @media(max-width:768px){.main{grid-template-columns:1fr;padding:0 14px 24px}.tool-header{padding:12px 14px 14px}.field-row{grid-template-columns:1fr}.r-grid{grid-template-columns:1fr}}
