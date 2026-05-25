@@ -1,0 +1,21 @@
+<!-- Shared file upload area — include in tool pages -->
+<style>
+  .optional { font-weight:400;color:var(--slate4); }
+  .hidden { display:none; }
+  .preview-image { max-height:140px;border:1px solid var(--border);border-radius:3px;display:block;margin-bottom:6px; }
+  .file-name { font-size:11px;color:var(--slate4);margin-bottom:4px; }
+  .noscript-message { font-size:12px;color:var(--slate4); }
+</style>
+<div class="field">
+  <label for="upFile">Upload File <span class="optional">(optional — photo or PDF)</span></label>
+  <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
+    <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" class="hidden" onchange="handleUpload(this)">
+    <div id="upPlaceholder"><span>Click or drag a photo or PDF here (max 5 MB)</span></div>
+    <div id="upPreview" class="hidden">
+      <img id="upImg" class="preview-image">
+      <div id="upName" class="file-name"></div>
+      <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeUpload()">Remove</button>
+    </div>
+  </div>
+</div>
+<noscript><p class="noscript-message">JavaScript required for file upload.</p></noscript>

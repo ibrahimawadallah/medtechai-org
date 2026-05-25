@@ -16,6 +16,40 @@ $raw   = file_get_contents('php://input');
 $body  = json_decode($raw, true) ?: [];
 foreach ($_POST as $k => $v) $body[$k] = $v;
 
+// Centralized file upload handler
+$upData = null; $upMime = null;
+$magic = [
+    'image/jpeg' => ["\xFF\xD8\xFF"],
+    'image/png'  => ["\x89\x50\x4E\x47"],
+    'image/gif'  => ["\x47\x49\x46"],
+    'image/webp' => ["\x52\x49\x46\x46"],
+    'application/pdf' => ["\x25\x50\x44\x46"],
+];
+foreach ($_FILES as $f) {
+    if ($f['error'] !== UPLOAD_ERR_OK) continue;
+    $mime = mime_content_type($f['tmp_name']);
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $realMime = $finfo->file($f['tmp_name']);
+    if (!isset($magic[$realMime]) || $mime !== $realMime) continue;
+    if ($f['size'] > 5242880) continue;
+    $bin = file_get_contents($f['tmp_name']);
+    $header = substr($bin, 0, 8);
+    $ok = false;
+    foreach ($magic[$realMime] as $sig) {
+        if (str_starts_with($header, $sig)) { $ok = true; break; }
+    }
+    if (!$ok) continue;
+    $upData = base64_encode($bin);
+    $upMime = $realMime;
+    break;
+}
+if ($upData && $upMime && GEMINI_KEY) {
+    $extractPrompt = "Extract all readable text, drug names, lab values, and findings from this medical document/image. Return the raw content as plain text. If you cannot read anything, say 'No readable content found.'";
+    $extracted = callGeminiVision(GEMINI_KEY, $extractPrompt, $upData, $upMime);
+    if ($extracted) $body['_fileText'] = $extracted;
+}
+$fileContext = ($body['_fileText']??'') ? "Uploaded document context:\n" . $body['_fileText'] . "\n\n---\n\n" : '';
+
 function parseAI(string $text): array {
     $text = preg_replace('/```json\n?|```\n?/', '', $text);
     $text = trim($text);
@@ -211,7 +245,7 @@ switch ($tool) {
 // DRUG SEARCH
 case 'drug-search':
     $drug = trim($body['drug']??''); if(!$drug){echo json_encode(['html'=>alert('red','Enter a drug name.')]);exit;}
-    $d = gemini("Explain drug \"{$drug}\" comprehensively. Return ONLY JSON: {\"genericName\":\"str\",\"brandNames\":[\"str\"],\"drugClass\":\"str\",\"therapeuticCategory\":\"str\",\"mechanismOfAction\":\"str\",\"indications\":[\"str\"],\"dosageForms\":[\"str\"],\"adultDosing\":\"str\",\"pediatricDosing\":\"str\",\"renalAdjustment\":\"str\",\"hepaticAdjustment\":\"str\",\"administration\":\"str\",\"adverseReactions\":[{\"system\":\"str\",\"reactions\":\"str\",\"frequency\":\"str\"}],\"contraindications\":[\"str\"],\"clinicalWarnings\":[\"str\"],\"drugInteractions\":[\"str\"],\"pregnancyCategory\":\"str\",\"lactationSafety\":\"str\",\"monitoringParameters\":[\"str\"],\"pharmacokinetics\":\"str\",\"patientEducation\":\"str\"}");
+    $d = gemini($fileContext . "Explain drug \"{$drug}\" comprehensively. Return ONLY JSON: {\"genericName\":\"str\",\"brandNames\":[\"str\"],\"drugClass\":\"str\",\"therapeuticCategory\":\"str\",\"mechanismOfAction\":\"str\",\"indications\":[\"str\"],\"dosageForms\":[\"str\"],\"adultDosing\":\"str\",\"pediatricDosing\":\"str\",\"renalAdjustment\":\"str\",\"hepaticAdjustment\":\"str\",\"administration\":\"str\",\"adverseReactions\":[{\"system\":\"str\",\"reactions\":\"str\",\"frequency\":\"str\"}],\"contraindications\":[\"str\"],\"clinicalWarnings\":[\"str\"],\"drugInteractions\":[\"str\"],\"pregnancyCategory\":\"str\",\"lactationSafety\":\"str\",\"monitoringParameters\":[\"str\"],\"pharmacokinetics\":\"str\",\"patientEducation\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div class="r-value-lg" style="margin-bottom:8px">'.h($d['genericName']??$drug).'</div>';
     if(!empty($d['brandNames'])) $html.=sec('Brand Names','<span class="r-value">'.h(implode(', ',$d['brandNames'])).'</span>');
@@ -246,7 +280,7 @@ case 'interaction-checker':
     $drugs=array_filter(array_map('trim',$body['drugs']??[]));
     if(count($drugs)<2){echo json_encode(['html'=>alert('red','Enter at least 2 drugs.')]);exit;}
     $dl=implode(', ',$drugs);
-    $d=gemini("Drug interactions for: {$dl}. Return ONLY JSON: {\"interactions\":[{\"drugs\":[\"A\",\"B\"],\"severity\":\"high|moderate|low\",\"description\":\"str\",\"mechanism\":\"str\",\"clinicalSignificance\":\"str\",\"onset\":\"str\",\"management\":\"str\"}],\"overallRisk\":\"high|moderate|low\",\"summary\":\"str\",\"riskFactors\":[\"str\"],\"monitoringRecommendation\":\"str\",\"patientManagement\":\"str\",\"alternativeCombinations\":[\"str\"]}");
+    $d=gemini($fileContext . "Drug interactions for: {$dl}. Return ONLY JSON: {\"interactions\":[{\"drugs\":[\"A\",\"B\"],\"severity\":\"high|moderate|low\",\"description\":\"str\",\"mechanism\":\"str\",\"clinicalSignificance\":\"str\",\"onset\":\"str\",\"management\":\"str\"}],\"overallRisk\":\"high|moderate|low\",\"summary\":\"str\",\"riskFactors\":[\"str\"],\"monitoringRecommendation\":\"str\",\"patientManagement\":\"str\",\"alternativeCombinations\":[\"str\"]}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="margin-bottom:10px"><strong>Overall Risk:</strong> '.bdg($d['overallRisk']??'low').'</div>';
     if(!empty($d['summary'])) $html.=sec('Summary','<span class="r-value">'.h($d['summary']).'','primary');
@@ -266,7 +300,7 @@ case 'interaction-checker':
 
 // DOSE CALCULATOR
 case 'dose-calculator':
-    $d=gemini("Dose for: ".($body['drug']??'').", weight ".($body['weight']??'')."kg, age ".($body['age']??'').", indication: ".($body['indication']??'').", renal: ".($body['renal']??'Normal').". Return ONLY JSON: {\"recommendedDose\":\"str\",\"frequency\":\"str\",\"route\":\"str\",\"duration\":\"str\",\"renalAdjustment\":\"str\",\"hepaticAdjustment\":\"str\",\"pediatricDose\":\"str\",\"loadingDose\":\"str\",\"maxDose\":\"str\",\"bsaDose\":\"str\",\"therapeuticDrugMonitoring\":\"str\",\"administrationGuidance\":\"str\",\"precautions\":[\"str\"],\"monitoringParameters\":[\"str\"],\"warnings\":[\"str\"],\"notes\":\"str\"}");
+    $d=gemini($fileContext . "Dose for: ".($body['drug']??'').", weight ".($body['weight']??'')."kg, age ".($body['age']??'').", indication: ".($body['indication']??'').", renal: ".($body['renal']??'Normal').". Return ONLY JSON: {\"recommendedDose\":\"str\",\"frequency\":\"str\",\"route\":\"str\",\"duration\":\"str\",\"renalAdjustment\":\"str\",\"hepaticAdjustment\":\"str\",\"pediatricDose\":\"str\",\"loadingDose\":\"str\",\"maxDose\":\"str\",\"bsaDose\":\"str\",\"therapeuticDrugMonitoring\":\"str\",\"administrationGuidance\":\"str\",\"precautions\":[\"str\"],\"monitoringParameters\":[\"str\"],\"warnings\":[\"str\"],\"notes\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div class="r-value-lg" style="margin-bottom:8px">'.h($d['recommendedDose']??'').'</div>';
     $html.=sec('Frequency','<span class="r-value">'.h($d['frequency']??'').'</span>');
@@ -288,7 +322,7 @@ case 'dose-calculator':
 
 // PREGNANCY SAFETY
 case 'pregnancy-safety':
-    $d=gemini("Pregnancy safety for: ".($body['drug']??'').", trimester: ".($body['trimester']??'1').". Return ONLY JSON: {\"fdaCategory\":\"A|B|C|D|X|N\",\"safety\":\"Safe|Caution|Avoid\",\"risk\":\"str\",\"fdaCategoryRationale\":\"str\",\"trimesterSpecific\":\"str\",\"mechanismOfAction\":\"str\",\"animalData\":\"str\",\"humanData\":\"str\",\"lactationSafety\":\"str\",\"breastfeedingRecommendation\":\"str\",\"maleReproductiveEffects\":\"str\",\"preconceptionCounseling\":\"str\",\"pregnancyRegistry\":\"str\",\"alternatives\":[\"str\"],\"recommendation\":\"str\"}");
+    $d=gemini($fileContext . "Pregnancy safety for: ".($body['drug']??'').", trimester: ".($body['trimester']??'1').". Return ONLY JSON: {\"fdaCategory\":\"A|B|C|D|X|N\",\"safety\":\"Safe|Caution|Avoid\",\"risk\":\"str\",\"fdaCategoryRationale\":\"str\",\"trimesterSpecific\":\"str\",\"mechanismOfAction\":\"str\",\"animalData\":\"str\",\"humanData\":\"str\",\"lactationSafety\":\"str\",\"breastfeedingRecommendation\":\"str\",\"maleReproductiveEffects\":\"str\",\"preconceptionCounseling\":\"str\",\"pregnancyRegistry\":\"str\",\"alternatives\":[\"str\"],\"recommendation\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $cat=$d['fdaCategory']??'N'; $cc=['A'=>'#059669','B'=>'#059669','C'=>'#d97706','D'=>'#dc2626','X'=>'#dc2626'];
     $html='<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="text-align:center"><span class="r-label">FDA</span><div style="font-size:28px;font-weight:900;color:'.($cc[$cat]??'#64748b').'">'.$cat.'</div></div>'.bdg($d['safety']??'').'</div>';
@@ -310,7 +344,7 @@ case 'pregnancy-safety':
 // G6PD CHECKER
 case 'g6pd-checker':
     $drug=$body['drug']??'';
-    $d=gemini("G6PD safety for: {$drug}. Return ONLY JSON: {\"riskLevel\":\"Safe|Low Risk|Moderate Risk|High Risk|Contraindicated\",\"classification\":\"str\",\"description\":\"str\",\"mechanism\":\"str\",\"hemolyticPotential\":\"str\",\"onsetOfHemolysis\":\"str\",\"severityOfReaction\":\"str\",\"monitoringParameters\":[\"str\"],\"geneticCounseling\":\"str\",\"patientEducation\":\"str\",\"recommendation\":\"str\",\"alternatives\":[\"str\"]}");
+    $d=gemini($fileContext . "G6PD safety for: {$drug}. Return ONLY JSON: {\"riskLevel\":\"Safe|Low Risk|Moderate Risk|High Risk|Contraindicated\",\"classification\":\"str\",\"description\":\"str\",\"mechanism\":\"str\",\"hemolyticPotential\":\"str\",\"onsetOfHemolysis\":\"str\",\"severityOfReaction\":\"str\",\"monitoringParameters\":[\"str\"],\"geneticCounseling\":\"str\",\"patientEducation\":\"str\",\"recommendation\":\"str\",\"alternatives\":[\"str\"]}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="margin-bottom:10px">'.bdg($d['riskLevel']??'Unknown').'</div>';
     if(!empty($d['classification'])) $html.=sec('Classification','<span class="r-value">'.h($d['classification']).'</span>');
@@ -328,7 +362,7 @@ case 'g6pd-checker':
 
 // DRUG COMPARISON
 case 'drug-comparison':
-    $d=gemini("Compare drugs: ".($body['drugA']??'')." vs ".($body['drugB']??'').". Return ONLY JSON: {\"summary\":\"str\",\"mechanismOfActionComparison\":\"str\",\"indicationsOverlap\":\"str\",\"contraindicationDifferences\":\"str\",\"monitoringRequirements\":\"str\",\"specialPopulations\":\"str\",\"guidelinePreference\":\"str\",\"comparison\":{\"efficacy\":{\"winner\":\"str\",\"reasoning\":\"str\"},\"safety\":{\"winner\":\"str\",\"reasoning\":\"str\"},\"cost\":{\"winner\":\"str\",\"reasoning\":\"str\"},\"convenience\":{\"winner\":\"str\",\"reasoning\":\"str\"}},\"considerations\":[\"str\"],\"recommendation\":\"str\"}");
+    $d=gemini($fileContext . "Compare drugs: ".($body['drugA']??'')." vs ".($body['drugB']??'').". Return ONLY JSON: {\"summary\":\"str\",\"mechanismOfActionComparison\":\"str\",\"indicationsOverlap\":\"str\",\"contraindicationDifferences\":\"str\",\"monitoringRequirements\":\"str\",\"specialPopulations\":\"str\",\"guidelinePreference\":\"str\",\"comparison\":{\"efficacy\":{\"winner\":\"str\",\"reasoning\":\"str\"},\"safety\":{\"winner\":\"str\",\"reasoning\":\"str\"},\"cost\":{\"winner\":\"str\",\"reasoning\":\"str\"},\"convenience\":{\"winner\":\"str\",\"reasoning\":\"str\"}},\"considerations\":[\"str\"],\"recommendation\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html=sec('Summary','<span class="r-value">'.h($d['summary']??'').'</span>');
     if(!empty($d['mechanismOfActionComparison'])) $html.=sec('Mechanism Comparison','<span class="r-value">'.h($d['mechanismOfActionComparison']).'</span>');
@@ -348,7 +382,7 @@ case 'drug-comparison':
 
 // CLINICAL DECISION SUPPORT
 case 'clinical-decision-support':
-    $d=gemini("Clinical decision support. Symptoms: ".($body['symptoms']??'').", History: ".($body['hx']??'').". Return ONLY JSON: {\"assessment\":\"str\",\"differentialDiagnosis\":[{\"condition\":\"str\",\"probability\":\"High|Medium|Low\",\"reasoning\":\"str\"}],\"recommendedWorkup\":[\"str\"],\"managementPlan\":[\"str\"],\"urgency\":\"Emergency|Urgent|Routine\",\"referral\":\"str\",\"evidenceBasedGuidelines\":[\"str\"],\"riskFactors\":[\"str\"],\"prognosis\":\"str\",\"patientEducation\":\"str\",\"followUpTimeline\":\"str\",\"clinicalPearls\":[\"str\"]}");
+    $d=gemini($fileContext . "Clinical decision support. Symptoms: ".($body['symptoms']??'').", History: ".($body['hx']??'').". Return ONLY JSON: {\"assessment\":\"str\",\"differentialDiagnosis\":[{\"condition\":\"str\",\"probability\":\"High|Medium|Low\",\"reasoning\":\"str\"}],\"recommendedWorkup\":[\"str\"],\"managementPlan\":[\"str\"],\"urgency\":\"Emergency|Urgent|Routine\",\"referral\":\"str\",\"evidenceBasedGuidelines\":[\"str\"],\"riskFactors\":[\"str\"],\"prognosis\":\"str\",\"patientEducation\":\"str\",\"followUpTimeline\":\"str\",\"clinicalPearls\":[\"str\"]}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="margin-bottom:10px"><strong>Urgency:</strong> '.bdg($d['urgency']??'routine').'</div>';
     if(!empty($d['assessment'])) $html.=sec('Assessment','<span class="r-value">'.h($d['assessment']).'</span>');
@@ -370,7 +404,7 @@ case 'clinical-decision-support':
 
 // DIAGNOSTIC CHECK
 case 'diagnostic-check':
-    $d=gemini("Diagnostic check. Patient: ".($body['age']??'').". Symptoms: ".($body['symptoms']??'').". Vitals: ".($body['vitals']??'').". Return ONLY JSON: {\"potentialConditions\":[{\"name\":\"str\",\"probability\":\"High|Medium|Low\",\"reasoning\":\"str\"}],\"recommendedTests\":[\"str\"],\"recommendedImaging\":[\"str\"],\"laboratoryTests\":[\"str\"],\"redFlags\":[\"str\"],\"nextSteps\":\"str\",\"diagnosticCriteria\":\"str\",\"riskStratification\":\"str\",\"specialistConsultation\":\"str\"}");
+    $d=gemini($fileContext . "Diagnostic check. Patient: ".($body['age']??'').". Symptoms: ".($body['symptoms']??'').". Vitals: ".($body['vitals']??'').". Return ONLY JSON: {\"potentialConditions\":[{\"name\":\"str\",\"probability\":\"High|Medium|Low\",\"reasoning\":\"str\"}],\"recommendedTests\":[\"str\"],\"recommendedImaging\":[\"str\"],\"laboratoryTests\":[\"str\"],\"redFlags\":[\"str\"],\"nextSteps\":\"str\",\"diagnosticCriteria\":\"str\",\"riskStratification\":\"str\",\"specialistConsultation\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='';
     if(!empty($d['redFlags'])) $html.=alert('red','<strong>Red Flags</strong>'.rl($d['redFlags']));
@@ -390,7 +424,7 @@ case 'diagnostic-check':
 
 // SYMPTOM CHECKER
 case 'symptom-checker':
-    $d=gemini("Symptom checker triage. Patient: ".($body['age']??'')."yr ".($body['gender']??'').". Symptoms: ".($body['symptoms']??'').". Return ONLY JSON: {\"triageLevel\":\"emergency|urgent|routine|self-care\",\"summary\":\"str\",\"potentialCauses\":[\"str\"],\"durationOfSymptoms\":\"str\",\"associatedSymptoms\":[\"str\"],\"riskFactors\":[\"str\"],\"careAdvice\":[\"str\"],\"homeCareMeasures\":[\"str\"],\"urgentCareIndicators\":[\"str\"],\"emergencyIndicators\":[\"str\"],\"demographicConsiderations\":\"str\",\"whenToSeekCare\":\"str\"}");
+    $d=gemini($fileContext . "Symptom checker triage. Patient: ".($body['age']??'')."yr ".($body['gender']??'').". Symptoms: ".($body['symptoms']??'').". Return ONLY JSON: {\"triageLevel\":\"emergency|urgent|routine|self-care\",\"summary\":\"str\",\"potentialCauses\":[\"str\"],\"durationOfSymptoms\":\"str\",\"associatedSymptoms\":[\"str\"],\"riskFactors\":[\"str\"],\"careAdvice\":[\"str\"],\"homeCareMeasures\":[\"str\"],\"urgentCareIndicators\":[\"str\"],\"emergencyIndicators\":[\"str\"],\"demographicConsiderations\":\"str\",\"whenToSeekCare\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="margin-bottom:10px"><strong>Triage Level:</strong> '.bdg($d['triageLevel']??'routine').'</div>';
     if(!empty($d['summary'])) $html.=sec('Summary','<span class="r-value">'.h($d['summary']).'</span>');
@@ -408,7 +442,7 @@ case 'symptom-checker':
 
 // ICD-10 LOOKUP
 case 'icd10-lookup':
-    $d=gemini("ICD-10 codes for: \"".($body['diagnosis']??'')."\" context: ".($body['context']??'').". Return ONLY JSON: {\"mappings\":[{\"primaryCode\":\"str\",\"description\":\"str\",\"confidence\":0.9,\"reasoning\":\"str\",\"clinicalCriteria\":\"str\",\"documentationRequirements\":\"str\",\"codingGuidelines\":\"str\",\"chapterCategory\":\"str\",\"billingImplications\":\"str\",\"secondaryCodes\":[{\"code\":\"str\",\"description\":\"str\"}]}]}");
+    $d=gemini($fileContext . "ICD-10 codes for: \"".($body['diagnosis']??'')."\" context: ".($body['context']??'').". Return ONLY JSON: {\"mappings\":[{\"primaryCode\":\"str\",\"description\":\"str\",\"confidence\":0.9,\"reasoning\":\"str\",\"clinicalCriteria\":\"str\",\"documentationRequirements\":\"str\",\"codingGuidelines\":\"str\",\"chapterCategory\":\"str\",\"billingImplications\":\"str\",\"secondaryCodes\":[{\"code\":\"str\",\"description\":\"str\"}]}]}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='';
     foreach(($d['mappings']??[]) as $m){
@@ -464,7 +498,7 @@ case 'smart-report-oic':
 
 // REPORT COMPOSER
 case 'report-composer':
-    $d=gemini("Generate ".($body['type']??'Progress Note')." for patient: ".($body['patient']??'').". Chief complaint: ".($body['chiefComplaint']??'').". Findings: ".($body['findings']??'').". Return ONLY JSON: {\"reportTitle\":\"str\",\"subjective\":\"str\",\"objective\":\"str\",\"assessment\":\"str\",\"plan\":\"str\",\"chiefComplaint\":\"str\",\"historyOfPresentIllness\":\"str\",\"pastMedicalHistory\":\"str\",\"medicationsAtHome\":\"str\",\"socialHistory\":\"str\",\"reviewOfSystems\":\"str\",\"diagnosisList\":[\"str\"]}");
+    $d=gemini($fileContext . "Generate ".($body['type']??'Progress Note')." for patient: ".($body['patient']??'').". Chief complaint: ".($body['chiefComplaint']??'').". Findings: ".($body['findings']??'').". Return ONLY JSON: {\"reportTitle\":\"str\",\"subjective\":\"str\",\"objective\":\"str\",\"assessment\":\"str\",\"plan\":\"str\",\"chiefComplaint\":\"str\",\"historyOfPresentIllness\":\"str\",\"pastMedicalHistory\":\"str\",\"medicationsAtHome\":\"str\",\"socialHistory\":\"str\",\"reviewOfSystems\":\"str\",\"diagnosisList\":[\"str\"]}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="font-family:monospace;font-size:13px;border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px"><div style="text-align:center;font-weight:700;margin-bottom:12px">'.h($d['reportTitle']??'Medical Report').'</div>';
     $html.='<div style="text-align:center;color:var(--slate5);font-size:11px;margin-bottom:12px">'.date('Y-m-d').'</div>';
@@ -481,7 +515,7 @@ case 'report-composer':
 
 // LAB ANALYZER
 case 'lab-analyzer':
-    $d=gemini("Analyze lab results: ".($body['text']??'').". Return ONLY JSON: {\"summary\":\"str\",\"abnormalValues\":[{\"test\":\"str\",\"value\":\"str\",\"flag\":\"High|Low|Critical\",\"interpretation\":\"str\",\"normalRange\":\"str\"}],\"overallAssessment\":\"str\",\"recommendations\":[\"str\"],\"urgency\":\"Routine|Urgent|Emergency\",\"trendsAnalysis\":\"str\",\"criticalValues\":[\"str\"],\"organSystemImpact\":\"str\",\"medicationEffectsOnLabs\":[\"str\"],\"confirmatoryTesting\":[\"str\"],\"nutritionalAssessment\":\"str\"}");
+    $d=gemini($fileContext . "Analyze lab results: ".($body['text']??'').". Return ONLY JSON: {\"summary\":\"str\",\"abnormalValues\":[{\"test\":\"str\",\"value\":\"str\",\"flag\":\"High|Low|Critical\",\"interpretation\":\"str\",\"normalRange\":\"str\"}],\"overallAssessment\":\"str\",\"recommendations\":[\"str\"],\"urgency\":\"Routine|Urgent|Emergency\",\"trendsAnalysis\":\"str\",\"criticalValues\":[\"str\"],\"organSystemImpact\":\"str\",\"medicationEffectsOnLabs\":[\"str\"],\"confirmatoryTesting\":[\"str\"],\"nutritionalAssessment\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="margin-bottom:10px"><strong>Urgency:</strong> '.bdg($d['urgency']??'Routine').'</div>';
     if(!empty($d['overallAssessment'])) $html.=sec('Overall Assessment','<span class="r-value">'.h($d['overallAssessment']).'</span>');
@@ -499,7 +533,7 @@ case 'lab-analyzer':
 // IMAGING READER
 case 'imaging-reader':
     $mod=$body['modality']??'MRI'; $part=$body['bodyPart']??'';
-    $d=gemini("Analyze {$mod} {$part}: ".($body['text']??'').". Return ONLY JSON: {\"studyDescription\":\"str\",\"findings\":[\"str\"],\"impression\":\"str\",\"severity\":\"Normal|Mild|Moderate|Severe|Critical\",\"urgency\":\"Routine|Urgent|Emergency\",\"recommendations\":[\"str\"],\"technique\":\"str\",\"comparisonStudy\":\"str\",\"clinicalIndication\":\"str\",\"anatomyVisualized\":[\"str\"],\"technicalQuality\":\"str\",\"incidentalFindings\":[\"str\"],\"structuredReport\":\"str\",\"clinicalCorrelation\":\"str\"}");
+    $d=gemini($fileContext . "Analyze {$mod} {$part}: ".($body['text']??'').". Return ONLY JSON: {\"studyDescription\":\"str\",\"findings\":[\"str\"],\"impression\":\"str\",\"severity\":\"Normal|Mild|Moderate|Severe|Critical\",\"urgency\":\"Routine|Urgent|Emergency\",\"recommendations\":[\"str\"],\"technique\":\"str\",\"comparisonStudy\":\"str\",\"clinicalIndication\":\"str\",\"anatomyVisualized\":[\"str\"],\"technicalQuality\":\"str\",\"incidentalFindings\":[\"str\"],\"structuredReport\":\"str\",\"clinicalCorrelation\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="display:flex;gap:6px;margin-bottom:10px">'.bdg($d['severity']??'Normal').bdg($d['urgency']??'Routine').'</div>';
     if(!empty($d['clinicalIndication'])) $html.=sec('Indication','<span class="r-value">'.h($d['clinicalIndication']).'</span>');
@@ -518,7 +552,7 @@ case 'imaging-reader':
 
 // PATHOLOGY READER
 case 'pathology-reader':
-    $d=gemini("Pathology report. Specimen: ".($body['specimenType']??'Biopsy').". Report: ".($body['text']??'').". Return ONLY JSON: {\"diagnosis\":\"str\",\"specimenType\":\"str\",\"grossDescription\":\"str\",\"microscopicDescription\":\"str\",\"staging\":{\"t\":\"str\",\"n\":\"str\",\"m\":\"str\"},\"pathologicalStaging\":\"str\",\"grade\":\"str\",\"biomarkers\":[{\"name\":\"str\",\"result\":\"str\",\"interpretation\":\"str\"}],\"immunohistochemistry\":[{\"marker\":\"str\",\"result\":\"str\",\"interpretation\":\"str\"}],\"molecularTesting\":\"str\",\"tumorBurden\":\"str\",\"marginStatus\":\"str\",\"lymphovascularInvasion\":\"str\",\"recommendations\":[\"str\"]}");
+    $d=gemini($fileContext . "Pathology report. Specimen: ".($body['specimenType']??'Biopsy').". Report: ".($body['text']??'').". Return ONLY JSON: {\"diagnosis\":\"str\",\"specimenType\":\"str\",\"grossDescription\":\"str\",\"microscopicDescription\":\"str\",\"staging\":{\"t\":\"str\",\"n\":\"str\",\"m\":\"str\"},\"pathologicalStaging\":\"str\",\"grade\":\"str\",\"biomarkers\":[{\"name\":\"str\",\"result\":\"str\",\"interpretation\":\"str\"}],\"immunohistochemistry\":[{\"marker\":\"str\",\"result\":\"str\",\"interpretation\":\"str\"}],\"molecularTesting\":\"str\",\"tumorBurden\":\"str\",\"marginStatus\":\"str\",\"lymphovascularInvasion\":\"str\",\"recommendations\":[\"str\"]}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div class="r-value-lg" style="margin-bottom:8px">'.h($d['diagnosis']??'').'</div>';
     if(!empty($d['specimenType'])) $html.=sec('Specimen','<span class="r-value">'.h($d['specimenType']).'</span>');
@@ -538,7 +572,7 @@ case 'pathology-reader':
 
 // DISCHARGE SUMMARY
 case 'discharge-summary':
-    $d=gemini("Discharge summary. Diagnosis: ".($body['diagnosis']??'').". Course: ".($body['course']??'').". Meds: ".($body['medications']??'').". Return ONLY JSON: {\"diagnoses\":{\"primary\":\"str\",\"secondary\":[\"str\"]},\"hospitalCourse\":\"str\",\"procedures\":[\"str\"],\"dischargeMedications\":[{\"name\":\"str\",\"dose\":\"str\",\"frequency\":\"str\",\"duration\":\"str\"}],\"followUpPlan\":[\"str\"],\"patientInstructions\":\"str\",\"admissionDate\":\"str\",\"dischargeDate\":\"str\",\"attendingPhysician\":\"str\",\"dischargeDisposition\":\"str\",\"pendingResults\":[\"str\"],\"conditionAtDischarge\":\"str\",\"functionalStatus\":\"str\"}");
+    $d=gemini($fileContext . "Discharge summary. Diagnosis: ".($body['diagnosis']??'').". Course: ".($body['course']??'').". Meds: ".($body['medications']??'').". Return ONLY JSON: {\"diagnoses\":{\"primary\":\"str\",\"secondary\":[\"str\"]},\"hospitalCourse\":\"str\",\"procedures\":[\"str\"],\"dischargeMedications\":[{\"name\":\"str\",\"dose\":\"str\",\"frequency\":\"str\",\"duration\":\"str\"}],\"followUpPlan\":[\"str\"],\"patientInstructions\":\"str\",\"admissionDate\":\"str\",\"dischargeDate\":\"str\",\"attendingPhysician\":\"str\",\"dischargeDisposition\":\"str\",\"pendingResults\":[\"str\"],\"conditionAtDischarge\":\"str\",\"functionalStatus\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div class="r-value-lg" style="margin-bottom:8px">'.h($d['diagnoses']['primary']??'').'</div>';
     if(!empty($d['diagnoses']['secondary'])) $html.=sec('Secondary Diagnoses',rl($d['diagnoses']['secondary']));
@@ -557,7 +591,7 @@ case 'discharge-summary':
 
 // CLINICAL NOTES
 case 'clinical-notes':
-    $d=gemini("Generate ".($body['noteType']??'SOAP Note')." for ".($body['age']??'')."yr ".($body['gender']??'').". Info: ".($body['info']??'').". Return ONLY JSON: {\"noteType\":\"str\",\"subjective\":\"str\",\"objective\":{\"vitalSigns\":\"str\",\"physicalExam\":\"str\"},\"assessment\":\"str\",\"plan\":\"str\",\"icd10Suggestions\":[\"str\"],\"reviewOfSystems\":\"str\",\"medicationList\":[\"str\"],\"allergies\":[\"str\"],\"pastMedicalHistory\":\"str\",\"familyHistory\":\"str\",\"socialHistory\":\"str\",\"assessmentPlanDetailed\":\"str\"}");
+    $d=gemini($fileContext . "Generate ".($body['noteType']??'SOAP Note')." for ".($body['age']??'')."yr ".($body['gender']??'').". Info: ".($body['info']??'').". Return ONLY JSON: {\"noteType\":\"str\",\"subjective\":\"str\",\"objective\":{\"vitalSigns\":\"str\",\"physicalExam\":\"str\"},\"assessment\":\"str\",\"plan\":\"str\",\"icd10Suggestions\":[\"str\"],\"reviewOfSystems\":\"str\",\"medicationList\":[\"str\"],\"allergies\":[\"str\"],\"pastMedicalHistory\":\"str\",\"familyHistory\":\"str\",\"socialHistory\":\"str\",\"assessmentPlanDetailed\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="font-family:monospace;font-size:13px;border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px"><div style="text-align:center;font-weight:700;margin-bottom:12px">'.h($d['noteType']??'Clinical Note').'</div>';
     if(!empty($d['subjective'])) $html.='<div class="r-field"><span class="r-label">S — Subjective</span><span class="r-value-sm">'.h($d['subjective']).'</span></div>';
@@ -577,7 +611,7 @@ case 'clinical-notes':
 
 // MEDICATION SAFETY
 case 'medication-safety':
-    $d=gemini("Medication safety: ".($body['drug']??'').". Allergies: ".($body['allergies']??'').". Current meds: ".($body['currentMeds']??'').". Return ONLY JSON: {\"overallSafety\":\"Safe|Caution|High Risk\",\"lasaRisk\":\"Yes|No\",\"highAlert\":\"Yes|No\",\"allergyConflict\":\"str or null\",\"interactions\":[{\"drug\":\"str\",\"severity\":\"str\",\"description\":\"str\"}],\"safetyRecommendations\":[\"str\"],\"monitoringParameters\":[\"str\"],\"duplicateTherapy\":[\"str\"],\"dosingErrors\":[\"str\"],\"renalDosingAdjustment\":\"str\",\"hepaticDosingAdjustment\":\"str\",\"pregnancyRiskAssessment\":\"str\",\"geriatricConsiderations\":\"str\",\"pediatricConsiderations\":\"str\"}");
+    $d=gemini($fileContext . "Medication safety: ".($body['drug']??'').". Allergies: ".($body['allergies']??'').". Current meds: ".($body['currentMeds']??'').". Return ONLY JSON: {\"overallSafety\":\"Safe|Caution|High Risk\",\"lasaRisk\":\"Yes|No\",\"highAlert\":\"Yes|No\",\"allergyConflict\":\"str or null\",\"interactions\":[{\"drug\":\"str\",\"severity\":\"str\",\"description\":\"str\"}],\"safetyRecommendations\":[\"str\"],\"monitoringParameters\":[\"str\"],\"duplicateTherapy\":[\"str\"],\"dosingErrors\":[\"str\"],\"renalDosingAdjustment\":\"str\",\"hepaticDosingAdjustment\":\"str\",\"pregnancyRiskAssessment\":\"str\",\"geriatricConsiderations\":\"str\",\"pediatricConsiderations\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="display:flex;gap:6px;margin-bottom:10px">'.bdg($d['overallSafety']??'Caution');
     if(($d['highAlert']??'')=='Yes') $html.='<span class="badge badge-red">HIGH ALERT</span>';
@@ -598,7 +632,7 @@ case 'medication-safety':
 
 // FORMULARY
 case 'formulary':
-    $d=gemini("Formulary search: ".($body['query']??'').". Status: ".($body['status']??'').". Route: ".($body['route']??'').". Return ONLY JSON: {\"results\":[{\"name\":\"str\",\"genericName\":\"str\",\"formularyStatus\":\"Formulary|Non-Formulary|Restricted\",\"route\":\"str\",\"therapeuticClass\":\"str\",\"restrictions\":\"str\",\"alternatives\":[\"str\"],\"costInformation\":\"str\",\"copayLevel\":\"str\",\"priorAuthorizationRequired\":\"Yes|No\",\"stepTherapyRequired\":\"Yes|No\",\"quantityLimits\":\"str\",\"formularyTier\":\"str\"}]}");
+    $d=gemini($fileContext . "Formulary search: ".($body['query']??'').". Status: ".($body['status']??'').". Route: ".($body['route']??'').". Return ONLY JSON: {\"results\":[{\"name\":\"str\",\"genericName\":\"str\",\"formularyStatus\":\"Formulary|Non-Formulary|Restricted\",\"route\":\"str\",\"therapeuticClass\":\"str\",\"restrictions\":\"str\",\"alternatives\":[\"str\"],\"costInformation\":\"str\",\"copayLevel\":\"str\",\"priorAuthorizationRequired\":\"Yes|No\",\"stepTherapyRequired\":\"Yes|No\",\"quantityLimits\":\"str\",\"formularyTier\":\"str\"}]}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='';
     foreach(($d['results']??[]) as $r){
@@ -620,7 +654,7 @@ case 'formulary':
 // IV COMPATIBILITY
 case 'iv-compatibility':
     $drugs=implode(', ',array_filter([$body['drugA']??'',$body['drugB']??'',$body['drugC']??'']));
-    $d=gemini("IV compatibility for: {$drugs} in ".($body['diluent']??'Normal Saline').". Return ONLY JSON: {\"overallCompatibility\":\"Compatible|Incompatible|Conditionally Compatible\",\"pairs\":[{\"drug1\":\"str\",\"drug2\":\"str\",\"compatibility\":\"Compatible|Incompatible|Conditionally Compatible\",\"evidence\":\"str\",\"notes\":\"str\"}],\"recommendation\":\"str\",\"alternativeApproach\":\"str\",\"ySiteCompatibility\":\"str\",\"syringeCompatibility\":\"str\",\"stabilityData\":\"str\",\"lightSensitivity\":\"str\",\"concentrationDependentInfo\":\"str\",\"administrationGuidelines\":[\"str\"]}");
+    $d=gemini($fileContext . "IV compatibility for: {$drugs} in ".($body['diluent']??'Normal Saline').". Return ONLY JSON: {\"overallCompatibility\":\"Compatible|Incompatible|Conditionally Compatible\",\"pairs\":[{\"drug1\":\"str\",\"drug2\":\"str\",\"compatibility\":\"Compatible|Incompatible|Conditionally Compatible\",\"evidence\":\"str\",\"notes\":\"str\"}],\"recommendation\":\"str\",\"alternativeApproach\":\"str\",\"ySiteCompatibility\":\"str\",\"syringeCompatibility\":\"str\",\"stabilityData\":\"str\",\"lightSensitivity\":\"str\",\"concentrationDependentInfo\":\"str\",\"administrationGuidelines\":[\"str\"]}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $ov=$d['overallCompatibility']??'Unknown';
     $html='<div style="text-align:center;margin-bottom:10px">'.bdg($ov).'</div>';
@@ -642,7 +676,7 @@ case 'iv-compatibility':
 
 // CLINICAL PATHWAYS
 case 'clinical-pathways':
-    $d=gemini("Clinical pathway for: ".($body['condition']??'').". Return ONLY JSON: {\"condition\":\"str\",\"overview\":\"str\",\"initialAssessment\":[\"str\"],\"diagnosticWorkup\":[\"str\"],\"treatmentSteps\":[{\"step\":1,\"action\":\"str\",\"timeframe\":\"str\",\"notes\":\"str\"}],\"monitoring\":[\"str\"],\"inclusionCriteria\":[\"str\"],\"exclusionCriteria\":[\"str\"],\"outcomeMeasures\":[\"str\"],\"dischargeCriteria\":[\"str\"],\"followUpSchedule\":\"str\",\"referralCriteria\":[\"str\"],\"patientResources\":[\"str\"]}");
+    $d=gemini($fileContext . "Clinical pathway for: ".($body['condition']??'').". Return ONLY JSON: {\"condition\":\"str\",\"overview\":\"str\",\"initialAssessment\":[\"str\"],\"diagnosticWorkup\":[\"str\"],\"treatmentSteps\":[{\"step\":1,\"action\":\"str\",\"timeframe\":\"str\",\"notes\":\"str\"}],\"monitoring\":[\"str\"],\"inclusionCriteria\":[\"str\"],\"exclusionCriteria\":[\"str\"],\"outcomeMeasures\":[\"str\"],\"dischargeCriteria\":[\"str\"],\"followUpSchedule\":\"str\",\"referralCriteria\":[\"str\"],\"patientResources\":[\"str\"]}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div class="r-value-lg" style="margin-bottom:8px">'.h($d['condition']??'').'</div>';
     if(!empty($d['overview'])) $html.=sec('Overview','<span class="r-value">'.h($d['overview']).'</span>');
@@ -661,7 +695,7 @@ case 'clinical-pathways':
 
 // CLINICAL CALCULATORS
 case 'clinical-calculators':
-    $d=gemini("Calculate ".($body['calculator']??'')." score. Data: ".($body['data']??'').". Return ONLY JSON: {\"calculator\":\"str\",\"result\":\"str\",\"score\":\"str\",\"interpretation\":\"str\",\"riskCategory\":\"str\",\"recommendations\":[\"str\"],\"calculationMethodology\":\"str\",\"variablesUsed\":[\"str\"],\"clinicalApplication\":\"str\",\"evidenceLevel\":\"str\",\"validationStudies\":\"str\",\"caveats\":[\"str\"]}");
+    $d=gemini($fileContext . "Calculate ".($body['calculator']??'')." score. Data: ".($body['data']??'').". Return ONLY JSON: {\"calculator\":\"str\",\"result\":\"str\",\"score\":\"str\",\"interpretation\":\"str\",\"riskCategory\":\"str\",\"recommendations\":[\"str\"],\"calculationMethodology\":\"str\",\"variablesUsed\":[\"str\"],\"clinicalApplication\":\"str\",\"evidenceLevel\":\"str\",\"validationStudies\":\"str\",\"caveats\":[\"str\"]}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="font-size:28px;font-weight:900;margin-bottom:4px">'.h($d['result']??$d['score']??'').'</div>';
     if(!empty($d['riskCategory'])) $html.='<div style="margin-bottom:8px">'.bdg($d['riskCategory']).'</div>';
@@ -677,7 +711,7 @@ case 'clinical-calculators':
 
 // STEWARDSHIP
 case 'stewardship':
-    $d=gemini("AMS review. Antibiotic: ".($body['antibiotic']??'').". Indication: ".($body['indication']??'').". Culture: ".($body['culture']??'').". Day ".($body['dayOfTherapy']??'')." of therapy. Return ONLY JSON: {\"appropriateness\":\"Appropriate|Inappropriate|Needs Review\",\"recommendation\":\"Continue|De-escalate|Discontinue|Modify\",\"justification\":\"str\",\"deEscalationOption\":\"str\",\"suggestedDuration\":\"str\",\"monitoringParameters\":[\"str\"],\"resistanceRisk\":\"Low|Moderate|High\",\"durationAssessment\":\"str\",\"cultureResults\":\"str\",\"sensitivityPatterns\":\"str\",\"ivToOralConversion\":\"str\",\"renalDosingAdjustment\":\"str\",\"allergyAssessment\":\"str\",\"stewardshipCategory\":\"str\"}");
+    $d=gemini($fileContext . "AMS review. Antibiotic: ".($body['antibiotic']??'').". Indication: ".($body['indication']??'').". Culture: ".($body['culture']??'').". Day ".($body['dayOfTherapy']??'')." of therapy. Return ONLY JSON: {\"appropriateness\":\"Appropriate|Inappropriate|Needs Review\",\"recommendation\":\"Continue|De-escalate|Discontinue|Modify\",\"justification\":\"str\",\"deEscalationOption\":\"str\",\"suggestedDuration\":\"str\",\"monitoringParameters\":[\"str\"],\"resistanceRisk\":\"Low|Moderate|High\",\"durationAssessment\":\"str\",\"cultureResults\":\"str\",\"sensitivityPatterns\":\"str\",\"ivToOralConversion\":\"str\",\"renalDosingAdjustment\":\"str\",\"allergyAssessment\":\"str\",\"stewardshipCategory\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div style="display:flex;gap:6px;margin-bottom:10px">'.bdg($d['appropriateness']??'Needs Review').bdg($d['recommendation']??'').'</div>';
     if(!empty($d['justification'])) $html.=sec('Justification','<span class="r-value">'.h($d['justification']).'</span>');

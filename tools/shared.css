@@ -41,7 +41,7 @@ a:hover{text-decoration:underline}
 .tool-cat.advanced{background:var(--purple-bg);color:#5b21b6}
 
 /* Main layout */
-.main{max-width:960px;margin:0 auto;padding:0 20px 36px;flex:1;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.main{max-width:960px;margin:0 auto;padding:0 20px 36px;flex:1;display:grid;grid-template-columns:1fr;gap:24px;align-items:start}
 
 /* Card — input panel */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
@@ -49,11 +49,11 @@ a:hover{text-decoration:underline}
 .card-body{padding:16px}
 
 /* Form */
-.field{margin-bottom:14px}
-.field label{display:block;font-size:12px;font-weight:600;color:var(--slate2);margin-bottom:5px}
-.field input,.field textarea,.field select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;color:var(--slate);background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--slate2);margin-bottom:6px}
+.field input,.field textarea,.field select{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-family:inherit;color:var(--slate);background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 
 /* Upload area */
 .upload-area{border:1px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;font-size:12px;color:var(--slate4);transition:border-color .15s,background .15s}

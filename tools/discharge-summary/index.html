@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/tools/shared.css"/>
+  <script src="/tools/_upload.js"></script>
 </head>
 <body>
 
@@ -49,6 +50,18 @@
       </div>
       <div class="field"><label>Hospital Course &amp; Treatment</label><textarea id="f_course" placeholder="Describe the hospital stay, procedures performed, treatment given, clinical progress, and any complications…"></textarea></div>
       <div class="field"><label>Discharge Medications</label><textarea id="f_meds" placeholder="List medications at discharge with dose and frequency…" style="min-height:80px;font-size:12px"></textarea></div>
+            <div class="field">
+        <label>Upload File <span style="font-weight:400;color:var(--slate4)">(optional — photo or PDF)</span></label>
+        <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
+          <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" style="display:none" onchange="handleUpload(this)">
+          <div id="upPlaceholder"><span>Click or drag a photo or PDF here (max 5 MB)</span></div>
+          <div id="upPreview" style="display:none">
+            <img id="upImg" style="max-height:140px;border:1px solid var(--border);border-radius:3px;display:block;margin-bottom:6px">
+            <div id="upName" style="font-size:11px;color:var(--slate4);margin-bottom:4px"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeUpload()">Remove</button>
+          </div>
+        </div>
+      </div>
       <button class="btn btn-primary btn-block" id="submitBtn" onclick="runTool()">
         <span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span>
       </button>
@@ -79,13 +92,22 @@
 
 <script>
 var EP='/api/tools/discharge-summary';
-function getFormData(){var d=document.getElementById('f_dx').value.trim(),c=document.getElementById('f_course').value.trim();if(!d||!c){alert('Enter diagnosis and hospital course');return null;}return{patient:document.getElementById('f_pt').value,diagnosis:d,course:c,medications:document.getElementById('f_meds').value,admDate:document.getElementById('f_adm').value,disDate:document.getElementById('f_dis').value};}
+function getFormData(){var d=document.getElementById('f_dx').value.trim(),c=document.getElementById('f_course').value.trim();if(!d||!c){alert('Enter diagnosis and hospital course');return null;}var d = {patient:document.getElementById('f_pt').value,diagnosis:d,course:c,medications:document.getElementById('f_meds').value,admDate:document.getElementById('f_adm').value,disDate:document.getElementById('f_dis').value};
+  if (_upFile) {
+    var fd = new FormData();
+    for (var k in d) fd.append(k, d[k]);
+    fd.append('file', _upFile);
+    return fd;
+  }
+  return d;}
 async function runTool(){
   var btn=document.getElementById('submitBtn'),sp=document.getElementById('spinner'),txt=document.getElementById('btnText'),body=getFormData();
   if(!body)return;
   btn.disabled=true;sp.classList.add('on');txt.textContent='Processing…';
   try{
-    var res=await fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    var opts={method:'POST'};
+    if(body instanceof FormData){opts.body=body;}else{opts.headers={'Content-Type':'application/json'};opts.body=JSON.stringify(body);}
+    var res=await fetch(EP,opts);
     var data=await res.json();
     show(data.html||fb(data));
   }catch(e){show('<div class="r-error"><span class="r-error-icon">&#9888;</span><div><strong>Connection Error</strong><br>Check that the server is running and API keys are set.</div></div>');}
