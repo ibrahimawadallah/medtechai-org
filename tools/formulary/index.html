@@ -40,7 +40,7 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
-      <div class="field"><label>Drug / Therapeutic Class</label><input id="f_q" type="text" placeholder="e.g. Ceftriaxone, ACE inhibitors, Anticoagulants…" autocomplete="off"/></div>
+      <div class="field"><label>Drug / Therapeutic Class</label><input id="f_q" data-suggest="drug" type="text" placeholder="e.g. Ceftriaxone, ACE inhibitors, Anticoagulants…" autocomplete="off"/></div>
       <div class="field-row">
         <div class="field"><label>Formulary Status</label>
           <select id="f_st"><option value="">Any</option><option>Formulary</option><option>Non-Formulary</option><option>Restricted</option></select>
@@ -133,5 +133,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

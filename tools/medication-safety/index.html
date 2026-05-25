@@ -40,8 +40,8 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
-      <div class="field"><label>Drug Name</label><input id="f_drug" type="text" placeholder="e.g. Heparin, Insulin, Methotrexate, Vancomycin" autocomplete="off"/></div>
-      <div class="field"><label>Patient Allergies</label><input id="f_al" type="text" placeholder="e.g. Penicillin, Sulfa, Aspirin (NSAID)"/></div>
+      <div class="field"><label>Drug Name</label><input id="f_drug" data-suggest="drug" type="text" placeholder="e.g. Heparin, Insulin, Methotrexate, Vancomycin" autocomplete="off"/></div>
+      <div class="field"><label>Patient Allergies</label><input id="f_al" data-suggest="allergen" type="text" placeholder="e.g. Penicillin, Sulfa, Aspirin (NSAID)"/></div>
       <div class="field"><label>Current Medications</label><textarea id="f_cur" class="textarea-sm" placeholder="List all current medications, one per line…"></textarea></div>
       <div class="field"><label>High-Alert Drugs (quick check)</label>
         <div class="tag-group">
@@ -127,5 +127,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

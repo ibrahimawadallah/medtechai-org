@@ -41,8 +41,8 @@
     </div>
     <div class="card-body">
       <div class="field"><label>Symptoms &amp; Clinical Findings</label><textarea id="f_sx" placeholder="e.g. 68yr male, fever 38.8°C, productive cough, SpO2 92%, CXR shows right lower lobe consolidation, WBC 14.5…"></textarea></div>
-      <div class="field"><label>Medical History</label><input id="f_hx" type="text" placeholder="e.g. DM type 2, Hypertension, previous TB"/></div>
-      <div class="field"><label>Current Medications</label><input id="f_meds" type="text" placeholder="e.g. Metformin 1g BD, Amlodipine 5mg"/></div>
+      <div class="field"><label>Medical History</label><input id="f_hx" data-suggest="diagnosis" type="text" placeholder="e.g. DM type 2, Hypertension, previous TB"/></div>
+      <div class="field"><label>Current Medications</label><input id="f_meds" data-suggest="drug" type="text" placeholder="e.g. Metformin 1g BD, Amlodipine 5mg"/></div>
             <div class="field">
         <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
         <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
@@ -118,5 +118,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

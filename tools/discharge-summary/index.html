@@ -42,7 +42,7 @@
     <div class="card-body">
       <div class="field-row">
         <div class="field"><label>Patient</label><input id="f_pt" type="text" placeholder="e.g. 55yr male"/></div>
-        <div class="field"><label>Admission Diagnosis</label><input id="f_dx" type="text" placeholder="e.g. NSTEMI"/></div>
+        <div class="field"><label>Admission Diagnosis</label><input id="f_dx" data-suggest="diagnosis" type="text" placeholder="e.g. NSTEMI"/></div>
       </div>
       <div class="field-row">
         <div class="field"><label>Admission Date</label><input id="f_adm" type="date"/></div>
@@ -125,5 +125,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

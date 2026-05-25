@@ -40,8 +40,8 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
-      <div class="field"><label>Antibiotic Prescribed</label><input id="f_ab" type="text" placeholder="e.g. Meropenem 1g IV Q8H" autocomplete="off"/></div>
-      <div class="field"><label>Infection / Indication</label><input id="f_ind" type="text" placeholder="e.g. Hospital-acquired pneumonia, Sepsis unknown source"/></div>
+      <div class="field"><label>Antibiotic Prescribed</label><input id="f_ab" data-suggest="drug" type="text" placeholder="e.g. Meropenem 1g IV Q8H" autocomplete="off"/></div>
+      <div class="field"><label>Infection / Indication</label><input id="f_ind" data-suggest="diagnosis" type="text" placeholder="e.g. Hospital-acquired pneumonia, Sepsis unknown source"/></div>
       <div class="field-row">
         <div class="field"><label>Day of Therapy</label><input id="f_day" type="number" placeholder="e.g. 3" min="1"/></div>
         <div class="field"><label>Setting</label>
@@ -133,5 +133,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

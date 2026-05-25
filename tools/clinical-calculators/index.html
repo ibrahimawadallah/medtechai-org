@@ -40,22 +40,21 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
+      <style>
+        .calc-tree{user-select:none}.tree-cat{margin-bottom:4px}.tree-hdr{padding:6px 10px;font-size:12px;font-weight:600;color:var(--slate2);cursor:pointer;border-radius:var(--radius);transition:background .15s}.tree-hdr:hover{background:var(--slate-bg)}.tree-arrow{display:inline-block;width:14px;transition:transform .15s}.tree-arrow.open{transform:rotate(90deg)}.tree-items{padding-left:12px;display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.tree-items.closed{display:none}
+      </style>
       <div class="field"><label>Select Calculator</label>
-        <div class="tag-group" id="calcGroup">
-          <span class="field-tag" onclick="selectCalc(this,'BMI')">BMI</span>
-          <span class="field-tag" onclick="selectCalc(this,'GFR (CKD-EPI)')">GFR</span>
-          <span class="field-tag" onclick="selectCalc(this,'Corrected Calcium')">Corrected Ca²⁺</span>
-          <span class="field-tag" onclick="selectCalc(this,'Anion Gap')">Anion Gap</span>
-          <span class="field-tag" onclick="selectCalc(this,'CHA2DS2-VASc')">CHA₂DS₂-VASc</span>
-          <span class="field-tag" onclick="selectCalc(this,'Wells DVT')">Wells DVT</span>
-          <span class="field-tag" onclick="selectCalc(this,'Wells PE')">Wells PE</span>
-          <span class="field-tag" onclick="selectCalc(this,'APACHE II')">APACHE II</span>
-          <span class="field-tag" onclick="selectCalc(this,'MAP')">MAP</span>
-          <span class="field-tag" onclick="selectCalc(this,'Sodium Correction')">Sodium Correction</span>
+        <div class="calc-tree" id="calcTree">
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Anthropometrics</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'BMI')">BMI</span></div></div>
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Renal</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'GFR (CKD-EPI)')">GFR</span></div></div>
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Electrolytes &amp; Chemistry</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'Corrected Calcium')">Corrected Ca&#178;&#8314;</span><span class="field-tag" onclick="selectCalc(this,'Sodium Correction')">Sodium Correction</span><span class="field-tag" onclick="selectCalc(this,'Anion Gap')">Anion Gap</span></div></div>
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Cardiovascular</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'CHA2DS2-VASc')">CHA&#8322;DS&#8322;-VASc</span><span class="field-tag" onclick="selectCalc(this,'MAP')">MAP</span></div></div>
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Thromboembolism</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'Wells DVT')">Wells DVT</span><span class="field-tag" onclick="selectCalc(this,'Wells PE')">Wells PE</span></div></div>
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Critical Care</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'APACHE II')">APACHE II</span></div></div>
         </div>
       </div>
       <div id="calcFields" class="field" style="display:none"><label id="calcLabel">Calculator</label><div id="calcInputs"></div></div>
-      <div class="field" style="display:none" id="aiCalcField"><label>Patient Data</label><textarea id="f_data" placeholder="E.g.: 72-year-old female with CHF, hypertension, diabetes, prior stroke. Or paste lab values like Na⁺ 128, glucose 320."></textarea></div>
+      <div class="field" style="display:none" id="aiCalcField"><label>Patient Data</label><textarea id="f_data" data-suggest="diagnosis" placeholder="E.g.: 72-year-old female with CHF, hypertension, diabetes, prior stroke. Or paste lab values like Na⁺ 128, glucose 320."></textarea></div>
       <div class="field">
         <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
         <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
@@ -106,8 +105,12 @@ var localCalcs={
 "MAP":{fields:[{id:"sbp",label:"Systolic BP (mmHg)",type:"number"},{id:"dbp",label:"Diastolic BP (mmHg)",type:"number"}],calc:function(f){var map=(f.sbp+2*f.dbp)/3;return{result:Math.round(map)+" mmHg",interpretation:map<65?"Low MAP — risk of organ hypoperfusion. Target ≥65 mmHg":map>100?"High MAP":"Adequate MAP (target ≥65 mmHg in septic shock)"};}}
 };
 var selected="";
+function toggleCat(hdr){
+  var arrow=hdr.querySelector('.tree-arrow'),items=hdr.nextElementSibling;
+  arrow.classList.toggle('open');items.classList.toggle('closed');
+}
 function selectCalc(el,name){
-  document.querySelectorAll('#calcGroup .field-tag').forEach(function(t){t.style.background='';t.style.borderColor='';t.style.color='';});
+  document.querySelectorAll('.calc-tree .field-tag').forEach(function(t){t.style.background='';t.style.borderColor='';t.style.color='';});
   el.style.background='var(--teal-bg)';el.style.borderColor='var(--teal)';el.style.color='var(--teal)';
   selected=name;document.getElementById('calcFields').style.display='';document.getElementById('calcLabel').textContent=name;document.getElementById('aiCalcField').style.display='none';
   var inp=document.getElementById('calcInputs');inp.innerHTML='';
@@ -150,5 +153,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

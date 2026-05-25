@@ -40,7 +40,7 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
-      <div class="field"><label>Condition / Diagnosis</label><input id="f_cond" type="text" placeholder="e.g. Community-acquired pneumonia, Sepsis, Acute MI, DVT" autocomplete="off"/></div>
+      <div class="field"><label>Condition / Diagnosis</label><input id="f_cond" data-suggest="diagnosis" type="text" placeholder="e.g. Community-acquired pneumonia, Sepsis, Acute MI, DVT" autocomplete="off"/></div>
       <div class="field"><label>Common Conditions</label>
         <div class="tag-group">
           <span class="field-tag" onclick="document.getElementById('f_cond').value=this.textContent">Sepsis</span>
@@ -129,5 +129,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

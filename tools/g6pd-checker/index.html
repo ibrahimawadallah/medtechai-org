@@ -45,7 +45,7 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
-      <div class="field"><label>Drug Name</label><input id="f_drug" type="text" placeholder="e.g. Primaquine, Dapsone, Nitrofurantoin…" autocomplete="off"/></div>
+      <div class="field"><label>Drug Name</label><input id="f_drug" data-suggest="drug" type="text" placeholder="e.g. Primaquine, Dapsone, Nitrofurantoin…" autocomplete="off"/></div>
       <div class="field"><label>High-Risk Drugs (quick check)</label>
         <div class="tag-group">
           <span class="field-tag" onclick="document.getElementById('f_drug').value=this.textContent">Primaquine</span>
@@ -132,5 +132,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

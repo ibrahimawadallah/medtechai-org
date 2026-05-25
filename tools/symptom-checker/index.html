@@ -47,7 +47,7 @@
           <select id="f_gen"><option>Male</option><option>Female</option><option>Prefer not to say</option></select>
         </div>
       </div>
-      <div class="field"><label>Any known conditions</label><input id="f_hx" type="text" placeholder="e.g. Diabetes, Hypertension, Asthma…"/></div>
+      <div class="field"><label>Any known conditions</label><input id="f_hx" data-suggest="diagnosis" type="text" placeholder="e.g. Diabetes, Hypertension, Asthma…"/></div>
             <div class="field">
         <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
         <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
@@ -123,5 +123,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

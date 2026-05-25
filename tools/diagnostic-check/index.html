@@ -45,7 +45,7 @@
         <div class="field"><label>Vital Signs</label><input id="f_vt" type="text" placeholder="e.g. BP 140/90, HR 92, T 38.2, SpO2 96%"/></div>
         <div class="field"><label>Patient (Age / Gender)</label><input id="f_ag" type="text" placeholder="e.g. 45yr male"/></div>
       </div>
-      <div class="field"><label>Medical History</label><input id="f_hx" type="text" placeholder="e.g. DM, smoker 20 pack-years"/></div>
+      <div class="field"><label>Medical History</label><input id="f_hx" data-suggest="diagnosis" type="text" placeholder="e.g. DM, smoker 20 pack-years"/></div>
             <div class="field">
         <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
         <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
@@ -121,5 +121,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

@@ -758,6 +758,20 @@ case 'stewardship':
     if(!empty($d['resistanceRisk'])) $html.=sec('Resistance Risk','<span class="badge '.(['Low'=>'badge-green','Moderate'=>'badge-amber','High'=>'badge-red'][$d['resistanceRisk']]??'badge-gray').'">'.h($d['resistanceRisk']).'</span>');
     echo json_encode(['html'=>$html]); break;
 
+// SUGGEST — AI-powered autocomplete for search inputs
+case 'suggest':
+    $q = trim($body['q'] ?? '');
+    $cat = trim($body['category'] ?? 'drug');
+    if (strlen($q) < 2) { echo json_encode(['suggestions' => []]); break; }
+    $cats = ['drug'=>'drug','diagnosis'=>'diagnosis or condition','indication'=>'indication','allergen'=>'allergen'];
+    $label = $cats[$cat] ?? 'term';
+    $prompt = "You are a medical autocomplete. User typed \"$q\" searching for a $label. Return ONLY a JSON object: {\"suggestions\":[\"top match\",\"second match\",...]}. Return up to 8 matching $label suggestions sorted by relevance. No explanation, no markdown.";
+    $d = gemini($prompt);
+    $list = $d['suggestions'] ?? [];
+    if (!is_array($list)) $list = [];
+    echo json_encode(['suggestions' => array_slice($list, 0, 8)]);
+    break;
+
 default:
     http_response_code(404);
     echo json_encode(['error'=>'Unknown tool: '.$tool]);

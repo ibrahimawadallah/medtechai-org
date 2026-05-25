@@ -40,9 +40,9 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
-      <div class="field"><label>Drug A (IV)</label><input id="f_a" type="text" placeholder="e.g. Vancomycin" autocomplete="off"/></div>
-      <div class="field"><label>Drug B (IV)</label><input id="f_b" type="text" placeholder="e.g. Piperacillin-Tazobactam" autocomplete="off"/></div>
-      <div class="field"><label>Drug C (optional)</label><input id="f_c" type="text" placeholder="e.g. Furosemide" autocomplete="off"/></div>
+      <div class="field"><label>Drug A (IV)</label><input id="f_a" data-suggest="drug" type="text" placeholder="e.g. Vancomycin" autocomplete="off"/></div>
+      <div class="field"><label>Drug B (IV)</label><input id="f_b" data-suggest="drug" type="text" placeholder="e.g. Piperacillin-Tazobactam" autocomplete="off"/></div>
+      <div class="field"><label>Drug C (optional)</label><input id="f_c" data-suggest="drug" type="text" placeholder="e.g. Furosemide" autocomplete="off"/></div>
       <div class="field"><label>Diluent / Solution</label>
         <select id="f_dil"><option>Normal Saline (0.9% NaCl)</option><option>D5W (5% Dextrose)</option><option>Lactated Ringer</option><option>D5 Normal Saline</option><option>Sterile Water</option></select>
       </div>
@@ -129,5 +129,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

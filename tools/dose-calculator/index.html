@@ -45,12 +45,12 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
-      <div class="field"><label>Drug Name</label><input id="f_drug" type="text" placeholder="e.g. Amoxicillin" autocomplete="off"/></div>
+      <div class="field"><label>Drug Name</label><input id="f_drug" data-suggest="drug" type="text" placeholder="e.g. Amoxicillin" autocomplete="off"/></div>
       <div class="field-row">
         <div class="field"><label>Weight (kg)</label><input id="f_wt" type="number" placeholder="e.g. 70" min="0.5" max="300"/></div>
         <div class="field"><label>Age</label><input id="f_age" type="text" placeholder="e.g. 6 years / Adult"/></div>
       </div>
-      <div class="field"><label>Indication</label><input id="f_ind" type="text" placeholder="e.g. Community-acquired pneumonia"/></div>
+      <div class="field"><label>Indication</label><input id="f_ind" data-suggest="diagnosis" type="text" placeholder="e.g. Community-acquired pneumonia"/></div>
       <div class="field"><label>Renal Function</label>
         <select id="f_ren">
           <option>Normal</option>
@@ -137,5 +137,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

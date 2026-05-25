@@ -83,7 +83,7 @@
 
 <script>
 var EP='/api/tools/lab-analyzer';
-function getFormData(){var t=document.getElementById('f_text').value.trim();if(!t){alert('Paste lab values');return null;}var d = {text:t};
+function getFormData(){var t=document.getElementById('f_text').value.trim();if(!t&&!_upFile){alert('Paste lab values or upload a lab report file.');return null;}var d = {text:t};
   if (_upFile) {
     var fd = new FormData();
     for (var k in d) fd.append(k, d[k]);
@@ -116,5 +116,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

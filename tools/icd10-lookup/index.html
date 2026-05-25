@@ -40,7 +40,7 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
-      <div class="field"><label>Diagnosis or Condition</label><input id="f_dx" type="text" placeholder="e.g. Type 2 Diabetes with peripheral neuropathy" autocomplete="off"/></div>
+      <div class="field"><label>Diagnosis or Condition</label><input id="f_dx" data-suggest="diagnosis" type="text" placeholder="e.g. Type 2 Diabetes with peripheral neuropathy" autocomplete="off"/></div>
       <div class="field"><label>Clinical Context</label><input id="f_ctx" type="text" placeholder="e.g. Initial diagnosis, outpatient follow-up, inpatient admission"/></div>
       <div class="field"><label>Common Diagnoses</label>
         <div class="tag-group">
@@ -126,5 +126,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>

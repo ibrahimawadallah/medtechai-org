@@ -45,8 +45,8 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
-      <div class="field"><label>Drug A</label><input id="f_a" type="text" placeholder="e.g. Atorvastatin" autocomplete="off"/></div>
-      <div class="field"><label>Drug B</label><input id="f_b" type="text" placeholder="e.g. Rosuvastatin" autocomplete="off"/></div>
+      <div class="field"><label>Drug A</label><input id="f_a" data-suggest="drug" type="text" placeholder="e.g. Atorvastatin" autocomplete="off"/></div>
+      <div class="field"><label>Drug B</label><input id="f_b" data-suggest="drug" type="text" placeholder="e.g. Rosuvastatin" autocomplete="off"/></div>
       <div class="field"><label>Common Comparisons</label>
         <div class="tag-group">
           <span class="field-tag" onclick="setPair('Atorvastatin','Rosuvastatin')">Atorvastatin vs Rosuvastatin</span>
@@ -132,5 +132,6 @@ function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon"
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
 
+<script src="/tools/_suggest.js"></script>
 </body>
 </html>
