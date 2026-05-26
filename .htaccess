@@ -14,4 +14,5 @@ RewriteRule ^api/tools/([a-z0-9-]+)/?$ /api/tools/handler.php [QSA,L]
 # SPA fallback — serve index.html for any unmatched path
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/favicon\.ico$ [NC]
 RewriteRule ^(.*)$ /$1/index.html [L]
