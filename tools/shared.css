@@ -180,7 +180,7 @@ a:hover{text-decoration:underline}
 .btn-handout:hover{background:var(--teal-h)}
 
 /* Print */
-@media print{.nav,.cat-banner,.breadcrumb,.main>.card,.card,.btn,.no-print,.footer,.sidebar,.search-bar,.clinical-ui{display:none!important}.patient-handout{display:block!important}.main{display:block!important}.result-panel{display:block!important}.r-section{break-inside:avoid}}
+@media print{.nav,.cat-banner,.breadcrumb,.card,.btn,.no-print,.footer,.sidebar{display:none!important}.patient-handout{display:block!important}.main{display:block!important}.result-panel{display:block!important}.r-section{break-inside:avoid}}
 
 /* Shared component classes for tool pages */
 .btn-bar{margin-top:12px;display:flex;gap:8px}
