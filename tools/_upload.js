@@ -196,10 +196,69 @@
   };
   
   // Initialize on DOM load
-  document.addEventListener('DOMContentLoaded', initDragDrop);
+  document.addEventListener('DOMContentLoaded', function() {
+    initDragDrop();
+    injectSearchBar();
+    injectSidebar();
+  });
   
   // Expose functions globally if needed (but keep state private)
   window.handleUpload = handleUpload;
   window.removeUpload = removeUpload;
   window.getUploadedFile = () => _upFile;
+  window.injectSearchBar = injectSearchBar;
+  window.injectSidebar = injectSidebar;
+
+  // ── UpToDate-style search bar injection ──────────────────────────
+  function injectSearchBar() {
+    if (document.getElementById('uptodate-search')) return;
+    var bar = document.createElement('div');
+    bar.id = 'uptodate-search';
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;height:48px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;padding:0 16px;z-index:1000;gap:12px';
+    bar.innerHTML = '<a href="/" style="font-weight:700;font-size:15px;color:#1a2d3a;text-decoration:none;white-space:nowrap">MedTech<span style="color:#38b8ae">AI</span></a>' +
+      '<span style="color:#d1d5db;font-size:14px">|</span>' +
+      '<form action="/tools/" method="get" style="flex:1;max-width:480px;display:flex">' +
+      '<input type="text" name="q" placeholder="Search drugs, topics, tools\u2026" style="flex:1;height:32px;padding:0 10px;border:1px solid #e5e7eb;border-radius:6px 0 0 6px;font-size:13px;font-family:inherit;color:#1a2d3a;outline:none;background:#f9fafb" aria-label="Search">' +
+      '<button type="submit" style="height:32px;padding:0 12px;background:#0066aa;color:#fff;border:none;border-radius:0 6px 6px 0;font-size:12px;font-weight:600;cursor:pointer">Search</button></form>' +
+      '<span style="flex:1"></span>' +
+      '<a href="/about/" style="font-size:12px;color:#6b7280;text-decoration:none">About</a>' +
+      '<a href="/contact/" style="font-size:12px;color:#6b7280;text-decoration:none">Contact</a>';
+    document.body.prepend(bar);
+    document.body.style.paddingTop = '48px';
+  }
+
+  // ── Specialty sidebar injection ──────────────────────────────────
+  function injectSidebar() {
+    if (document.getElementById('uptodate-sidebar')) return;
+    var categories = [
+      { name: 'Pharmacy', id: 'pharmacy', icon: 'P' },
+      { name: 'Clinical Support', id: 'clinical', icon: 'C' },
+      { name: 'Smart Reports', id: 'smart-report', icon: 'R' },
+      { name: 'Advanced Clinical', id: 'advanced', icon: 'A' },
+    ];
+    var currentCat = '';
+    var banner = document.querySelector('.cat-banner');
+    if (banner) {
+      for (var i = 0; i < categories.length; i++) {
+        if (banner.classList.contains(categories[i].id)) {
+          currentCat = categories[i].id;
+          break;
+        }
+      }
+    }
+    var s = document.createElement('div');
+    s.id = 'uptodate-sidebar';
+    s.className = 'sidebar';
+    var html = '<div style="padding:4px 16px 12px;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px">Specialties</div>';
+    html += '<a href="/tools/" class="sidebar-item' + (currentCat === '' ? ' active' : '') + '" style="display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;color:' + (currentCat === '' ? '#38b8ae' : '#4b5563') + ';text-decoration:none;font-weight:' + (currentCat === '' ? '600' : '400') + '">\u2039 All Tools</a>';
+    for (var j = 0; j < categories.length; j++) {
+      var isActive = currentCat === categories[j].id;
+      html += '<a href="/tools/#' + categories[j].id + '" class="sidebar-item' + (isActive ? ' active' : '') + '" style="display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;color:' + (isActive ? '#38b8ae' : '#4b5563') + ';text-decoration:none;font-weight:' + (isActive ? '600' : '400') + '">' + categories[j].icon + ' ' + categories[j].name + '</a>';
+    }
+    s.innerHTML = html;
+    document.body.appendChild(s);
+
+    var main = document.querySelector('.main');
+    if (main) main.style.marginLeft = '220px';
+  }
 })();
