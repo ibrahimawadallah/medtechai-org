@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 define('GROQ_KEY',        getenv('GROQ_API_KEY')        ?: '');
 define('GEMINI_KEY',      getenv('GEMINI_API_KEY')      ?: getenv('GOOGLE_API_KEY') ?: '');
 define('OPENROUTER_KEY',  getenv('OPENROUTER_API_KEY')  ?: '');
+define('GRADE_SUFFIX', "\n\nIMPORTANT: Where applicable, include GRADE evidence ratings for key recommendations using the format: <span class=\"grade grade-1a\">GRADE 1A</span>. Use green for strong recommendations (1A, 1B), blue for moderate (2A, 2B), amber for weak (2C).\n\nIf the word \"HANDOUT\" appears in the query, provide a plain-language patient summary at a 5th-6th grade reading level. Start with <div class=\"patient-handout on\"><h2>What You Should Know</h2> and avoid clinical jargon.");
 
 $uri   = $_SERVER['REQUEST_URI'];
 $parts = explode('/', trim(parse_url($uri, PHP_URL_PATH), '/'));
@@ -107,6 +108,7 @@ function callGeminiVision(string $key, string $prompt, string $imageData, string
 }
 
 function geminiVision(string $prompt, string $imageData, string $mimeType): array {
+    $prompt .= GRADE_SUFFIX;
     $text = null;
     if (GEMINI_KEY) {
         $text = callGeminiVision(GEMINI_KEY, $prompt, $imageData, $mimeType);
@@ -125,6 +127,7 @@ function geminiVision(string $prompt, string $imageData, string $mimeType): arra
 }
 
 function gemini(string $prompt): array {
+    $prompt .= GRADE_SUFFIX;
     $text = null;
     if (GROQ_KEY) {
         $text = callOpenAI('https://api.groq.com/openai/v1/chat/completions', GROQ_KEY, 'llama-3.3-70b-versatile', $prompt);
