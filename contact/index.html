@@ -7,21 +7,54 @@
   <meta name="description" content="Contact Arab MedTechAI Organization. Reach our team in Abu Dhabi for partnerships, support, or inquiries about our AI medical platforms."/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/tools/shared.css">
   <style>
-    .wrap{max-width:960px;margin:0 auto;padding:0 20px}
-    .info-line{font-size:14px;color:var(--slate3);padding:5px 0}
-    .info-line a{color:var(--blue)}
-    .frm{max-width:480px}
-    .frm-group{margin-bottom:16px}
-    .frm-group label{display:block;font-size:13px;font-weight:600;color:var(--slate3);margin-bottom:4px}
-    .frm-group input,.frm-group textarea{width:100%;padding:8px 10px;font-size:14px;font-family:Inter,system-ui,sans-serif;color:var(--slate);border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);outline:none}
-    .frm-group input:focus,.frm-group textarea:focus{border-color:var(--blue)}
-    .frm-group textarea{resize:vertical;min-height:100px}
+    :root{--teal:#38b8ae;--navy:#1a2d3a;--mint:#e6f7f6;--soft-teal:#d1efed;--slate-gray:#6b8a8e;--white:#fff;--bg:#f5fafa}
+    body{background:var(--bg);color:var(--navy)}
+    a{color:var(--teal);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
     .nav-home{color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500}
     .nav-home:hover{background:rgba(255,255,255,.08);color:#fff;text-decoration:none}
     .nav-home.act{color:#38bdf8}
+
+    .hero{text-align:center;padding:64px 0 56px}
+    .hero-tag{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
+    .hero h1{font-family:'DM Sans',sans-serif;font-size:40px;font-weight:700;color:var(--navy);line-height:1.15;margin-bottom:16px}
+    .hero h1 span{color:var(--teal)}
+    .hero p{font-size:16px;color:var(--slate-gray);line-height:1.7;max-width:560px;margin:0 auto}
+
+    .sec{padding:48px 0}
+    .sec-label{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .sec-label::before{content:'';width:20px;height:3px;border-radius:2px;background:var(--teal)}
+    .sec-label span{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px}
+    .sec-title{font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:24px}
+
+    .contact-grid{display:grid;grid-template-columns:1fr;gap:40px}
+    @media(min-width:768px){.contact-grid{grid-template-columns:1fr 1fr}}
+
+    .info-card{background:var(--white);border:1px solid var(--soft-teal);border-radius:16px;padding:32px}
+    .info-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--mint)}
+    .info-item:last-child{border-bottom:none}
+    .info-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--mint);color:var(--teal);font-size:16px;font-weight:700;flex-shrink:0}
+    .info-label{font-size:11px;font-weight:600;color:var(--slate-gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+    .info-value{font-size:14px;color:var(--navy);font-weight:500}
+
+    .frm-card{background:var(--white);border:1px solid var(--soft-teal);border-radius:16px;padding:32px}
+    .frm-group{margin-bottom:18px}
+    .frm-group label{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:6px}
+    .frm-group input,.frm-group textarea{width:100%;padding:10px 14px;font-size:14px;font-family:Inter,sans-serif;color:var(--navy);border:1px solid var(--soft-teal);border-radius:10px;background:var(--bg);outline:none;transition:border-color .15s,box-shadow .15s}
+    .frm-group input:focus,.frm-group textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(56,184,174,.1)}
+    .frm-group textarea{resize:vertical;min-height:120px}
+    .frm-group .btn{width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;background:var(--teal);color:var(--white);border:none;cursor:pointer}
+    .frm-group .btn:hover{opacity:.9}
+
+    .footer{background:var(--navy)!important;color:rgba(255,255,255,.6)!important}
+    .footer a{color:rgba(255,255,255,.5)!important}
+    .footer a:hover{color:var(--white)!important}
+
+    @media(max-width:640px){.hero h1{font-size:28px}.sec-title{font-size:20px}}
   </style>
 </head>
 <body>
@@ -35,42 +68,64 @@
   <a href="/contact/" class="nav-home act">Contact</a>
 </nav>
 
-<div class="wrap">
-  <main style="padding:40px 0">
+<main>
+  <section class="hero">
+    <div class="hero-tag">Get in touch</div>
+    <h1>Let's <span>connect</span></h1>
+    <p>Have a question about our platforms, interested in a partnership, or need support? We'd love to hear from you.</p>
+  </section>
 
-    <h2 class="sec-h" style="font-size:12px;font-weight:700;color:var(--slate4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Contact</h2>
-
-    <div class="info-line">Location — Abu Dhabi, United Arab Emirates</div>
-    <div class="info-line">Email — <a href="mailto:contact@medtechai.net">contact@medtechai.net</a></div>
-    <div class="info-line">Phone — <a href="tel:+971525397947">+971 52 539 7947</a></div>
-    <div class="info-line">Business Hours — Mon-Fri 8AM-8PM, Saturday 9AM-5PM, Sunday Closed</div>
-
-    <hr style="border:none;border-top:1px solid var(--border);margin:24px 0"/>
-
-    <div class="frm">
-      <form action="mailto:contact@medtechai.net" method="GET">
-        <div class="frm-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" name="name" required>
+  <div class="wrap">
+    <section class="sec">
+      <div class="contact-grid">
+        <div class="info-card">
+          <div class="sec-label"><span>Contact Information</span></div>
+          <div class="info-item">
+            <div class="info-icon">&#9906;</div>
+            <div><div class="info-label">Location</div><div class="info-value">Abu Dhabi, United Arab Emirates</div></div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">&#9993;</div>
+            <div><div class="info-label">Email</div><div class="info-value"><a href="mailto:contact@medtechai.net">contact@medtechai.net</a></div></div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">&#9742;</div>
+            <div><div class="info-label">Phone</div><div class="info-value"><a href="tel:+971525397947">+971 52 539 7947</a></div></div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">&#9776;</div>
+            <div><div class="info-label">Business Hours</div><div class="info-value">Mon-Fri 8AM-8PM, Sat 9AM-5PM, Sun Closed</div></div>
+          </div>
         </div>
-        <div class="frm-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" required>
-        </div>
-        <div class="frm-group">
-          <label for="subject">Subject</label>
-          <input type="text" id="subject" name="subject" required>
-        </div>
-        <div class="frm-group">
-          <label for="message">Message</label>
-          <textarea id="message" name="body" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Send</button>
-      </form>
-    </div>
 
-  </main>
-</div>
+        <div class="frm-card">
+          <div class="sec-label"><span>Send a message</span></div>
+          <form action="mailto:contact@medtechai.net" method="GET">
+            <div class="frm-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+            <div class="frm-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div class="frm-group">
+              <label for="subject">Subject</label>
+              <input type="text" id="subject" name="subject" required>
+            </div>
+            <div class="frm-group">
+              <label for="message">Message</label>
+              <textarea id="message" name="body" required></textarea>
+            </div>
+            <div class="frm-group">
+              <button type="submit" class="btn">Send message</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
 
 <footer class="footer">
   &copy; 2025 Arab MedTechAI Organization

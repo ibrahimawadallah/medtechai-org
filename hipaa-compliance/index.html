@@ -3,21 +3,37 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>HIPAA Compliance &amp; Data Protection | Arab MedTechAI Organization</title>
+  <title>HIPAA Compliance &amp; Data Protection | MedTechAI</title>
   <meta name="description" content="HIPAA compliance and health data protection policy for Arab MedTechAI Organization platforms."/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/tools/shared.css">
   <style>
-    .wrap{max-width:960px;margin:0 auto;padding:0 20px}
-    .p-body{font-size:14px;color:var(--slate3);line-height:1.7}
-    .p-body h2{font-size:16px;font-weight:700;color:var(--slate);margin-top:24px;margin-bottom:8px}
-    .p-body h3{font-size:14px;font-weight:600;color:var(--slate2);margin-top:16px;margin-bottom:6px}
-    .p-body p{margin-bottom:10px}
-    .p-body ul{padding-left:20px;margin-bottom:10px;color:var(--slate3);line-height:1.6}
+    :root{--teal:#38b8ae;--navy:#1a2d3a;--mint:#e6f7f6;--soft-teal:#d1efed;--slate-gray:#6b8a8e;--white:#fff;--bg:#f5fafa}
+    body{background:var(--bg);color:var(--navy)}
+    a{color:var(--teal)}
+    .wrap{max-width:860px;margin:0 auto;padding:0 24px}
+    .nav-home{color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500}
+    .nav-home:hover{background:rgba(255,255,255,.08);color:#fff;text-decoration:none}
+
+    .page-header{padding:40px 0 24px;border-bottom:1px solid var(--soft-teal);margin-bottom:32px}
+    .page-header h1{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;color:var(--navy);margin-bottom:4px}
+    .page-header .date{font-size:12px;color:var(--slate-gray)}
+
+    .p-body{font-size:14px;color:var(--slate-gray);line-height:1.7}
+    .p-body h2{font-family:'DM Sans',sans-serif;font-size:17px;font-weight:700;color:var(--navy);margin-top:28px;margin-bottom:8px}
+    .p-body h3{font-size:14px;font-weight:600;color:var(--navy);margin-top:18px;margin-bottom:6px}
+    .p-body p{margin-bottom:12px}
+    .p-body ul{padding-left:20px;margin-bottom:12px;line-height:1.7}
     .p-body li{margin-bottom:4px}
-    .p-body strong{color:var(--slate)}
+    .p-body strong{color:var(--navy)}
+    .p-body a{color:var(--teal)}
+    .p-body .badge-teal{display:inline-block;background:var(--mint);color:var(--teal);padding:2px 10px;border-radius:6px;font-size:11px;font-weight:600}
+
+    .footer{background:var(--navy)!important;color:rgba(255,255,255,.6)!important}
+    .footer a{color:rgba(255,255,255,.5)!important}
+    .footer a:hover{color:var(--white)!important}
   </style>
 </head>
 <body>
@@ -25,17 +41,17 @@
 <nav class="nav" style="gap:16px">
   <a href="/" class="nav-logo">MedTech<span>AI</span></a>
   <span style="flex:1"></span>
-  <a href="/" class="nav-home" style="color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500">Home</a>
-  <a href="/tools/" class="nav-home" style="color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500">Tools</a>
-  <a href="/about/" class="nav-home" style="color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500">About</a>
-  <a href="/contact/" class="nav-home" style="color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500">Contact</a>
+  <a href="/" class="nav-home">Home</a>
+  <a href="/tools/" class="nav-home">Tools</a>
+  <a href="/about/" class="nav-home">About</a>
+  <a href="/contact/" class="nav-home">Contact</a>
 </nav>
 
 <div class="wrap">
   <main>
-    <div style="padding:32px 0 24px">
-      <h1 style="font-size:22px;font-weight:700;color:var(--slate);margin-bottom:4px">HIPAA Compliance &amp; Data Protection</h1>
-      <p style="font-size:12px;color:var(--slate5)">Last Updated: January 15, 2025</p>
+    <div class="page-header">
+      <h1>HIPAA Compliance &amp; Data Protection</h1>
+      <span class="date">Last Updated: January 15, 2025</span>
     </div>
 
     <div class="p-body">
@@ -65,10 +81,10 @@
 
       <h2>5. Security Measures</h2>
       <ul>
-        <li><strong>Encryption in transit:</strong> All platform traffic served over HTTPS (TLS 1.2+)</li>
-        <li><strong>No plaintext credential storage:</strong> API keys stored as server environment variables only</li>
-        <li><strong>Access controls:</strong> Administrative infrastructure access is restricted and audited</li>
-        <li><strong>Minimal data collection:</strong> No registration or personal data required to use our AI tools</li>
+        <li><span class="badge-teal">Encrypted</span> All platform traffic served over HTTPS (TLS 1.2+)</li>
+        <li><span class="badge-teal">Protected</span> No plaintext credential storage — API keys stored as server environment variables only</li>
+        <li><span class="badge-teal">Restricted</span> Administrative infrastructure access is restricted and audited</li>
+        <li><span class="badge-teal">Minimal</span> No registration or personal data required to use our AI tools</li>
       </ul>
 
       <h2>6. Platforms Covered</h2>

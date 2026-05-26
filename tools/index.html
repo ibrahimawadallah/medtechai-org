@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Tools | MedTechAI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/tools/shared.css"/>
 <style>
 body{display:block}
@@ -20,8 +20,8 @@ body{display:block}
 .tool-srch{display:flex;max-width:480px;margin:10px 0 20px}
 .tool-srch input{flex:1;height:36px;padding:0 12px;border:1px solid var(--border);border-right:none;border-radius:var(--radius) 0 0 var(--radius);font-size:13px;font-family:inherit;color:var(--slate);outline:none}
 .tool-srch input:focus{border-color:var(--blue)}
-.tool-srch button{height:36px;padding:0 14px;background:var(--blue);color:#fff;border:none;border-radius:0 var(--radius) var(--radius) 0;font-size:12px;font-weight:600;cursor:pointer}
-.tool-srch button:hover{background:var(--blue-h)}
+.tool-srch button{height:36px;padding:0 14px;background:#38b8ae;color:#fff;border:none;border-radius:0 var(--radius) var(--radius) 0;font-size:12px;font-weight:600;cursor:pointer}
+.tool-srch button:hover{background:#2a9d8f}
 
 /* Category section */
 .cat{border-left:3px solid var(--slate6);padding-left:14px;margin-bottom:28px}
@@ -60,7 +60,7 @@ body{display:block}
   <span class="hamburger" id="ham" onclick="document.getElementById('mobileMenu').classList.toggle('on')">☰</span>
   <a href="/" class="nav-logo">MedTech<span>AI</span></a>
   <span class="nav-sep">/</span>
-  <a href="/tools/" class="nav-back" style="font-weight:600;color:var(--blue)">Tools</a>
+  <a href="/tools/" class="nav-back" style="font-weight:600;color:#38b8ae">Tools</a>
   <span style="flex:1"></span>
   <a href="/contact/" class="nav-back">Contact</a>
 </div>
@@ -135,7 +135,7 @@ function filterTools(){var f=document.getElementById('toolFilter').value.toLower
 document.getElementById('toolFilter').focus();
 </script>
 
-<footer class="footer">
+<footer class="footer" style="background:#1a2d3a!important">
   &copy; 2025 Arab MedTechAI Organization
   <div class="footer-links">
     <a href="/about/">About</a>

@@ -3,121 +3,201 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MedTechAI — Clinical Tools &amp; AI Platforms</title>
-  <meta name="description" content="AI-powered clinical tools, drug reference, and medical platforms by Arab MedTechAI Organization."/>
+  <title>MedTechAI — Clinical AI Tools &amp; Platforms</title>
+  <meta name="description" content="AI-powered clinical tools, drug reference, and medical platforms by Arab MedTechAI Organization. Deep impact when it matters most."/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/tools/shared.css">
   <style>
-    .wrap{max-width:960px;margin:0 auto;padding:0 20px}
-    .hero{padding:48px 0 0;text-align:center}
-    .hero h1{font-size:22px;font-weight:700;color:var(--slate);margin-bottom:4px}
-    .hero p{font-size:13px;color:var(--slate4);margin-bottom:20px}
-    .srch{width:100%;max-width:520px;margin:0 auto;display:flex}
-    .srch input{flex:1;height:40px;padding:0 14px;border:1px solid var(--border);border-right:none;border-radius:6px 0 0 6px;font-size:14px;font-family:inherit;color:var(--slate);outline:none}
-    .srch input:focus{border-color:var(--blue)}
-    .srch button{height:40px;padding:0 18px;background:var(--blue);color:#fff;border:none;border-radius:0 6px 6px 0;font-size:13px;font-weight:600;cursor:pointer}
-    .srch button:hover{background:var(--blue-h)}
-    .qlinks{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px;font-size:12px;color:var(--slate4)}
-    .qlinks a{color:var(--blue);font-weight:500}
-    .sec{padding:28px 0;border-bottom:1px solid #f1f5f9}
-    .sec:last-of-type{border-bottom:none}
-    .sec-h{font-size:12px;font-weight:700;color:var(--slate4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
-    .plat-list{display:flex;gap:20px;font-size:14px}
-    .plat-list a{color:var(--blue);font-weight:500}
-    .plat-list a:hover{text-decoration:underline}
-    .plat-list span{color:var(--slate5);font-size:12px}
-    .cat-grid{display:grid;grid-template-columns:1fr;gap:6px}
-    @media(min-width:600px){.cat-grid{grid-template-columns:1fr 1fr}}
-    .cat-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:var(--radius);font-size:13px;border-left:3px solid var(--slate6);background:var(--bg)}
-    .cat-item:hover{background:#f1f5f9}
-    .cat-item a{color:var(--slate);font-weight:600}
-    .cat-item a:hover{color:var(--blue);text-decoration:none}
-    .cat-count{font-size:11px;color:var(--slate5);background:#f1f5f9;padding:2px 8px;border-radius:6px;font-weight:600}
-    .cat-item.pharmacy{border-left-color:var(--blue)}
-    .cat-item.clinical{border-left-color:var(--teal)}
-    .cat-item.smart-report{border-left-color:var(--green)}
-    .cat-item.advanced{border-left-color:var(--purple)}
-    .tool-links{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px}
-    .tool-links a{color:var(--slate3)}
-    .tool-links a:hover{color:var(--blue);text-decoration:underline}
-    .tool-links .sep{color:var(--border)}
-    .abt{font-size:13px;color:var(--slate4);line-height:1.7;margin-bottom:8px}
-    .abt a{font-weight:500}
-    .abt strong{color:var(--slate3)}
+    :root{--teal:#38b8ae;--navy:#1a2d3a;--mint:#e6f7f6;--soft-teal:#d1efed;--slate-gray:#6b8a8e;--white:#fff;--bg:#f5fafa}
+    body{background:var(--bg);color:var(--navy)}
+    a{color:var(--teal);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
     .nav-home{color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500}
     .nav-home:hover{background:rgba(255,255,255,.08);color:#fff;text-decoration:none}
     .nav-home.act{color:#38bdf8}
+
+    .hero{text-align:center;padding:64px 0 56px}
+    .hero-tag{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
+    .hero h1{font-family:'DM Sans',sans-serif;font-size:40px;font-weight:700;color:var(--navy);line-height:1.15;margin-bottom:16px;max-width:720px;margin-left:auto;margin-right:auto}
+    .hero h1 span{color:var(--teal)}
+    .hero p{font-size:16px;color:var(--slate-gray);line-height:1.7;max-width:620px;margin:0 auto 32px}
+    .hero-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 32px;border-radius:12px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;background:var(--teal);color:var(--white);transition:opacity .2s}
+    .hero-cta:hover{opacity:.9;text-decoration:none}
+    .srch-wrap{display:flex;max-width:520px;margin:0 auto}
+    .srch-wrap input{flex:1;height:44px;padding:0 16px;border:1px solid var(--soft-teal);border-right:none;border-radius:12px 0 0 12px;font-size:14px;font-family:inherit;color:var(--navy);outline:none;background:var(--white)}
+    .srch-wrap input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(56,184,174,.1)}
+    .srch-wrap button{height:44px;padding:0 22px;background:var(--teal);color:#fff;border:none;border-radius:0 12px 12px 0;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .srch-wrap button:hover{opacity:.9}
+
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:2px;background:var(--teal);border-radius:16px;overflow:hidden;margin-bottom:64px}
+    .stat-card{background:var(--white);padding:28px 16px;text-align:center}
+    .stat-num{font-family:'DM Sans',sans-serif;font-size:32px;font-weight:700;color:var(--teal);line-height:1}
+    .stat-label{font-size:12px;color:var(--slate-gray);margin-top:8px;font-weight:500}
+
+    .sec{padding:48px 0}
+    .sec-label{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .sec-label::before{content:'';width:20px;height:3px;border-radius:2px;background:var(--teal)}
+    .sec-label span{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px}
+    .sec-title{font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:8px}
+    .sec-sub{font-size:15px;color:var(--slate-gray);line-height:1.6;margin-bottom:32px;max-width:680px}
+
+    .div-grid{display:grid;grid-template-columns:1fr;gap:24px}
+    @media(min-width:768px){.div-grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+    .div-card{border-radius:14px;border:1px solid var(--soft-teal);padding:24px;background:var(--white);text-align:center;transition:box-shadow .2s}
+    .div-card:hover{box-shadow:0 4px 20px rgba(56,184,174,.1)}
+    .div-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin:0 auto 12px;background:var(--mint);color:var(--teal)}
+    .div-name{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px}
+    .div-desc{font-size:12px;color:var(--slate-gray);line-height:1.6;margin-bottom:10px}
+    .div-count{font-size:11px;font-weight:600;color:var(--teal)}
+    .div-note{font-size:10px;color:var(--slate-gray);margin-top:4px}
+
+    .cat-grid{display:grid;grid-template-columns:1fr;gap:8px}
+    @media(min-width:600px){.cat-grid{grid-template-columns:1fr 1fr}}
+    .cat-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:12px;font-size:13px;border:1px solid var(--soft-teal);background:var(--white);transition:box-shadow .2s}
+    .cat-item:hover{box-shadow:0 2px 10px rgba(56,184,174,.08)}
+    .cat-item a{color:var(--navy);font-weight:600}
+    .cat-item a:hover{color:var(--teal);text-decoration:none}
+    .cat-count{font-size:11px;color:var(--slate-gray);background:var(--mint);padding:2px 10px;border-radius:6px;font-weight:600}
+    .cat-item-label{display:flex;align-items:center;gap:10px}
+    .cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .cat-dot.pharmacy{background:var(--teal)}
+    .cat-dot.clinical{background:#0891b2}
+    .cat-dot.smart-report{background:#059669}
+    .cat-dot.advanced{background:#7c3aed}
+
+    .qlinks{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px;font-size:12px;color:var(--slate-gray)}
+    .qlinks a{color:var(--teal);font-weight:500}
+
+    .cta-banner{background:linear-gradient(135deg,var(--teal),#2a9d8f);border-radius:16px;padding:48px 32px;text-align:center;color:var(--white);margin:48px 0}
+    .cta-banner h2{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;margin-bottom:8px}
+    .cta-banner p{font-size:14px;opacity:.9;margin-bottom:20px}
+    .cta-banner a{display:inline-block;padding:12px 32px;border-radius:12px;font-weight:600;font-size:14px;background:var(--white);color:var(--teal)}
+
+    .footer{background:var(--navy)!important;color:rgba(255,255,255,.6)!important}
+    .footer a{color:rgba(255,255,255,.5)!important}
+    .footer a:hover{color:var(--white)!important}
+
+    @media(max-width:640px){
+      .hero h1{font-size:28px}
+      .stat-num{font-size:24px}
+      .sec-title{font-size:20px}
+      .cta-banner h2{font-size:22px}
+    }
   </style>
 </head>
 <body>
-  <nav class="nav" style="gap:16px">
-    <a href="/" class="nav-logo">MedTech<span>AI</span></a>
-    <span style="flex:1"></span>
-    <a href="/" class="nav-home act">Home</a>
-    <a href="/tools/" class="nav-home">Tools</a>
-    <a href="/about/" class="nav-home">About</a>
-    <a href="/contact/" class="nav-home">Contact</a>
-  </nav>
+
+<nav class="nav" style="gap:16px">
+  <a href="/" class="nav-logo">MedTech<span>AI</span></a>
+  <span style="flex:1"></span>
+  <a href="/" class="nav-home act">Home</a>
+  <a href="/tools/" class="nav-home">Tools</a>
+  <a href="/about/" class="nav-home">About</a>
+  <a href="/contact/" class="nav-home">Contact</a>
+</nav>
+
+<main>
+
+  <section class="hero">
+    <div class="hero-tag">Deep impact when it matters most</div>
+    <h1>Clinical AI tools<br>for the Arab world <span>&amp; beyond</span></h1>
+    <p>AI-powered drug reference, clinical decision support, smart reporting, and diagnostic tools — trusted by clinicians across 180+ countries.</p>
+    <form action="/tools/" method="get" class="srch-wrap" onsubmit="var q=this.querySelector('input').value.trim();if(q)this.action='/tools/?q='+encodeURIComponent(q);return true">
+      <input type="text" placeholder="Search drug, tool, or condition…" aria-label="Search">
+      <button type="submit">Search</button>
+    </form>
+    <div class="qlinks">
+      Quick: <a href="/tools/drug-search/">Drug Search</a> · <a href="/tools/interaction-checker/">Interaction Checker</a> · <a href="/tools/dose-calculator/">Dose Calc</a> · <a href="/tools/symptom-checker/">Symptom Checker</a> · <a href="/tools/icd10-lookup/">ICD-10</a>
+    </div>
+  </section>
 
   <div class="wrap">
-    <section class="hero">
-      <h1>MedTechAI</h1>
-      <p>Clinical tools, drug reference, and AI-powered platforms</p>
-      <form class="srch" action="/tools/" method="get" onsubmit="var q=this.querySelector('input').value.trim();if(q)this.action='/tools/?q='+encodeURIComponent(q);return true">
-        <input type="text" placeholder="Search drug, tool, or condition…" aria-label="Search">
-        <button type="submit">Search</button>
-      </form>
-      <div class="qlinks">
-        Quick: <a href="/tools/drug-search/">Drug Search</a> ·
-        <a href="/tools/interaction-checker/">Interaction Checker</a> ·
-        <a href="/tools/dose-calculator/">Dose Calc</a> ·
-        <a href="/tools/symptom-checker/">Symptom Checker</a> ·
-        <a href="/tools/icd10-lookup/">ICD-10</a>
+
+    <section class="stats">
+      <div class="stat-card"><div class="stat-num">50+</div><div class="stat-label">AI Tools &amp; Platforms</div></div>
+      <div class="stat-card"><div class="stat-num">180+</div><div class="stat-label">Countries Served</div></div>
+      <div class="stat-card"><div class="stat-num">10K+</div><div class="stat-label">Clinicians Using Our Tools</div></div>
+      <div class="stat-card"><div class="stat-num">24/7</div><div class="stat-label">AI-Powered Access</div></div>
+    </section>
+
+    <section class="sec">
+      <div class="sec-label"><span>Platforms</span></div>
+      <h2 class="sec-title">Our AI Platforms</h2>
+      <p class="sec-sub">Specialized AI platforms serving healthcare professionals across pharmacy, clinical medicine, and research.</p>
+      <div class="div-grid">
+        <div class="div-card">
+          <div class="div-icon">P</div>
+          <div class="div-name">AI Pharmacy</div>
+          <div class="div-desc">Drug lookup, dosing, interactions, and medication safety</div>
+          <div class="div-count">6 tools</div>
+          <div class="div-note">pharmacy.medtechai.net</div>
+        </div>
+        <div class="div-card">
+          <div class="div-icon">M</div>
+          <div class="div-name">Medical AI</div>
+          <div class="div-desc">Clinical decision support, diagnosis, and ICD-10 coding</div>
+          <div class="div-count">4 tools</div>
+          <div class="div-note">med.medtechai.net</div>
+        </div>
+        <div class="div-card">
+          <div class="div-icon">R</div>
+          <div class="div-name">Smart Reports</div>
+          <div class="div-desc">Radiology, pathology, labs, and clinical documentation</div>
+          <div class="div-count">7 tools</div>
+        </div>
+        <div class="div-card">
+          <div class="div-icon">A</div>
+          <div class="div-name">Advanced Clinical</div>
+          <div class="div-desc">Hospital-grade safety, formulary, and antimicrobial stewardship</div>
+          <div class="div-count">6 tools</div>
+        </div>
       </div>
     </section>
 
     <section class="sec">
-      <div class="sec-h">Platforms</div>
-      <div class="plat-list">
-        <a href="https://pharmacy.medtechai.net" target="_blank" rel="noopener">AI Pharmacy</a>
-        <span>pharmacy.medtechai.net</span>
-      </div>
-      <div class="plat-list">
-        <a href="https://med.medtechai.net" target="_blank" rel="noopener">Medical AI</a>
-        <span>med.medtechai.net</span>
-      </div>
-    </section>
-
-    <section class="sec">
-      <div class="sec-h">All Tools by Category</div>
+      <div class="sec-label"><span>All Tools by Category</span></div>
       <div class="cat-grid">
-        <div class="cat-item pharmacy"><a href="/tools/#pharmacy">Pharmacy Tools</a><span class="cat-count">6</span></div>
-        <div class="cat-item clinical"><a href="/tools/#clinical">Clinical Support</a><span class="cat-count">4</span></div>
-        <div class="cat-item smart-report"><a href="/tools/#smart-report">Smart Reports</a><span class="cat-count">7</span></div>
-        <div class="cat-item advanced"><a href="/tools/#advanced">Advanced Clinical</a><span class="cat-count">6</span></div>
+        <div class="cat-item"><div class="cat-item-label"><span class="cat-dot pharmacy"></span><a href="/tools/#pharmacy">Pharmacy Tools</a></div><span class="cat-count">6</span></div>
+        <div class="cat-item"><div class="cat-item-label"><span class="cat-dot clinical"></span><a href="/tools/#clinical">Clinical Support</a></div><span class="cat-count">4</span></div>
+        <div class="cat-item"><div class="cat-item-label"><span class="cat-dot smart-report"></span><a href="/tools/#smart-report">Smart Reports</a></div><span class="cat-count">7</span></div>
+        <div class="cat-item"><div class="cat-item-label"><span class="cat-dot advanced"></span><a href="/tools/#advanced">Advanced Clinical</a></div><span class="cat-count">6</span></div>
       </div>
     </section>
 
     <section class="sec">
-      <div class="sec-h">About</div>
-      <p class="abt">
-        Arab MedTechAI Organization &mdash; building AI-powered medical systems, clinical reference tools, and digital health platforms for the Arab world. Based in Abu Dhabi, UAE. <a href="/tools/">Browse all tools</a> or visit <a href="https://pharmacy.medtechai.net" target="_blank" rel="noopener">AI Pharmacy</a> and <a href="https://med.medtechai.net" target="_blank" rel="noopener">Medical AI</a> platforms.
+      <div class="sec-label"><span>About</span></div>
+      <p style="font-size:14px;color:var(--slate-gray);line-height:1.7;margin-bottom:8px">
+        Arab MedTechAI Organization — building AI-powered medical systems, clinical reference tools, and digital health platforms for the Arab world. Based in Abu Dhabi, UAE.
       </p>
-      <p class="abt">
-        <strong>Contact:</strong> <a href="/contact/">contact@medtechai.net</a> &mdash; <a href="/terms/">Terms</a> &mdash; <a href="/hipaa-compliance/">Compliance</a>
+      <p style="font-size:14px;color:var(--slate-gray);line-height:1.7;margin-bottom:8px">
+        <strong style="color:var(--navy)">Contact:</strong> <a href="/contact/">contact@medtechai.net</a> — <a href="/terms/">Terms</a> — <a href="/hipaa-compliance/">Compliance</a>
+      </p>
+      <p style="margin-top:16px">
+        <a href="/about/" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--teal)">Learn more about us &rarr;</a>
       </p>
     </section>
+
+    <section class="cta-banner">
+      <h2>The power of purpose</h2>
+      <p>Delivering deep impact when it matters most — empowering healthcare professionals with AI when they need it most.</p>
+      <a href="/tools/">Browse all tools</a>
+    </section>
+
   </div>
 
-  <footer class="footer">
-    &copy; 2025 Arab MedTechAI Organization
-    <div class="footer-links">
-      <a href="/terms/">Terms</a>
-      <a href="/hipaa-compliance/">Compliance</a>
-      <a href="/contact/">Contact</a>
-    </div>
-  </footer>
+</main>
+
+<footer class="footer">
+  &copy; 2025 Arab MedTechAI Organization
+  <div class="footer-links">
+    <a href="/terms/">Terms</a>
+    <a href="/hipaa-compliance/">Compliance</a>
+    <a href="/contact/">Contact</a>
+  </div>
+</footer>
+
 </body>
 </html>
