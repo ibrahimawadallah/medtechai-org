@@ -40,7 +40,62 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
-  <script>
+      <style>
+        .calc-tree{user-select:none}.tree-cat{margin-bottom:4px}.tree-hdr{padding:6px 10px;font-size:12px;font-weight:600;color:var(--slate2);cursor:pointer;border-radius:var(--radius);transition:background .15s}.tree-hdr:hover{background:var(--slate-bg)}.tree-arrow{display:inline-block;width:14px;transition:transform .15s}.tree-arrow.open{transform:rotate(90deg)}.tree-items{padding-left:12px;display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.tree-items.closed{display:none}
+      </style>
+      <div class="field"><label>Select Calculator</label>
+        <div class="calc-tree" id="calcTree">
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Anthropometrics</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'BMI')">BMI</span></div></div>
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Renal</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'GFR (CKD-EPI)')">GFR</span></div></div>
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Electrolytes &amp; Chemistry</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'Corrected Calcium')">Corrected Ca²⁺</span><span class="field-tag" onclick="selectCalc(this,'Sodium Correction')">Sodium Correction</span><span class="field-tag" onclick="selectCalc(this,'Anion Gap')">Anion Gap</span></div></div>
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Cardiovascular</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'CHA2DS2-VASc')">CHA₂DS₂-VASc</span><span class="field-tag" onclick="selectCalc(this,'MAP')">MAP</span></div></div>
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Thromboembolism</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'Wells DVT')">Wells DVT</span><span class="field-tag" onclick="selectCalc(this,'Wells PE')">Wells PE</span></div></div>
+          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Critical Care</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'APACHE II')">APACHE II</span></div></div>
+        </div>
+      </div>
+      <div id="calcFields" class="field" style="display:none"><label id="calcLabel">Calculator</label><div id="calcInputs"></div></div>
+      <div class="field" style="display:none" id="aiCalcField"><label>Patient Data</label><textarea id="f_data" data-suggest="diagnosis" placeholder="E.g.: 72-year-old female with CHF, hypertension, diabetes, prior stroke. Or paste lab values like Na⁺ 128, glucose 320."></textarea></div>
+      <div class="field">
+        <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
+        <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
+          <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" class="hidden" onchange="handleUpload(this)">
+          <div id="upPlaceholder"><span>Click or drag a photo or PDF here (max 5 MB)</span></div>
+          <div id="upPreview" class="hidden">
+            <img id="upImg" class="preview-image">
+            <div id="upName" class="file-name"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeUpload()">Remove</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" id="submitBtn" onclick="runTool()">
+        <span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span>
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <div class="card" id="placeholderCard">
+      <div class="placeholder-card">
+        <h3>Clinical Calculators</h3>
+        <p>Select a calculator, enter patient data, and click Run Tool.</p>
+      </div>
+    </div>
+
+    <div class="result-panel" id="resultPanel">
+      <div id="resultBody"></div>
+      <div class="btn-bar no-print">
+        <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
+        <button class="btn btn-outline btn-sm" onclick="resetTool()">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  &copy; 2025 Arab MedTechAI Organization
+</footer>
+
+<script>
 var EP='/api/tools/clinical-calculators';
 var localCalcs={
 "BMI":{fields:[{id:"wt",label:"Weight (kg)",type:"number"},{id:"ht",label:"Height (cm)",type:"number"}],calc:function(f){var b=f.wt/((f.ht/100)**2);var c=b<18.5?"Underweight":b<25?"Normal weight":b<30?"Overweight":b<35?"Obese Class I":b<40?"Obese Class II":"Obese Class III";return{result:b.toFixed(1)+" kg/m²",interpretation:"Category: "+c};}},
@@ -50,15 +105,12 @@ var localCalcs={
 "MAP":{fields:[{id:"sbp",label:"Systolic BP (mmHg)",type:"number"},{id:"dbp",label:"Diastolic BP (mmHg)",type:"number"}],calc:function(f){var map=(f.sbp+2*f.dbp)/3;return{result:Math.round(map)+" mmHg",interpretation:map<65?"Low MAP — risk of organ hypoperfusion. Target ≥65 mmHg":map>100?"High MAP":"Adequate MAP (target ≥65 mmHg in septic shock)"};}}
 };
 var selected="";
-function selectCalc(el,name){
-  document.querySelectorAll('#calcGroup .field-tag').forEach(function(t){t.style.background='';t.style.borderColor='';t.style.color='';});
-  el.style.background='var(--teal-bg)';el.style.borderColor='var(--teal)';el.style.color='var(--teal)';
-  selected=name;document.getElementById('calcFields').style.display='';document.getElementById('calcLabel').textContent=name;document.getElementById('aiCalcField').style.display='none';
-  var inp=document.getElementById('calcInputs');inp.innerHTML='';
-  if(localCalcs[name]){localCalcs[name].fields.forEach(function(f){var d=document.createElement('div');d.className='field';d.style.marginBottom='10px';d.innerHTML="<label style='font-size:12px;font-weight:600;color:#334155;display:block;margin-bottom:4px'>"+f.label+"</label>";if(f.type==='select'){var s=document.createElement('select');s.id='cf_'+f.id;s.style.cssText='width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none';f.opts.forEach(function(o){var opt=document.createElement('option');opt.text=o;s.add(opt);});d.appendChild(s);}else{var i=document.createElement('input');i.type=f.type;i.id='cf_'+f.id;i.style.cssText='width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none';d.appendChild(i);}inp.appendChild(d);});}else{document.getElementById('calcFields').style.display='none';document.getElementById('aiCalcField').style.display='';}
+function toggleCat(hdr){
+  var arrow=hdr.querySelector('.tree-arrow'),items=hdr.nextElementSibling;
+  arrow.classList.toggle('open');items.classList.toggle('closed');
 }
 function selectCalc(el,name){
-  document.querySelectorAll('#calcGroup .field-tag').forEach(function(t){t.style.background='';t.style.borderColor='';t.style.color='';});
+  document.querySelectorAll('.calc-tree .field-tag').forEach(function(t){t.style.background='';t.style.borderColor='';t.style.color='';});
   el.style.background='var(--teal-bg)';el.style.borderColor='var(--teal)';el.style.color='var(--teal)';
   selected=name;document.getElementById('calcFields').style.display='';document.getElementById('calcLabel').textContent=name;document.getElementById('aiCalcField').style.display='none';
   var inp=document.getElementById('calcInputs');inp.innerHTML='';
@@ -67,7 +119,6 @@ function selectCalc(el,name){
 function getFormData(){
   if(!selected){alert('Select a calculator first');return null;}
   if(localCalcs[selected]){var f={};localCalcs[selected].fields.forEach(function(field){var el=document.getElementById('cf_'+field.id);f[field.id]=field.type==='number'?parseFloat(el.value)||0:el.value;});var res=localCalcs[selected].calc(f);setTimeout(function(){show("<div class='r-section'><div class='r-label'>"+selected+"</div><div class='r-value' style='font-size:28px;color:var(--teal)'>"+res.result+"</div></div><div class='r-section'><div class='r-section-body'><p>"+res.interpretation+"</p></div></div>");},50);return null;}
-  var d = {calculator:selected,data:document.getElementById('f_data')?document.getElementById('f_data').value:''};
   if (_upFile) {
     var fd = new FormData();
     for (var k in d) fd.append(k, d[k]);
