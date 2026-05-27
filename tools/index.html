@@ -10,11 +10,6 @@
 <style>
 body{display:block}
 
-/* Nav tweaks */
-.hamburger{display:none;width:34px;height:34px;border:1px solid var(--slate6);border-radius:var(--radius);background:transparent;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;color:var(--nav-text);padding:0}
-.hamburger:hover{background:rgba(255,255,255,.08)}
-@media(max-width:768px){.hamburger{display:flex}}
-
 /* Search */
 .tool-srch{display:flex;max-width:480px;margin:10px 0 20px}
 .tool-srch input{flex:1;height:36px;padding:0 12px;border:1px solid var(--border);border-right:none;border-radius:var(--radius) 0 0 var(--radius);font-size:13px;font-family:inherit;color:var(--slate);outline:none}
@@ -54,15 +49,6 @@ body{display:block}
 </style>
 </head>
 <body>
-
-<div class="nav">
-  <span class="hamburger" id="ham" onclick="document.getElementById('mobileMenu').classList.toggle('on')">☰</span>
-  <a href="/" class="nav-logo">MedTech<span>AI</span></a>
-  <span class="nav-sep">/</span>
-  <a href="/tools/" class="nav-back" style="font-weight:600;color:#38b8ae">Tools</a>
-  <span style="flex:1"></span>
-  <a href="/contact/" class="nav-back">Contact</a>
-</div>
 
 <div class="main">
 
