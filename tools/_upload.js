@@ -222,6 +222,13 @@
     injectSidebar();
     scrollToCategory();
     syncSidebarToHash();
+    // Inject tour script
+    if (!document.getElementById('tour-script')) {
+      var ts = document.createElement('script');
+      ts.id = 'tour-script';
+      ts.src = '/tools/_tour.js';
+      document.body.appendChild(ts);
+    }
   });
   window.addEventListener('hashchange', function() {
     scrollToCategory();

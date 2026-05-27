@@ -383,7 +383,7 @@
   }
 
   // ── Initialize ────────────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', function() {
+  function initTour() {
     if (resumeTour()) return;
     // Entry points
     if (document.querySelector('.tool-srch')) {
@@ -397,7 +397,12 @@
       }
     }, 200);
     setTimeout(function() { clearInterval(si); }, 5000);
-  });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTour);
+  } else {
+    initTour();
+  }
 
   // Expose for entry points
   window.startPlatformTour = function() { startTour(0); };
