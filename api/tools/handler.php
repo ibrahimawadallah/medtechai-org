@@ -537,13 +537,13 @@ case 'smart-report-oic':
     $txt=$body['text']??''; $typ=$body['type']??'Radiology'; $mod=$body['modality']??'';
     $imgData=null; $imgMime=null;
     if(!empty($_FILES['scan']) && $_FILES['scan']['error']===UPLOAD_ERR_OK){
-        $allowed=['image/jpeg','image/png','image/gif','image/webp'];
+        $allowed=['image/jpeg','image/png','image/gif','image/webp','application/pdf'];
         $mime=mime_content_type($_FILES['scan']['tmp_name']);
-        if(in_array($mime,$allowed) && $_FILES['scan']['size']<2097152){
+        if(in_array($mime,$allowed) && $_FILES['scan']['size']<5242880){
             $imgData=base64_encode(file_get_contents($_FILES['scan']['tmp_name']));
             $imgMime=$mime;
         } else {
-            echo json_encode(['html'=>alert('red','Unsupported file type or file too large (max 2 MB, JPG/PNG/WEBP).')]);exit;
+            echo json_encode(['html'=>alert('red','Unsupported file type or file too large (max 5 MB, JPG/PNG/WEBP/PDF).')]);exit;
         }
     }
     $prompt = $imgData
