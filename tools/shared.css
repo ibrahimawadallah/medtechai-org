@@ -1,4 +1,5 @@
-﻿*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+﻿@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--teal:#38b8ae;--teal-h:#2a9d8f;--teal-bg:#e6f7f6;--navy:#1a2d3a;--blue:#2563eb;--blue-h:#1d4ed8;--blue-bg:#dbeafe;--green:#059669;--green-bg:#d1fae5;--amber:#d97706;--amber-bg:#fef3c7;--red:#dc2626;--red-bg:#fee2e2;--purple:#7c3aed;--purple-bg:#ede9fe;--slate:#1e293b;--slate2:#334155;--slate3:#475569;--slate4:#64748b;--slate5:#94a3b8;--slate6:#cbd5e1;--bg:#ffffff;--surface:#fff;--border:#e2e8f0;--radius:12px;--font:Inter,system-ui,sans-serif;--nav-bg:#1a2d3a;--nav-text:#f1f5f9;--shadow:0 2px 12px rgba(0,0,0,.06);--grade-1a:#059669;--grade-1b:#2563eb;--grade-2c:#d97706}
 html{scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg);color:var(--slate);line-height:1.5;min-height:100vh;display:flex;flex-direction:column}
