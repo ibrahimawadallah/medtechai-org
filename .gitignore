@@ -2,3 +2,5 @@
 default.php
 apps/
 learn/
+
+.vercel

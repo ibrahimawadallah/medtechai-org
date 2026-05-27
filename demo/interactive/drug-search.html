@@ -21,7 +21,7 @@
     .hero-tag{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
     .hero h1{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;color:var(--navy);line-height:1.15;margin-bottom:16px;max-width:600px;margin-left:auto;margin-right:auto}
     .hero h1 span{color:var(--teal)}
-    .hero p{font-size:16px;color:var(--slate-gray);line-height:1.7;max-width:500px;margin:0 auto 24px}
+    .hero p{font-size:16px;color:var(--slate-gray);line-height:1.7;max-width:500px;margin:0 auto 24px;text-align:left;}
     .hero-cta{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;background:var(--teal);color:var(--white);transition:opacity .2s}
     .hero-cta:hover{opacity:.9;text-decoration:none}
     .sec{padding:32px 0}
@@ -182,21 +182,23 @@
             warnings: ["Lactic acidosis (rare)", "Renal impairment", "Hypersensitivity"],
             sideEffects: ["Gastrointestinal upset (nausea, diarrhea)", "Metallic taste", "Vitamin B12 deficiency (long-term)"],
             pricing: {
-              generic: "$4-$10 for 30 tablets (500mg)",
-              brand: "$20-$50 for 30 tablets (500mg)"
-            }
+              generic: "AED 18-36 for 30 tablets (500mg) - UAE price",
+              brand: "AED 72-108 for 30 tablets (500mg)"
+            },
+            uaeCoverage: "Included in Thiqa/ABM formulary - High coverage"
           };
           break;
-        case 'amoxicillin':
+case 'amoxicillin':
           mockData = {
             mechanismOfAction: "Inhibits bacterial cell wall synthesis by binding to penicillin-binding proteins",
             indications: ["Otitis media", "Sinusitis", "Strep throat", "Urinary tract infections", "Skin infections"],
             warnings: ["Severe allergic reactions (anaphylaxis)", "Clostridium difficile-associated diarrhea"],
             sideEffects: ["Diarrhea", "Nausea", "Rash", "Vomiting"],
             pricing: {
-              generic: "$10-$20 for 30 capsules (500mg)",
-              brand: "$30-$60 for 30 capsules (500mg)"
-            }
+              generic: "AED 16-42 for 30 capsules (500mg) - UAE price",
+              brand: "AED 48-120 for 30 capsules (500mg)"
+            },
+            uaeCoverage: "Included in Thiqa/ABM formulary - High coverage"
           };
           break;
         case 'atorvastatin':
@@ -206,9 +208,10 @@
             warnings: ["Myopathy/rhabdomyolysis", "Liver enzyme elevations", "Diabetes risk increase"],
             sideEffects: ["Muscle pain", "Liver abnormalities", "Digestive issues", "Headache"],
             pricing: {
-              generic: "$10-$30 for 30 tablets (20mg)",
-              brand: "$80-$120 for 30 tablets (20mg)"
-            }
+              generic: "AED 16-42 for 30 tablets (20mg) - UAE price",
+              brand: "AED 168-306 for 30 tablets (20mg)"
+            },
+            uaeCoverage: "Included in Thiqa/ABM formulary - High coverage"
           };
           break;
         default:
@@ -218,11 +221,12 @@
             warnings: ["Consult prescribing information for specific warnings and precautions"],
             sideEffects: ["Varies by medication; common effects may include GI upset, headache, or dizziness"],
             pricing: {
-              generic: "Varies by formulation and dosage",
-              brand: "Varies by formulation and dosage"
-            }
+              generic: "AED varies by formulation and dosage",
+              brand: "AED varies by formulation and dosage"
+            },
+            uaeCoverage: "UAE insurance coverage varies by emirate"
           };
-      }
+        }
       
       resultContent.innerHTML = `
         <div class="result-item">
@@ -242,10 +246,11 @@
           <div class="result-value">${mockData.sideEffects.join(', ')}</div>
         </div>
         <div class="result-item">
-          <div class="result-label">Estimated Pricing (30-day supply)</div>
+          <div class="result-label">Estimated Pricing (UAE - 30-day supply)</div>
           <div class="result-value">
             <strong>Generic:</strong> ${mockData.pricing.generic}<br/>
-            <strong>Brand:</strong> ${mockData.pricing.brand}
+            <strong>Brand:</strong> ${mockData.pricing.brand}<br/>
+            <strong>UAE Coverage:</strong> ${mockData.uaeCoverage || 'Standard UAE insurance coverage'}
           </div>
         </div>
       `;

@@ -1,0 +1,6 @@
+{
+  "name": "medtechai-org-main",
+  "rewrites": [
+    { "source": "/api/tools/(.*)", "destination": "/api/tools/handler.php" }
+  ]
+}

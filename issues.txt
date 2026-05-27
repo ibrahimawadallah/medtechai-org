@@ -1,0 +1,3 @@
+Issues in UI layout:
+1. Symptom Checker and Clinical Calculators lack textarea-lg class on multi-line textareas, resulting in insufficient height for input.
+2. Tool header h1 (.tool-name) and p (.tool-desc) retain default user-agent margins causing uneven vertical spacing.
