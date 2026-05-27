@@ -43,6 +43,10 @@
         title: 'Navigate by Specialty',
         description: 'Use the sidebar to filter tools by category — Pharmacy, Clinical Support, Smart Reports, and Advanced Clinical.',
         position: 'right'
+      },
+      onNext: function() {
+        saveState(2);
+        navigateToStep(3);
       }
     },
     // ── Step 3: Drug Search — Pre-fill ──────────────────────────────
@@ -56,8 +60,6 @@
       },
       onNext: function() {
         setVal('f_drug', 'Metformin');
-        saveState(3);
-        navigateToStep(4);
       }
     },
     // ── Step 4: Drug Search — Run button ────────────────────────────
@@ -87,8 +89,6 @@
         setVal('f_d1', 'Warfarin');
         setVal('f_d2', 'Ibuprofen');
         setVal('f_d3', 'Omeprazole');
-        saveState(5);
-        navigateToStep(6);
       }
     },
     // ── Step 6: Interaction Checker — Run button ────────────────────
@@ -116,18 +116,11 @@
       },
       onNext: function() {
         var bmi = document.querySelector('.calc-opt');
-        if (bmi) {
-          bmi.click();
-          setTimeout(function() {
-            setVal('cf_wt', '80');
-            setVal('cf_ht', '175');
-            saveState(7);
-            navigateToStep(8);
-          }, 100);
-        } else {
-          saveState(7);
-          navigateToStep(8);
-        }
+        if (bmi) bmi.click();
+        setTimeout(function() {
+          setVal('cf_wt', '80');
+          setVal('cf_ht', '175');
+        }, 100);
       }
     },
     // ── Step 8: Clinical Calculators — Pre-fill values ──────────────
@@ -138,10 +131,6 @@
         title: 'Enter Patient Data',
         description: 'Weight and height are already filled. Click "Run Tool" to see the instant result.',
         position: 'bottom'
-      },
-      onNext: function() {
-        saveState(8);
-        navigateToStep(9);
       }
     },
     // ── Step 9: Clinical Calculators — Result ───────────────────────
@@ -170,8 +159,6 @@
       onNext: function() {
         setVal('f_type', 'Radiology');
         setVal('f_mod', 'CT Scan');
-        saveState(10);
-        navigateToStep(11);
       }
     },
     // ── Step 11: Smart Report — Pre-fill findings ───────────────────
@@ -185,8 +172,6 @@
       },
       onNext: function() {
         setVal('f_text', '2cm enhancing lesion in right hepatic lobe, suspicious for metastasis. Cirrhotic liver morphology noted. No additional focal lesions. Portal vein patent.');
-        saveState(11);
-        navigateToStep(12);
       }
     },
     // ── Step 12: Smart Report — Run button ──────────────────────────

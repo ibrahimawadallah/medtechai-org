@@ -212,6 +212,56 @@ a:hover{text-decoration:underline}
 .field-divider::after{right:0}
 .field-divider span{background:var(--bg);padding:0 8px;position:relative}
 
+/* rx-upload styles */
+.rx-dashboard{display:flex;min-height:calc(100vh - 48px - 56px);max-width:1200px;margin:0 auto;width:100%}
+.rx-sidebar{width:280px;flex-shrink:0;background:#f8f9fa;border-right:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:20px;position:sticky;top:96px;height:calc(100vh - 96px - 56px);overflow-y:auto}
+.rx-content{flex:1;padding:24px 32px;min-width:0}
+.rx-upload-section{background:#fff;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.rx-upload-label{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+.rx-dropzone{border:2px dashed var(--teal);border-radius:var(--radius);padding:24px 16px;text-align:center;cursor:pointer;transition:background .15s}
+.rx-dropzone:hover{background:var(--teal-bg)}
+.rx-dropzone.drag-over{background:var(--teal-bg);border-color:#2a9d8f}
+.rx-dropzone-icon{font-size:28px;color:var(--teal);font-weight:300;line-height:1;margin-bottom:4px}
+.rx-dropzone-text{font-size:13px;font-weight:600;color:#475569;margin-bottom:2px}
+.rx-dropzone-hint{font-size:11px;color:#94a3b8}
+.rx-or-divider{text-align:center;font-size:11px;color:#94a3b8;position:relative;margin:12px 0}
+.rx-or-divider::before,.rx-or-divider::after{content:'';position:absolute;top:50%;width:calc(50% - 20px);height:1px;background:var(--border)}
+.rx-or-divider::before{left:0}
+.rx-or-divider::after{right:0}
+.rx-or-divider span{background:#fff;padding:0 8px;position:relative}
+.rx-text-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:monospace;color:var(--slate);background:var(--surface);outline:none;resize:vertical;min-height:80px;transition:border-color .15s}
+.rx-text-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(56,184,174,.15)}
+.rx-analyze-btn{width:100%;padding:10px 16px;border:none;border-radius:var(--radius);background:var(--teal);color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.rx-analyze-btn:hover{background:#2a9d8f}
+.rx-analyze-btn:disabled{opacity:.5;cursor:not-allowed}
+.rx-services{background:#fff;border-radius:var(--radius);padding:12px;box-shadow:var(--shadow)}
+.rx-services-label{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;padding:0 8px}
+.rx-service-item{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:13px;color:#475569;border-left:3px solid transparent;cursor:pointer;border-radius:0 4px 4px 0;margin-bottom:2px;transition:all .15s}
+.rx-service-item:hover{background:var(--teal-bg);color:var(--teal)}
+.rx-service-item.active{border-left-color:var(--teal);background:var(--teal-bg);color:var(--teal);font-weight:600}
+.rx-service-item svg,.rx-card-header span svg{flex-shrink:0;vertical-align:middle;margin-right:4px;display:inline-block}
+.rx-actions{display:flex;flex-direction:column;gap:6px}
+.rx-action-btn{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:#fff;font-size:12px;font-weight:600;color:#475569;cursor:pointer;transition:all .15s;font-family:inherit;text-align:center}
+.rx-action-btn:hover{background:var(--teal-bg);border-color:var(--teal);color:var(--teal)}
+.rx-card{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow)}
+.rx-card-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;border-bottom:1px solid var(--border)}
+.rx-card-header.teal{background:#e6f7f6;color:#1a2d3a;border-left:3px solid #38b8ae}
+.rx-card-header.navy{background:#f0f4f8;color:#1a2d3a;border-left:3px solid #1a2d3a}
+.rx-card-header.amber{background:#fef3c7;color:#92400e;border-left:3px solid #d97706}
+.rx-card-header.green{background:#d1fae5;color:#065f46;border-left:3px solid #059669}
+.rx-card-header.purple{background:#ede9fe;color:#5b21b6;border-left:3px solid #7c3aed}
+.rx-card-body{padding:16px 18px;line-height:1.6;font-size:14px}
+.rx-drug-list{display:flex;flex-direction:column;gap:10px}
+.rx-drug-card{padding:12px;background:#e6f7f6;border-radius:var(--radius);border-left:3px solid #38b8ae}
+.rx-drug-name{font-weight:700;color:#1a2d3a;font-size:15px;font-family:'DM Sans',sans-serif}
+.rx-drug-meta{font-size:12px;color:#64748b;margin:2px 0}
+.rx-drug-indications{font-size:12px;color:#475569}
+.rx-ix-item{padding:10px 0;border-bottom:1px solid #f1f5f9}
+.rx-ix-item:last-child{border-bottom:none}
+.rx-ix-desc{font-size:12px;color:#64748b}
+.rx-assessment{padding:12px;background:#d1fae5;border-radius:var(--radius);margin-top:12px;font-size:13px;color:#1e293b}
+@media(max-width:900px){.rx-dashboard{flex-direction:column}.rx-sidebar{width:100%;position:static;height:auto;border-right:none;border-bottom:1px solid var(--border)}.rx-content{padding:16px}}
+
 /* Mobile */
 @media(max-width:768px){.main{grid-template-columns:1fr;padding:0 14px 24px}.tool-header{padding:12px 14px 14px}.field-row{grid-template-columns:1fr}.r-grid{grid-template-columns:1fr}.sidebar{display:none}}
 @keyframes pulse-tour{0%{box-shadow:0 4px 12px rgba(56,184,174,.4)}50%{box-shadow:0 4px 20px rgba(56,184,174,.7)}100%{box-shadow:0 4px 12px rgba(56,184,174,.4)}}
