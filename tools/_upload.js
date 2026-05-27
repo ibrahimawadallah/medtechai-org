@@ -195,7 +195,7 @@
     });
   };
   
-  // ── Hash-based category scroll & sidebar sync ────────────────────
+  // ── Hash-based category scroll ───────────────────────────────────
   function scrollToCategory() {
     var hash = window.location.hash.replace('#', '');
     if (!hash) return;
@@ -204,24 +204,11 @@
       setTimeout(function() { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
     }
   }
-  function syncSidebarToHash() {
-    var hash = window.location.hash.replace('#', '');
-    var sidebar = document.getElementById('uptodate-sidebar');
-    if (!sidebar || !hash) return;
-    var links = sidebar.querySelectorAll('a');
-    for (var i = 0; i < links.length; i++) {
-      var href = links[i].getAttribute('href');
-      links[i].classList.toggle('active', href === '/tools/#' + hash);
-    }
-  }
-
   // Initialize on DOM load
   document.addEventListener('DOMContentLoaded', function() {
     initDragDrop();
     injectSearchBar();
-    injectSidebar();
     scrollToCategory();
-    syncSidebarToHash();
     // Inject tour script
     if (!document.getElementById('tour-script')) {
       var ts = document.createElement('script');
@@ -232,7 +219,6 @@
   });
   window.addEventListener('hashchange', function() {
     scrollToCategory();
-    syncSidebarToHash();
   });
   
   // Expose functions globally if needed (but keep state private)
@@ -240,7 +226,6 @@
   window.removeUpload = removeUpload;
   window.getUploadedFile = () => _upFile;
   window.injectSearchBar = injectSearchBar;
-  window.injectSidebar = injectSidebar;
 
   // ── UpToDate-style search bar injection ──────────────────────────
   function injectSearchBar() {
@@ -260,40 +245,5 @@
       '<a href="/contact/" style="font-size:12px;color:#6b7280;text-decoration:none">Contact</a>';
     document.body.prepend(bar);
     document.body.style.paddingTop = '48px';
-  }
-
-  // ── Specialty sidebar injection ──────────────────────────────────
-  function injectSidebar() {
-    if (document.getElementById('uptodate-sidebar')) return;
-    var categories = [
-      { name: 'Pharmacy', id: 'pharmacy', icon: 'P' },
-      { name: 'Clinical Support', id: 'clinical', icon: 'C' },
-      { name: 'Smart Reports', id: 'smart-report', icon: 'R' },
-      { name: 'Advanced Clinical', id: 'advanced', icon: 'A' },
-    ];
-    var currentCat = '';
-    var banner = document.querySelector('.cat-banner');
-    if (banner) {
-      for (var i = 0; i < categories.length; i++) {
-        if (banner.classList.contains(categories[i].id)) {
-          currentCat = categories[i].id;
-          break;
-        }
-      }
-    }
-    var s = document.createElement('div');
-    s.id = 'uptodate-sidebar';
-    s.className = 'sidebar';
-    var html = '<div style="padding:4px 16px 12px;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1px">Specialties</div>';
-    html += '<a href="/tools/" class="sidebar-item' + (currentCat === '' ? ' active' : '') + '" style="display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;color:' + (currentCat === '' ? '#38b8ae' : '#4b5563') + ';text-decoration:none;font-weight:' + (currentCat === '' ? '600' : '400') + '">\u2039 All Tools</a>';
-    for (var j = 0; j < categories.length; j++) {
-      var isActive = currentCat === categories[j].id;
-      html += '<a href="/tools/#' + categories[j].id + '" class="sidebar-item' + (isActive ? ' active' : '') + '" style="display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;color:' + (isActive ? '#38b8ae' : '#4b5563') + ';text-decoration:none;font-weight:' + (isActive ? '600' : '400') + '">' + categories[j].icon + ' ' + categories[j].name + '</a>';
-    }
-    s.innerHTML = html;
-    document.body.appendChild(s);
-
-    var main = document.querySelector('.main');
-    if (main) main.style.marginLeft = '220px';
   }
 })();
