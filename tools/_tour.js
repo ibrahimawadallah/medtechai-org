@@ -351,10 +351,52 @@
   }
   var setSel = setVal;
 
+  // ── FAB (Floating Action Button) entry point ──────────────────────
+  function injectTourFAB() {
+    if (document.getElementById('tour-fab')) return;
+    if (!document.querySelector('.tool-srch')) return;
+    var fab = document.createElement('button');
+    fab.id = 'tour-fab';
+    fab.textContent = '\uD83C\uDFAF Take the Tour';
+    Object.assign(fab.style, {
+      position:'fixed',bottom:'24px',right:'24px',zIndex:'999',background:'#38b8ae',color:'#fff',border:'none',borderRadius:'40px',padding:'12px 20px',fontSize:'14px',fontWeight:'700',fontFamily:'inherit',cursor:'pointer',boxShadow:'0 4px 12px rgba(56,184,174,.4)',transition:'all .2s',display:'flex',alignItems:'center',gap:'6px',animation:'pulse-tour 2s infinite'
+    });
+    fab.onmouseenter = function() { fab.style.transform = 'scale(1.05)'; fab.style.boxShadow = '0 6px 20px rgba(56,184,174,.5)'; };
+    fab.onmouseleave = function() { fab.style.transform = ''; fab.style.boxShadow = ''; };
+    fab.onclick = function() { window.startPlatformTour(); };
+    document.body.appendChild(fab);
+  }
+
+  // ── Sidebar tour item entry point ─────────────────────────────────
+  function injectTourSidebarItem() {
+    var sidebar = document.getElementById('uptodate-sidebar');
+    if (!sidebar) return;
+    if (sidebar.querySelector('.sidebar-tour')) return;
+    var a = document.createElement('a');
+    a.className = 'sidebar-tour';
+    a.textContent = '\uD83C\uDFAF Platform Tour';
+    Object.assign(a.style, {
+      display:'flex',alignItems:'center',gap:'8px',padding:'8px 16px',fontSize:'13px',color:'#6b7280',textDecoration:'none',cursor:'pointer',borderTop:'1px solid var(--border)',marginTop:'8px'
+    });
+    a.onclick = function() { window.startPlatformTour(); };
+    sidebar.appendChild(a);
+  }
+
   // ── Initialize ────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function() {
-    // If a tour was saved, try to resume
     if (resumeTour()) return;
+    // Entry points
+    if (document.querySelector('.tool-srch')) {
+      injectTourFAB();
+    }
+    // Wait for sidebar to be injected by _upload.js
+    var si = setInterval(function() {
+      if (document.getElementById('uptodate-sidebar')) {
+        injectTourSidebarItem();
+        clearInterval(si);
+      }
+    }, 200);
+    setTimeout(function() { clearInterval(si); }, 5000);
   });
 
   // Expose for entry points

@@ -214,3 +214,4 @@ a:hover{text-decoration:underline}
 
 /* Mobile */
 @media(max-width:768px){.main{grid-template-columns:1fr;padding:0 14px 24px}.tool-header{padding:12px 14px 14px}.field-row{grid-template-columns:1fr}.r-grid{grid-template-columns:1fr}.sidebar{display:none}}
+@keyframes pulse-tour{0%{box-shadow:0 4px 12px rgba(56,184,174,.4)}50%{box-shadow:0 4px 20px rgba(56,184,174,.7)}100%{box-shadow:0 4px 12px rgba(56,184,174,.4)}}
