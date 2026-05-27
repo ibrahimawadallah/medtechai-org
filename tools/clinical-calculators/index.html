@@ -41,19 +41,34 @@
     </div>
     <div class="card-body">
       <style>
-        .calc-tree{user-select:none}.tree-cat{margin-bottom:4px}.tree-hdr{padding:6px 10px;font-size:12px;font-weight:600;color:var(--slate2);cursor:pointer;border-radius:var(--radius);transition:background .15s}.tree-hdr:hover{background:var(--slate-bg)}.tree-arrow{display:inline-block;width:14px;transition:transform .15s}.tree-arrow.open{transform:rotate(90deg)}.tree-items{padding-left:12px;display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.tree-items.closed{display:none}
+        .calc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px}
+        .calc-cat-hdr{grid-column:1/-1;font-size:10px;font-weight:700;color:var(--slate5);text-transform:uppercase;letter-spacing:.04em;padding:6px 0 2px;margin-top:4px;border-bottom:1px solid var(--border)}
+        .calc-opt{padding:7px 10px;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;color:var(--slate3);background:var(--surface);transition:all .15s;text-align:center}
+        .calc-opt:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-bg)}
+        .calc-opt.sel{border-color:var(--teal);background:var(--teal-bg);color:var(--teal)}
+        @media(max-width:640px){.calc-grid{grid-template-columns:1fr 1fr}}
       </style>
       <div class="field"><label>Select Calculator</label>
-        <div class="calc-tree" id="calcTree">
-          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Anthropometrics</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'BMI')">BMI</span></div></div>
-          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Renal</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'GFR (CKD-EPI)')">GFR</span></div></div>
-          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Electrolytes &amp; Chemistry</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'Corrected Calcium')">Corrected Ca²⁺</span><span class="field-tag" onclick="selectCalc(this,'Sodium Correction')">Sodium Correction</span><span class="field-tag" onclick="selectCalc(this,'Anion Gap')">Anion Gap</span></div></div>
-          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Cardiovascular</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'CHA2DS2-VASc')">CHA₂DS₂-VASc</span><span class="field-tag" onclick="selectCalc(this,'MAP')">MAP</span></div></div>
-          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Thromboembolism</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'Wells DVT')">Wells DVT</span><span class="field-tag" onclick="selectCalc(this,'Wells PE')">Wells PE</span></div></div>
-          <div class="tree-cat"><div class="tree-hdr" onclick="toggleCat(this)"><span class="tree-arrow open">&#9654;</span> Critical Care</div><div class="tree-items"><span class="field-tag" onclick="selectCalc(this,'APACHE II')">APACHE II</span></div></div>
+        <div class="calc-grid" id="calcGrid">
+          <div class="calc-cat-hdr">Anthropometrics</div>
+          <div class="calc-opt" onclick="selectCalc(this,'BMI')">BMI</div>
+          <div class="calc-cat-hdr">Renal</div>
+          <div class="calc-opt" onclick="selectCalc(this,'GFR (CKD-EPI)')">GFR (CKD-EPI)</div>
+          <div class="calc-cat-hdr">Electrolytes &amp; Chemistry</div>
+          <div class="calc-opt" onclick="selectCalc(this,'Corrected Calcium')">Corrected Ca²⁺</div>
+          <div class="calc-opt" onclick="selectCalc(this,'Sodium Correction')">Sodium Correction</div>
+          <div class="calc-opt" onclick="selectCalc(this,'Anion Gap')">Anion Gap</div>
+          <div class="calc-cat-hdr">Cardiovascular</div>
+          <div class="calc-opt" onclick="selectCalc(this,'CHA2DS2-VASc')">CHA₂DS₂-VASc</div>
+          <div class="calc-opt" onclick="selectCalc(this,'MAP')">MAP</div>
+          <div class="calc-cat-hdr">Thromboembolism</div>
+          <div class="calc-opt" onclick="selectCalc(this,'Wells DVT')">Wells DVT</div>
+          <div class="calc-opt" onclick="selectCalc(this,'Wells PE')">Wells PE</div>
+          <div class="calc-cat-hdr">Critical Care</div>
+          <div class="calc-opt" onclick="selectCalc(this,'APACHE II')">APACHE II</div>
         </div>
       </div>
-      <div id="calcFields" class="field" style="display:none"><label id="calcLabel">Calculator</label><div id="calcInputs"></div></div>
+      <div id="calcFields" class="field" style="display:none"><label id="calcLabel" style="font-size:12px;font-weight:600;color:var(--teal);margin-bottom:8px">Calculator</label><div id="calcInputs"></div></div>
       <div class="field" style="display:none" id="aiCalcField"><label>Patient Data</label><textarea id="f_data" data-suggest="diagnosis" placeholder="E.g.: 72-year-old female with CHF, hypertension, diabetes, prior stroke. Or paste lab values like Na⁺ 128, glucose 320."></textarea></div>
       <div class="field">
         <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
@@ -105,26 +120,18 @@ var localCalcs={
 "MAP":{fields:[{id:"sbp",label:"Systolic BP (mmHg)",type:"number"},{id:"dbp",label:"Diastolic BP (mmHg)",type:"number"}],calc:function(f){var map=(f.sbp+2*f.dbp)/3;return{result:Math.round(map)+" mmHg",interpretation:map<65?"Low MAP — risk of organ hypoperfusion. Target ≥65 mmHg":map>100?"High MAP":"Adequate MAP (target ≥65 mmHg in septic shock)"};}}
 };
 var selected="";
-function toggleCat(hdr){
-  var arrow=hdr.querySelector('.tree-arrow'),items=hdr.nextElementSibling;
-  arrow.classList.toggle('open');items.classList.toggle('closed');
-}
 function selectCalc(el,name){
-  document.querySelectorAll('.calc-tree .field-tag').forEach(function(t){t.style.background='';t.style.borderColor='';t.style.color='';});
-  el.style.background='var(--teal-bg)';el.style.borderColor='var(--teal)';el.style.color='var(--teal)';
+  document.querySelectorAll('.calc-opt').forEach(function(t){t.classList.remove('sel');});
+  el.classList.add('sel');
   selected=name;document.getElementById('calcFields').style.display='';document.getElementById('calcLabel').textContent=name;document.getElementById('aiCalcField').style.display='none';
   var inp=document.getElementById('calcInputs');inp.innerHTML='';
-  if(localCalcs[name]){localCalcs[name].fields.forEach(function(f){var d=document.createElement('div');d.className='field';d.style.marginBottom='10px';d.innerHTML="<label style='font-size:12px;font-weight:600;color:#334155;display:block;margin-bottom:4px'>"+f.label+"</label>";if(f.type==='select'){var s=document.createElement('select');s.id='cf_'+f.id;s.style.cssText='width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none';f.opts.forEach(function(o){var opt=document.createElement('option');opt.text=o;s.add(opt);});d.appendChild(s);}else{var i=document.createElement('input');i.type=f.type;i.id='cf_'+f.id;i.style.cssText='width:100%;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none';d.appendChild(i);}inp.appendChild(d);});}else{document.getElementById('calcFields').style.display='none';document.getElementById('aiCalcField').style.display='';}
+  if(localCalcs[name]){localCalcs[name].fields.forEach(function(f){var d=document.createElement('div');d.className='field';var l=document.createElement('label');l.textContent=f.label;d.appendChild(l);if(f.type==='select'){var s=document.createElement('select');s.id='cf_'+f.id;f.opts.forEach(function(o){var opt=document.createElement('option');opt.text=o;s.add(opt);});d.appendChild(s);}else{var i=document.createElement('input');i.type='number';i.id='cf_'+f.id;d.appendChild(i);}inp.appendChild(d);});}else{document.getElementById('calcFields').style.display='none';document.getElementById('aiCalcField').style.display='';}
 }
 function getFormData(){
   if(!selected){alert('Select a calculator first');return null;}
   if(localCalcs[selected]){var f={};localCalcs[selected].fields.forEach(function(field){var el=document.getElementById('cf_'+field.id);f[field.id]=field.type==='number'?parseFloat(el.value)||0:el.value;});var res=localCalcs[selected].calc(f);setTimeout(function(){show("<div class='r-section'><div class='r-label'>"+selected+"</div><div class='r-value' style='font-size:28px;color:var(--teal)'>"+res.result+"</div></div><div class='r-section'><div class='r-section-body'><p>"+res.interpretation+"</p></div></div>");},50);return null;}
-  if (_upFile) {
-    var fd = new FormData();
-    for (var k in d) fd.append(k, d[k]);
-    fd.append('file', _upFile);
-    return fd;
-  }
+  var d={calculator:selected,data:document.getElementById('f_data').value};
+  if (_upFile){var fd=new FormData();for(var k in d)fd.append(k,d[k]);fd.append('file',_upFile);return fd;}
   return d;
 }
 async function runTool(){
