@@ -24,8 +24,17 @@
     .hero h1{font-family:'DM Sans',sans-serif;font-size:40px;font-weight:700;color:var(--navy);line-height:1.15;margin-bottom:16px;max-width:720px;margin-left:auto;margin-right:auto}
     .hero h1 span{color:var(--teal)}
     .hero p{font-size:16px;color:var(--slate-gray);line-height:1.7;max-width:620px;margin:0 auto 32px}
+    .hero-actions{display:flex;flex-direction:column;gap:16px;margin-top:24px}
+    @media(min-width:768px){.hero-actions{flex-direction:row;align-items:center;justify-content:center}}
     .hero-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 32px;border-radius:12px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;background:var(--teal);color:var(--white);transition:opacity .2s}
     .hero-cta:hover{opacity:.9;text-decoration:none}
+    .hero-cta.secondary{background:var(--white);color:var(--teal);border:1px solid var(--teal)}
+    .hero-cta.secondary:hover{background:var(--teal-bg);color:var(--white)}
+    .srch-wrap{display:flex;max-width:520px;margin:0 auto}
+    .srch-wrap input{flex:1;height:44px;padding:0 16px;border:1px solid var(--soft-teal);border-right:none;border-radius:12px 0 0 12px;font-size:14px;font-family:inherit;color:var(--navy);outline:none;background:var(--white)}
+    .srch-wrap input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(56,184,174,.1)}
+    .srch-wrap button{height:44px;padding:0 22px;background:var(--teal);color:#fff;border:none;border-radius:0 12px 12px 0;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .srch-wrap button:hover{opacity:.9}
     .srch-wrap{display:flex;max-width:520px;margin:0 auto}
     .srch-wrap input{flex:1;height:44px;padding:0 16px;border:1px solid var(--soft-teal);border-right:none;border-radius:12px 0 0 12px;font-size:14px;font-family:inherit;color:var(--navy);outline:none;background:var(--white)}
     .srch-wrap input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(56,184,174,.1)}
@@ -101,18 +110,21 @@
 
 <main>
 
-  <section class="hero">
-    <div class="hero-tag">Deep impact when it matters most</div>
-    <h1>Clinical AI tools<br>for the Arab world <span>&amp; beyond</span></h1>
-    <p>AI-powered drug reference, clinical decision support, smart reporting, and diagnostic tools — trusted by clinicians across 180+ countries.</p>
+<section class="hero">
+  <div class="hero-tag">Save time. Reduce errors. Stay compliant.</div>
+  <h1>Clinical decisions made faster and safer</h1>
+  <p>Healthcare professionals save hours each week on medication research, reduce prescription errors, and stay fully compliant with local regulations — using AI tools designed for real-world clinical practice.</p>
+  <div class="hero-actions">
     <form action="/tools/" method="get" class="srch-wrap" onsubmit="var q=this.querySelector('input').value.trim();if(q)this.action='/tools/?q='+encodeURIComponent(q);return true">
       <input type="text" placeholder="Search drug, tool, or condition…" aria-label="Search">
-      <button type="submit">Search</button>
+      <button type="submit">Search Tools</button>
     </form>
+    <a href="/demo/" class="hero-cta secondary">See a Demo</a>
+  </div>
     <div class="qlinks">
-      Quick: <a href="/tools/drug-search/">Drug Search</a> · <a href="/tools/interaction-checker/">Interaction Checker</a> · <a href="/tools/dose-calculator/">Dose Calc</a> · <a href="/tools/symptom-checker/">Symptom Checker</a> · <a href="/tools/icd10-lookup/">ICD-10</a>
+      Quick: <a href="/tools/drug-search/">Drug Search</a> · <a href="/tools/interaction-checker/">Interaction Checker</a> · <a href="/tools/dose-calculator/">Dose Calc</a> · <a href="/tools/clinical-decision-support/">Clinical DSS</a>
     </div>
-  </section>
+</section>
 
   <div class="wrap">
 
@@ -181,9 +193,12 @@
     </section>
 
     <section class="cta-banner">
-      <h2>The power of purpose</h2>
-      <p>Delivering deep impact when it matters most — empowering healthcare professionals with AI when they need it most.</p>
-      <a href="/tools/">Browse all tools</a>
+      <h2>Start saving time today</h2>
+      <p>Join thousands of healthcare professionals who use MedTechAI to make faster, safer clinical decisions.</p>
+      <div class="cta-actions">
+        <a href="/pricing/" class="cta-button-primary">See Pricing</a>
+        <a href="/demo/" class="cta-button-outline">Request Demo</a>
+      </div>
     </section>
 
   </div>

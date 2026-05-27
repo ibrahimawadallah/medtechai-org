@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Medical Document Analyzer — Arab MedTechAI</title>
+  <meta name="description" content="Upload a prescription or lab report for comprehensive AI analysis — drug info, interactions, safety, and lab interpretation in one place."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/tools/shared.css"/>
+  <script src="/tools/_upload.js"></script>
+  <style>
+    /* Prevent _upload.js from injecting its own sidebar (conflicts with .rx-sidebar) */
+    #uptodate-sidebar { display: none !important; }
+    /* Adjust injected search bar z-index so it doesn't overlap sidebar controls */
+    #uptodate-search { z-index: 1001; }
+  </style>
+</head>
+<body>
+  <!-- Prevent _upload.js sidebar injection by placing an early hidden element -->
+  <div id="uptodate-sidebar" style="display:none"></div>
+  <!-- Hidden file input for paste support -->
+  <input type="file" id="fileInput" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" class="hidden" onchange="handleFile(this)"/>
+
+  <nav class="nav">
+    <a href="/tools/" class="nav-back">&#8592; All Tools</a>
+    <span class="nav-sep">|</span>
+    <a href="/" class="nav-logo">MedTech<span>AI</span></a>
+  </nav>
+  <div class="cat-banner smart-report"></div>
+  <div class="breadcrumb">
+    <a href="/">Home</a><span>/</span>
+    <a href="/tools/">Tools</a><span>/</span>
+    <span>Medical Document Analyzer</span>
+  </div>
+
+  <div class="rx-dashboard">
+    <!-- Sidebar -->
+    <aside class="rx-sidebar">
+      <!-- Upload Area -->
+      <div class="rx-upload-section">
+        <div class="rx-upload-label">Upload Document</div>
+        <div class="rx-dropzone" id="upArea" onclick="document.getElementById('upFile').click()">
+          <!-- reuses _upload.js IDs -->
+          <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" class="hidden" onchange="handleUpload(this)">
+          <div id="upPlaceholder">
+            <div class="rx-dropzone-icon">+</div>
+            <div class="rx-dropzone-text">Click or drag a photo or PDF</div>
+            <div class="rx-dropzone-hint">Prescription, lab report, or medical document</div>
+          </div>
+          <div id="upPreview" class="hidden">
+            <img id="upImg" class="preview-image">
+            <div id="upName" class="file-name"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeUpload()">Remove</button>
+          </div>
+        </div>
+        <div class="rx-or-divider"><span>or paste text</span></div>
+        <textarea id="f_text" class="rx-text-input" placeholder="Paste lab values, prescription text, or clinical notes..." oninput="autoGrow(this)"></textarea>
+        <div style="font-size:11px;color:var(--slate5);text-align:center;margin-top:6px">Ctrl+Enter to analyze</div>
+        <button class="rx-analyze-btn" onclick="runTool()">
+          <span class="spinner" id="spinner"></span>
+          <span id="btnText">Analyze Document</span>
+        </button>
+      </div>
+
+      <!-- Services List (populated after analysis, icons added by JS) -->
+      <div class="rx-services" id="servicesList">
+        <div class="rx-services-label">Analysis Results</div>
+        <div class="rx-service-item" data-section="summary">Summary</div>
+        <div class="rx-service-item" data-section="pharmacy">Pharmacy</div>
+        <div class="rx-service-item" data-section="interactions">Interactions</div>
+        <div class="rx-service-item" data-section="safety">Safety</div>
+        <div class="rx-service-item" data-section="labs">Lab Analysis</div>
+      </div>
+
+      <!-- Actions -->
+      <div class="rx-actions">
+        <button class="rx-action-btn" onclick="window.print()">Print Report</button>
+        <button class="rx-action-btn" onclick="resetTool()">New Analysis</button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="rx-content">
+      <div class="card" id="placeholderCard">
+        <div class="placeholder-card">
+          <h3>Medical Document Analyzer</h3>
+          <p>Upload a prescription or lab report for comprehensive analysis. Or paste clinical text above.</p>
+        </div>
+      </div>
+      <div class="result-panel" id="resultPanel">
+        <div id="resultBody"></div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">&copy; 2025 Arab MedTechAI Organization</footer>
+
+  <noscript><p style="text-align:center;padding:20px;color:var(--slate5);font-size:13px">JavaScript required for document analysis.</p></noscript>
+
+  <script src="/tools/rx-upload.js"></script>
+</body>
+</html>

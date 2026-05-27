@@ -824,6 +824,40 @@ case 'suggest':
     echo json_encode(['suggestions' => array_slice($list, 0, 8)]);
     break;
 
+// RX UPLOAD — Unified Medical Document Analyzer
+case 'rx-upload':
+    $docText = $body['text'] ?? '';
+    $context = $fileContext ? $fileContext . "User also provided text:\n$docText\n\n---\n\n" : ($docText ? "Analysis of: $docText\n\n" : '');
+    if (!$context) { echo json_encode(['html'=>alert('red','Paste or upload a medical document to analyze.')]); exit; }
+    $d = gemini($context . "Analyze this medical document comprehensively. First classify the document type, then analyze ALL relevant sections.
+
+Return ONLY JSON with these sections (omit any that don't apply):
+{
+  \"documentType\": \"prescription|labs|both|other\",
+  \"summary\": \"Overall clinical summary\",
+  \"pharmacy\": {
+    \"drugsFound\": [\"Drug A\", \"Drug B\"],
+    \"drugDetails\": [{\"genericName\":\"str\",\"brandNames\":[\"str\"],\"drugClass\":\"str\",\"indications\":[\"str\"],\"dosageForms\":[\"str\"],\"adultDosing\":\"str\",\"contraindications\":[\"str\"],\"clinicalWarnings\":[\"str\"]}],
+    \"interactions\": [{\"between\":[\"A\",\"B\"],\"severity\":\"high|moderate|low\",\"description\":\"str\",\"management\":\"str\"}],
+    \"doseCheck\": [{\"drug\":\"str\",\"prescribedDose\":\"str\",\"assessment\":\"str\",\"concern\":\"Yes|No\"}],
+    \"g6pdCheck\": [{\"drug\":\"str\",\"riskLevel\":\"Safe|Low Risk|Moderate Risk|High Risk|Contraindicated\"}],
+    \"pregnancyCheck\": {\"fdaCategory\":\"A|B|C|D|X|N\",\"safety\":\"Safe|Caution|Avoid\",\"risk\":\"str\"},
+    \"safetyCheck\": {\"overallSafety\":\"Safe|Caution|High Risk\",\"lasaRisk\":\"Yes|No\",\"highAlert\":\"Yes|No\",\"allergyConflict\":\"str\"}
+  },
+  \"labs\": {
+    \"abnormalValues\": [{\"test\":\"str\",\"value\":\"str\",\"flag\":\"High|Low|Critical\",\"interpretation\":\"str\",\"normalRange\":\"str\"}],
+    \"criticalValues\": [\"str\"],
+    \"overallAssessment\": \"str\",
+    \"recommendations\": [\"str\"],
+    \"organSystemImpact\": \"str\"
+  },
+  \"recommendations\": [\"str\"],
+  \"urgency\": \"Routine|Urgent|Emergency\"
+}");
+    if (isset($d['error'])) { echo json_encode(['html'=>alert('red',h($d['error']))]); exit; }
+    echo json_encode(['data' => $d]);
+    break;
+
 default:
     http_response_code(404);
     echo json_encode(['error'=>'Unknown tool: '.$tool]);

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Request Demo — MedTechAI</title>
+  <meta name="description" content="See MedTechAI's AI-powered clinical tools in action. Request a personalized demo for your practice or institution."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/tools/shared.css">
+  <style>
+    :root{--teal:#38b8ae;--navy:#1a2d3a;--mint:#e6f7f6;--soft-teal:#d1efed;--slate-gray:#6b8a8e;--white:#fff;--bg:#f5fafa}
+    body{background:var(--bg);color:var(--navy)}
+    a{color:var(--teal);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+    .nav-home{color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500}
+    .nav-home:hover{background:rgba(255,255,255,.08);color:#fff;text-decoration:none}
+    .nav-home.act{color:#38bdf8}
+    .hero{text-align:center;padding:64px 0 56px}
+    .hero-tag{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
+    .hero h1{font-family:'DM Sans',sans-serif;font-size:40px;font-weight:700;color:var(--navy);line-height:1.15;margin-bottom:16px;max-width:720px;margin-left:auto;margin-right:auto}
+    .hero h1 span{color:var(--teal)}
+    .hero p{font-size:16px;color:var(--slate-gray);line-height:1.7;max-width:620px;margin:0 auto 32px}
+    .hero-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 32px;border-radius:12px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;background:var(--teal);color:var(--white);transition:opacity .2s}
+    .hero-cta:hover{opacity:.9;text-decoration:none}
+    .sec{padding:48px 0}
+    .sec-label{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .sec-label::before{content:'';width:20px;height:3px;border-radius:2px;background:var(--teal)}
+    .sec-label span{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px}
+    .sec-title{font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:8px}
+    .sec-sub{font-size:15px;color:var(--slate-gray);line-height:1.6;margin-bottom:32px;max-width:680px}
+    .demo-video{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin:24px 0;border-radius:12px;background:#000}
+    .demo-video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+    .features{display:grid;gap:16px}
+    @media(min-width:768px){.features{grid-template-columns:repeat(2,1fr)}}
+    .feature-card{border-radius:12px;border:1px solid var(--soft-teal);padding:20px;background:var(--white);text-align:center;transition:box-shadow .2s}
+    .feature-card:hover{box-shadow:0 4px 12px rgba(56,184,174,.15)}
+    .feature-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px;background:var(--mint);color:var(--teal)}
+    .feature-card h3{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:600;color:var(--navy);margin-bottom:8px}
+    .feature-card p{font-size:14px;color:var(--slate-gray);line-height:1.6}
+    .form-group{margin-bottom:20px}
+    .form-group label{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:6px}
+    .form-group input,
+    .form-group select,
+    .form-group textarea{width:100%;padding:12px 16px;border:1px solid var(--soft-teal);border-radius:8px;font-size:14px;font-family:inherit;background:var(--white);color:var(--navy)}
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(56,184,174,.1)}
+    .submit-btn{display:inline-block;padding:12px 32px;border-radius:12px;font-weight:600;font-size:14px;background:var(--teal);color:var(--white);border:none;cursor:pointer}
+    .submit-btn:hover{opacity:.9}
+    .cta-banner{background:linear-gradient(135deg,var(--teal),#2a9d8f);border-radius:16px;padding:48px 32px;text-align:center;color:var(--white);margin:48px 0}
+    .cta-banner h2{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;margin-bottom:8px}
+    .cta-banner p{font-size:14px;opacity:.9;margin-bottom:20px}
+    .cta-banner a{display:inline-block;padding:12px 32px;border-radius:12px;font-weight:600;font-size:14px;background:var(--white);color:var(--teal)}
+    .footer{background:var(--navy)!important;color:rgba(255,255,255,.6)!important}
+    .footer a{color:rgba(255,255,255,.5)!important}
+    .footer a:hover{color:var(--white)!important}
+    @media(max-width:640px){
+      .hero h1{font-size:28px}
+      .sec-title{font-size:20px}
+      .cta-banner h2{font-size:22px}
+    }
+  </style>
+</head>
+<body>
+<nav class="nav" style="gap:16px">
+  <a href="/" class="nav-logo">MedTech<span>AI</span></a>
+  <span style="flex:1"></span>
+  <a href="/" class="nav-home">Home</a>
+  <a href="/tools/" class="nav-home">Tools</a>
+  <a href="/about/" class="nav-home">About</a>
+  <a href="/contact/" class="nav-home">Contact</a>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-tag">See it in action</div>
+    <h1>Request a personalized demo<br>of MedTechAI's clinical tools</h1>
+    <p>Experience how our AI-powered drug reference, interaction checker, and clinical decision support tools can save your team hours each week while reducing errors and ensuring compliance.</p>
+    <a href="#demo-form" class="hero-cta">Request Demo</a>
+  </section>
+
+  <div class="wrap">
+    <section class="sec">
+      <div class="sec-label"><span>Demo</span></div>
+      <h2 class="sec-title">Watch MedTechAI in action</h2>
+      <p class="sec-sub">See how healthcare professionals use our tools to make faster, safer clinical decisions at the point of care.</p>
+      <div class="demo-video">
+        <!-- In a real implementation, this would be an actual demo video -->
+        <iframe src="https://www.youtube.com/embed/demo-video-placeholder" title="MedTechAI Demo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="sec-label"><span>Key Features</span></div>
+      <h2 class="sec-title">What you'll see in the demo</h2>
+      <p class="sec-sub">A walkthrough of our most popular tools and how they integrate into clinical workflows.</p>
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <h3>Drug Search & Insight</h3>
+          <p>Comprehensive drug lookup with AI-generated insights including mechanism of action, indications, warnings, and pricing.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚠️</div>
+          <h3>Interaction Checker</h3>
+          <p>Real-time drug-drug, drug-food, and drug-condition interaction checking with severity levels and management recommendations.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💊</div>
+          <h3>Dose Calculator</h3>
+          <p>Weight-based, age-adjusted, and condition-specific dosing calculations for thousands of medications.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📋</div>
+          <h3>Smart Reporting</h3>
+          <p>Automated clinical reporting for radiology, pathology, labs, and discharge summaries using AI-powered analysis.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="demo-form">
+      <div class="sec-label"><span>Request Demo</span></div>
+      <h2 class="sec-title">Get your personalized demo</h2>
+      <p class="sec-sub">Fill out the form below and our team will contact you to schedule a live demo tailored to your practice or institution's needs.</p>
+      <form action="#" method="POST">
+        <div class="form-group">
+          <label for="name">Full Name *</label>
+          <input type="text" id="name" name="name" required placeholder="Enter your full name">
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" name="email" required placeholder="Enter your work email">
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" placeholder="Enter your phone number (optional)">
+        </div>
+        <div class="form-group">
+          <label for="organization">Organization / Practice *</label>
+          <input type="text" id="organization" name="organization" required placeholder="Enter your clinic, hospital, or practice name">
+        </div>
+        <div class="form-group">
+          <label for="role">Your Role *</label>
+          <select id="role" name="role" required>
+            <option value="">Select your role</option>
+            <option value="physician">Physician / Doctor</option>
+            <option value="pharmacist">Pharmacist</option>
+            <option value="nurse">Nurse</option>
+            <option value="clinician">Other Clinician</option>
+            <option value="administrator">Administrator / Manager</option>
+            <option value="student">Student / Resident</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="needs">What are you looking to achieve? *</label>
+          <textarea id="needs" name="needs" rows="4" required placeholder="e.g., Reduce medication errors, Save time on drug research, Ensure compliance with local regulations, etc."></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Send Demo Request</button>
+      </form>
+    </section>
+
+    <section class="cta-banner">
+      <h2>Ready to see the difference?</h2>
+      <p>Schedule your personalized demo today and discover how MedTechAI can transform clinical decision-making in your practice.</p>
+      <a href="#demo-form">Request Demo Now</a>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  &copy; 2025 Arab MedTechAI Organization
+  <div class="footer-links">
+    <a href="/terms/">Terms</a>
+    <a href="/hipaa-compliance/">Compliance</a>
+    <a href="/contact/">Contact</a>
+  </div>
+</footer>
+</body>
+</html>

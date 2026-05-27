@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pricing — MedTechAI</title>
+  <meta name="description" content="Transparent pricing for MedTechAI's AI-powered clinical tools. Choose the plan that fits your practice or institution."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/tools/shared.css">
+  <style>
+    :root{--teal:#38b8ae;--navy:#1a2d3a;--mint:#e6f7f6;--soft-teal:#d1efed;--slate-gray:#6b8a8e;--white:#fff;--bg:#f5fafa}
+    body{background:var(--bg);color:var(--navy)}
+    a{color:var(--teal);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+    .nav-home{color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500}
+    .nav-home:hover{background:rgba(255,255,255,.08);color:#fff;text-decoration:none}
+    .nav-home.act{color:#38bdf8}
+    .hero{text-align:center;padding:64px 0 56px}
+    .hero-tag{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
+    .hero h1{font-family:'DM Sans',sans-serif;font-size:40px;font-weight:700;color:var(--navy);line-height:1.15;margin-bottom:16px;max-width:720px;margin-left:auto;margin-right:auto}
+    .hero h1 span{color:var(--teal)}
+    .hero p{font-size:16px;color:var(--slate-gray);line-height:1.7;max-width:620px;margin:0 auto 32px}
+    .hero-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 32px;border-radius:12px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;background:var(--teal);color:var(--white);transition:opacity .2s}
+    .hero-cta:hover{opacity:.9;text-decoration:none}
+    .sec{padding:48px 0}
+    .sec-label{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .sec-label::before{content:'';width:20px;height:3px;border-radius:2px;background:var(--teal)}
+    .sec-label span{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px}
+    .sec-title{font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:8px}
+    .sec-sub{font-size:15px;color:var(--slate-gray);line-height:1.6;margin-bottom:32px;max-width:680px}
+    .pricing-grid{display:grid;gap:24px}
+    @media(min-width:768px){.pricing-grid{grid-template-columns:repeat(3,1fr)}}
+    .pricing-card{border-radius:14px;border:1px solid var(--soft-teal);padding:24px;background:var(--white);text-align:center;transition:box-shadow .2s}
+    .pricing-card:hover{box-shadow:0 4px 20px rgba(56,184,174,.1)}
+    .pricing-card.popular{border-color:var(--teal);box-shadow:0 4px 20px rgba(56,184,174,.2)}
+    .pricing-card .plan-name{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:600;color:var(--navy);margin-bottom:8px}
+    .pricing-card .price{font-family:'DM Sans',sans-serif;font-size:32px;font-weight:700;color:var(--teal);margin-bottom:4px}
+    .pricing-card .price-period{font-size:14px;color:var(--slate-gray);font-weight:500}
+    .pricing-card .features{text-align:left;margin:24px 0;padding:0 16px}
+    .pricing-card .features li{margin-bottom:8px;color:var(--slate-gray);font-size:14px;line-height:1.6}
+    .pricing-card .features li::before{content:'✓';color:var(--teal);margin-right:8px}
+    .pricing-card .cta-button{display:inline-block;padding:12px 32px;border-radius:12px;font-weight:600;font-size:14px;background:var(--teal);color:var(--white);margin-top:16px}
+    .pricing-card .cta-button:hover{opacity:.9}
+    .cta-banner{background:linear-gradient(135deg,var(--teal),#2a9d8f);border-radius:16px;padding:48px 32px;text-align:center;color:var(--white);margin:48px 0}
+    .cta-banner h2{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;margin-bottom:8px}
+    .cta-banner p{font-size:14px;opacity:.9;margin-bottom:20px}
+    .cta-banner a{display:inline-block;padding:12px 32px;border-radius:12px;font-weight:600;font-size:14px;background:var(--white);color:var(--teal)}
+    .footer{background:var(--navy)!important;color:rgba(255,255,255,.6)!important}
+    .footer a{color:rgba(255,255,255,.5)!important}
+    .footer a:hover{color:var(--white)!important}
+    @media(max-width:640px){
+      .hero h1{font-size:28px}
+      .sec-title{font-size:20px}
+      .cta-banner h2{font-size:22px}
+    }
+  </style>
+</head>
+<body>
+<nav class="nav" style="gap:16px">
+  <a href="/" class="nav-logo">MedTech<span>AI</span></a>
+  <span style="flex:1"></span>
+  <a href="/" class="nav-home">Home</a>
+  <a href="/tools/" class="nav-home">Tools</a>
+  <a href="/about/" class="nav-home">About</a>
+  <a href="/contact/" class="nav-home">Contact</a>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-tag">Transparent pricing for healthcare teams</div>
+    <h1>AI-powered clinical tools<br>that fit your budget</h1>
+    <p>Choose from flexible plans designed for individual practitioners, clinics, and hospitals. All plans include full access to our drug reference, interaction checker, and clinical decision support tools.</p>
+    <a href="#plans" class="hero-cta">See pricing plans</a>
+  </section>
+
+  <div class="wrap">
+    <section class="sec" id="plans">
+      <div class="sec-label"><span>Pricing</span></div>
+      <h2 class="sec-title">Simple, transparent pricing</h2>
+      <p class="sec-sub">No hidden fees. Cancel anytime. All plans include unlimited searches, real-time updates, and email support.</p>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="plan-name">Free</div>
+          <div class="price">$0</div>
+          <div class="price-period">per month</div>
+          <ul class="features">
+            <li>Basic drug search</li>
+            <li>Interaction checker (limited to 5 checks/day)</li>
+            <li>Dose calculator</li>
+            <li>Access to core tools</li>
+            <li>Community support</li>
+          </ul>
+          <a href="/contact/" class="cta-button">Get Started</a>
+        </div>
+        <div class="pricing-card popular">
+          <div class="plan-name">Professional</div>
+          <div class="price">$29</div>
+          <div class="price-period">per month</div>
+          <ul class="features">
+            <li>Unlimited drug search</li>
+            <li>Unlimited interaction checks</li>
+            <li>Advanced dosing calculator</li>
+            <li>All clinical tools (Smart Reports, ICD-10, etc.)</li>
+            <li>Priority email support</li>
+            <li>Export &amp; print capabilities</li>
+          </ul>
+          <a href="/contact/" class="cta-button">Choose Plan</a>
+        </div>
+        <div class="pricing-card">
+          <div class="plan-name">Enterprise</div>
+          <div class="price">Custom</div>
+          <div class="price-period">per month</div>
+          <ul class="features">
+            <li>Everything in Professional</li>
+            <li>Multi-user team management</li>
+            <li>Custom integrations (API access)</li>
+            <li>Dedicated account manager</li>
+            <li>On-site training available</li>
+            <li>SLA-guaranteed uptime</li>
+          </ul>
+          <a href="/contact/" class="cta-button">Contact Us</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="sec-label"><span>Trusted by</span></div>
+      <h2 class="sec-title">Healthcare institutions across the MENA region</h2>
+      <p class="sec-sub">Join thousands of clinicians who rely on MedTechAI for accurate, up-to-date clinical information at the point of care.</p>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:24px;">
+        <div style="background:var(--white);padding:16px;border-radius:12px;border:1px solid var(--soft-teal);text-align:center;min-width:120px;">
+          <div style="font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;">Pharmacies</div>
+          <div style="font-size:20px;font-weight:700;color:var(--navy);margin:4px 0;">2,500+</div>
+        </div>
+        <div style="background:var(--white);padding:16px;border-radius:12px;border:1px solid var(--soft-teal);text-align:center;min-width:120px;">
+          <div style="font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;">Clinics</div>
+          <div style="font-size:20px;font-weight:700;color:var(--navy);margin:4px 0;">1,800+</div>
+        </div>
+        <div style="background:var(--white);padding:16px;border-radius:12px;border:1px solid var(--soft-teal);text-align:center;min-width:120px;">
+          <div style="font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;">Hospitals</div>
+          <div style="font-size:20px;font-weight:700;color:var(--navy);margin:4px 0;">320+</div>
+        </div>
+        <div style="background:var(--white);padding:16px;border-radius:12px;border:1px solid var(--soft-teal);text-align:center;min-width:120px;">
+          <div style="font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;">Universities</div>
+          <div style="font-size:20px;font-weight:700;color:var(--navy);margin:4px 0;">85+</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-banner">
+      <h2>Ready to upgrade your practice?</h2>
+      <p>Start with a free plan or contact us for a custom enterprise solution. No credit card required to begin.</p>
+      <a href="/contact/">Get Started Today</a>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  &copy; 2025 Arab MedTechAI Organization
+  <div class="footer-links">
+    <a href="/terms/">Terms</a>
+    <a href="/hipaa-compliance/">Compliance</a>
+    <a href="/contact/">Contact</a>
+  </div>
+</footer>
+</body>
+</html>

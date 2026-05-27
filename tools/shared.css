@@ -197,6 +197,16 @@ a:hover{text-decoration:underline}
 .field-tag{display:inline-block;padding:4px 12px;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--slate3);background:var(--bg);transition:all .15s}
 .field-tag:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-bg)}
 .field-divider{text-align:center;font-size:11px;color:var(--slate5);margin-bottom:14px;position:relative}
+
+/* New styles for index.html updates */
+.hero-actions{display:flex;flex-direction:column;gap:16px;margin-top:24px}
+@media(min-width:768px){.hero-actions{flex-direction:row;align-items:center;justify-content:center}}
+.cta-actions{display:flex;flex-direction:column;gap:12px;margin-top:24px}
+@media(min-width:768px){.cta-actions{flex-direction:row;justify-content:center}}
+.cta-button-primary{display:inline-block;padding:12px 32px;border-radius:12px;font-weight:600;font-size:14px;background:var(--teal);color:var(--white);text-decoration:none}
+.cta-button-primary:hover{opacity:.9}
+.cta-button-outline{display:inline-block;padding:12px 32px;border-radius:12px;font-weight:600;font-size:14px;border:1px solid var(--teal);color:var(--teal);background:transparent;text-decoration:none}
+.cta-button-outline:hover{background:var(--teal-bg);color:var(--white)}
 .field-divider::before,.field-divider::after{content:'';position:absolute;top:50%;width:calc(50% - 20px);height:1px;background:var(--border)}
 .field-divider::before{left:0}
 .field-divider::after{right:0}

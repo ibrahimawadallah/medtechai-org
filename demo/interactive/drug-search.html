@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interactive Demo — MedTechAI Drug Search</title>
+  <meta name="description" content="Interactive demo of MedTechAI's Drug Search & Insight tool."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/tools/shared.css"/>
+  <style>
+    :root{--teal:#38b8ae;--navy:#1a2d3a;--mint:#e6f7f6;--soft-teal:#d1efed;--slate-gray:#6b8a8e;--white:#fff;--bg:#f5fafa}
+    body{background:var(--bg);color:var(--navy)}
+    a{color:var(--teal);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+    .nav-home{color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500}
+    .nav-home:hover{background:rgba(255,255,255,.08);color:#fff;text-decoration:none}
+    .nav-home.act{color:#38bdf8}
+    .hero{text-align:center;padding:48px 0 40px}
+    .hero-tag{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
+    .hero h1{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;color:var(--navy);line-height:1.15;margin-bottom:16px;max-width:600px;margin-left:auto;margin-right:auto}
+    .hero h1 span{color:var(--teal)}
+    .hero p{font-size:16px;color:var(--slate-gray);line-height:1.7;max-width:500px;margin:0 auto 24px}
+    .hero-cta{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;background:var(--teal);color:var(--white);transition:opacity .2s}
+    .hero-cta:hover{opacity:.9;text-decoration:none}
+    .sec{padding:32px 0}
+    .sec-label{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .sec-label::before{content:'';width:20px;height:3px;border-radius:2px;background:var(--teal)}
+    .sec-label span{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px}
+    .sec-title{font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:8px}
+    .sec-sub{font-size:14px;color:var(--slate-gray);line-height:1.6;margin-bottom:24px;max-width:560px}
+    .demo-container{background:var(--white);border-radius:12px;border:1px solid var(--soft-teal);padding:24px;margin:24px 0;box-shadow:0 2px 8px rgba(56,184,174,.1)}
+    .demo-step{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--soft-teal)}
+    .demo-step:last-child{border-bottom:none;margin-bottom:0}
+    .demo-step-number{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--teal);color:var(--white);border-radius:50%;font-size:12px;font-weight:600;margin-right:12px}
+    .demo-step-title{font-size:16px;font-weight:600;color:var(--navy);margin-bottom:4px}
+    .demo-step-desc{font-size:14px;color:var(--slate-gray);line-height:1.6}
+    .input-group{margin:16px 0}
+    .input-group label{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:6px}
+    .input-group input{width:100%;padding:12px 16px;border:1px solid var(--soft-teal);border-radius:8px;font-size:14px;font-family:inherit;background:var(--white);color:var(--navy)}
+    .input-group input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(56,184,174,.1)}
+    .tag-group{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+    .field-tag{padding:6px 12px;background:var(--mint);border:1px solid var(--soft-teal);border-radius:12px;font-size:12px;cursor:pointer}
+    .field-tag:hover{background:var(--teal);color:var(--white)}
+    .btn-primary{display:inline-block;padding:10px 24px;border-radius:8px;font-weight:600;font-size:13px;background:var(--teal);color:var(--white);border:none;cursor:pointer}
+    .btn-primary:hover{opacity:.9}
+    .btn-outline{display:inline-block;padding:10px 24px;border-radius:8px;font-weight:600;font-size:13px;border:1px solid var(--teal);color:var(--teal);background:transparent;cursor:pointer}
+    .btn-outline:hover{background:var(--teal-bg);color:var(--white)}
+    .result-section{margin-top:24px;padding-top:16px;border-top:1px solid var(--soft-teal)}
+    .result-section h3{font-size:18px;font-weight:600;color:var(--navy);margin-bottom:12px}
+    .result-item{background:var(--mint);border-radius:8px;padding:12px;margin-bottom:8px}
+    .result-label{font-size:12px;font-weight:600;color:var(--slate-gray);text-transform:uppercase;letter-spacing:0.5px}
+    .result-value{font-size:14px;color:var(--navy);margin-top:4px}
+    .cta-banner{background:linear-gradient(135deg,var(--teal),#2a9d8f);border-radius:12px;padding:24px;text-align:center;color:var(--white);margin:24px 0}
+    .cta-banner h2{font-size:20px;font-weight:600;margin-bottom:8px}
+    .cta-banner p{font-size:14px;opacity:.9;margin-bottom:16px}
+    .cta-banner a{display:inline-block;padding:8px 20px;border-radius:8px;font-weight:600;font-size:13px;background:var(--white);color:var(--teal)}
+    .footer{background:var(--navy)!important;color:rgba(255,255,255,.6)!important}
+    .footer a{color:rgba(255,255,255,.5)!important}
+    .footer a:hover{color:var(--white)!important}
+    @media(max-width:640px){
+      .hero h1{font-size:24px}
+      .sec-title{font-size:18px}
+      .cta-banner h2{font-size:18px}
+    }
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="/demo/" class="nav-back">&#8592; Demo Home</a>
+  <span class="nav-sep">|</span>
+  <a href="/" class="nav-logo">MedTech<span>AI</span></a>
+</nav>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-tag">Interactive Demo</div>
+    <h1>Try Drug Search &amp; Insight</h1>
+    <p>Experience how MedTechAI's AI-powered drug lookup provides comprehensive insights including mechanism of action, indications, warnings, and pricing information.</p>
+    <a href="#demo-form" class="hero-cta">Start Demo</a>
+  </section>
+
+  <section class="demo-container" id="demo-form">
+    <div class="sec-label"><span>How it works</span></div>
+    <h2 class="sec-title">Search for any medication</h2>
+    <p class="sec-sub">Enter a drug name to see detailed information powered by our AI clinical knowledge base.</p>
+    
+    <div class="demo-step">
+      <div class="demo-step-number">1</div>
+      <div>
+        <div class="demo-step-title">Enter a drug name</div>
+        <div class="demo-step-desc">Type the name of any medication (generic or brand) to get started.</div>
+      </div>
+    </div>
+    
+    <div class="input-group">
+      <label for="demo-drug">Drug Name</label>
+      <input type="text" id="demo-drug" placeholder="e.g. Metformin, Amoxicillin, Atorvastatin..." autocomplete="off"/>
+    </div>
+    
+    <div class="tag-group">
+      <span class="field-tag" onclick="setDemoDrug('Metformin')">Metformin</span>
+      <span class="field-tag" onclick="setDemoDrug('Amoxicillin')">Amoxicillin</span>
+      <span class="field-tag" onclick="setDemoDrug('Atorvastatin')">Atorvastatin</span>
+      <span class="field-tag" onclick="setDemoDrug('Paracetamol')">Paracetamol</span>
+      <span class="field-tag" onclick="setDemoDrug('Warfarin')">Warfarin</span>
+      <span class="field-tag" onclick="setDemoDrug('Lisinopril')">Lisinopril</span>
+    </div>
+    
+    <button class="btn-primary" id="demo-btn" onclick="runDemoSearch()">
+      <span id="demo-spinner" class="spinner" style="display:none;margin-right:8px"></span>
+      <span id="demo-btn-text">Search Drug</span>
+    </button>
+    
+    <div class="result-section" id="demo-results" style="display:none;">
+      <div id="demo-result-content"></div>
+      <div class="demo-step">
+        <div class="demo-step-number">2</div>
+        <div>
+          <div class="demo-step-title">Get AI-powered insights</div>
+          <div class="demo-step-desc">See comprehensive information including mechanism of action, indications, clinical warnings, and more.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-banner">
+    <h2>Ready for the full experience?</h2>
+    <p>This demo shows just one of our 50+ AI-powered clinical tools. Access the complete suite with a free or paid plan.</p>
+    <a href="/pricing/">See Pricing Plans</a>
+    <a href="/demo/" class="btn-outline">Back to Demo Home</a>
+  </section>
+</div>
+
+<footer class="footer">
+  &copy; 2025 Arab MedTechAI Organization
+  <div class="footer-links">
+    <a href="/terms/">Terms</a>
+    <a href="/hipaa-compliance/">Compliance</a>
+    <a href="/contact/">Contact</a>
+  </div>
+</footer>
+
+<script>
+  function setDemoDrug(drug) {
+    document.getElementById('demo-drug').value = drug;
+  }
+  
+  function runDemoSearch() {
+    const drugInput = document.getElementById('demo-drug');
+    const drug = drugInput.value.trim();
+    
+    if (!drug) {
+      alert('Please enter a drug name');
+      return;
+    }
+    
+    // Show spinner
+    document.getElementById('demo-spinner').style.display = 'inline-block';
+    document.getElementById('demo-btn-text').textContent = 'Searching…';
+    document.getElementById('demo-btn').disabled = true;
+    
+    // Simulate API call with timeout
+    setTimeout(() => {
+      // Hide spinner
+      document.getElementById('demo-spinner').style.display = 'none';
+      document.getElementById('demo-btn-text').textContent = 'Search Drug';
+      document.getElementById('demo-btn').disabled = false;
+      
+      // Show results
+      const resultsDiv = document.getElementById('demo-results');
+      const resultContent = document.getElementById('demo-result-content');
+      
+      // Mock data based on drug
+      let mockData = {};
+      switch (drug.toLowerCase()) {
+        case 'metformin':
+          mockData = {
+            mechanismOfAction: "Decreases hepatic glucose production and increases insulin sensitivity",
+            indications: ["Type 2 diabetes mellitus", "Polycystic ovary syndrome (off-label)"],
+            warnings: ["Lactic acidosis (rare)", "Renal impairment", "Hypersensitivity"],
+            sideEffects: ["Gastrointestinal upset (nausea, diarrhea)", "Metallic taste", "Vitamin B12 deficiency (long-term)"],
+            pricing: {
+              generic: "$4-$10 for 30 tablets (500mg)",
+              brand: "$20-$50 for 30 tablets (500mg)"
+            }
+          };
+          break;
+        case 'amoxicillin':
+          mockData = {
+            mechanismOfAction: "Inhibits bacterial cell wall synthesis by binding to penicillin-binding proteins",
+            indications: ["Otitis media", "Sinusitis", "Strep throat", "Urinary tract infections", "Skin infections"],
+            warnings: ["Severe allergic reactions (anaphylaxis)", "Clostridium difficile-associated diarrhea"],
+            sideEffects: ["Diarrhea", "Nausea", "Rash", "Vomiting"],
+            pricing: {
+              generic: "$10-$20 for 30 capsules (500mg)",
+              brand: "$30-$60 for 30 capsules (500mg)"
+            }
+          };
+          break;
+        case 'atorvastatin':
+          mockData = {
+            mechanismOfAction: "HMG-CoA reductase inhibitor that reduces cholesterol synthesis in the liver",
+            indications: ["Hyperlipidemia", "Prevention of cardiovascular events", "Homozygous familial hypercholesterolemia"],
+            warnings: ["Myopathy/rhabdomyolysis", "Liver enzyme elevations", "Diabetes risk increase"],
+            sideEffects: ["Muscle pain", "Liver abnormalities", "Digestive issues", "Headache"],
+            pricing: {
+              generic: "$10-$30 for 30 tablets (20mg)",
+              brand: "$80-$120 for 30 tablets (20mg)"
+            }
+          };
+          break;
+        default:
+          mockData = {
+            mechanismOfAction: "Varies by specific drug class and mechanism",
+            indications: ["Depends on the specific medication and its approved uses"],
+            warnings: ["Consult prescribing information for specific warnings and precautions"],
+            sideEffects: ["Varies by medication; common effects may include GI upset, headache, or dizziness"],
+            pricing: {
+              generic: "Varies by formulation and dosage",
+              brand: "Varies by formulation and dosage"
+            }
+          };
+      }
+      
+      resultContent.innerHTML = `
+        <div class="result-item">
+          <div class="result-label">Mechanism of Action</div>
+          <div class="result-value">${mockData.mechanismOfAction}</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Approved Indications</div>
+          <div class="result-value">${mockData.indications.join(', ')}</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Important Warnings</div>
+          <div class="result-value">${mockData.warnings.join(', ')}</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Common Side Effects</div>
+          <div class="result-value">${mockData.sideEffects.join(', ')}</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Estimated Pricing (30-day supply)</div>
+          <div class="result-value">
+            <strong>Generic:</strong> ${mockData.pricing.generic}<br/>
+            <strong>Brand:</strong> ${mockData.pricing.brand}
+          </div>
+        </div>
+      `;
+      
+      resultsDiv.style.display = 'block';
+      resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 1500); // Simulate 1.5 second delay for realism
+  }
+  
+  // Allow Enter key to trigger search
+  document.getElementById('demo-drug').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      runDemoSearch();
+    }
+  });
+</script>
+</body>
+</html>

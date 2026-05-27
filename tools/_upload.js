@@ -195,11 +195,37 @@
     });
   };
   
+  // ── Hash-based category scroll & sidebar sync ────────────────────
+  function scrollToCategory() {
+    var hash = window.location.hash.replace('#', '');
+    if (!hash) return;
+    var el = document.querySelector('.cat[data-cat="' + hash + '"]');
+    if (el) {
+      setTimeout(function() { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+    }
+  }
+  function syncSidebarToHash() {
+    var hash = window.location.hash.replace('#', '');
+    var sidebar = document.getElementById('uptodate-sidebar');
+    if (!sidebar || !hash) return;
+    var links = sidebar.querySelectorAll('a');
+    for (var i = 0; i < links.length; i++) {
+      var href = links[i].getAttribute('href');
+      links[i].classList.toggle('active', href === '/tools/#' + hash);
+    }
+  }
+
   // Initialize on DOM load
   document.addEventListener('DOMContentLoaded', function() {
     initDragDrop();
     injectSearchBar();
     injectSidebar();
+    scrollToCategory();
+    syncSidebarToHash();
+  });
+  window.addEventListener('hashchange', function() {
+    scrollToCategory();
+    syncSidebarToHash();
   });
   
   // Expose functions globally if needed (but keep state private)
