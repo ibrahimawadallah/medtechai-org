@@ -66,6 +66,7 @@
 
   // ── Core tour functions ───────────────────────────────────────────
   function startTour(startStep) {
+    if (state.running) return;
     state.running = true;
     loadDriver(function() {
       state.driver = new Driver({
@@ -104,7 +105,6 @@
       return true;
     }
     // Check if the step's page matches current page
-    if (stepPage && !currentPage.endsWith(stepPage)) return false;
     var remaining = state.steps.slice(saved.step);
     if (remaining.length === 0) return false;
     startTour(saved.step);
@@ -127,11 +127,7 @@
     var el = document.getElementById(id);
     if (el) { el.value = val; }
   }
-
-  function setSel(id, val) {
-    var el = document.getElementById(id);
-    if (el) { el.value = val; }
-  }
+  var setSel = setVal;
 
   // ── Initialize ────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function() {
