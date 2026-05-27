@@ -146,7 +146,7 @@
     },
     // ── Step 9: Clinical Calculators — Result ───────────────────────
     {
-      element: '.card:last-child',
+      element: '#resultPanel',
       page: PAGE_CALC,
       popover: {
         title: 'Instant Result',
