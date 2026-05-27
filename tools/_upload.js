@@ -238,6 +238,8 @@
   // ── UpToDate-style search bar injection ──────────────────────────
   function injectSearchBar() {
     if (document.getElementById('uptodate-search')) return;
+    // Skip on the tools listing page — it has its own nav
+    if (document.querySelector('.tool-srch')) return;
     var bar = document.createElement('div');
     bar.id = 'uptodate-search';
     bar.style.cssText = 'position:fixed;top:0;left:0;right:0;height:48px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;padding:0 16px;z-index:1000;gap:12px';
