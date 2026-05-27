@@ -10,6 +10,8 @@
 > 
 > I'm with MedTechAI, based in Abu Dhabi. We've built an AI-powered drug reference tool that helps pharmacy teams save 10+ hours per week on medication research while reducing prescription errors and staying fully compliant with UAE regulations.
 > 
+> Our Professional plan is AED 109/month (cancel anytime, no credit card required to start). It includes local drug pricing in AED, Arabic language support, and UAE-specific interaction databases.
+> 
 > It takes just 60 seconds to show you how it works. Would you be open to a 5-minute demo this week?
 > 
 > - 50+ AI clinical tools in one platform
@@ -33,12 +35,14 @@
 > I hope this message finds you well. I'm reaching out from MedTechAI, an Abu Dhabi-based organization building AI-powered clinical tools for healthcare professionals across the Arab world.
 > 
 > We've developed a Drug Search & Insight tool that:
-> • Saves 10+ hours weekly on medication research
-> • Reduces prescription errors with real-time drug interaction checking
+> • Saves 10+ hours weekly on medication research with UAE-specific pricing (AED)
+> • Reduces prescription errors with real-time drug interaction checking (UAE-focused database)
 > • Ensures UAE Ministry of Health compliance is automatically maintained
 > • Provides Arabic language support for all drug information
 > 
-> The tool is already being used by 5,000+ pharmacy professionals in the region, and we're looking to expand partnerships with leading healthcare institutions like yours.
+> The tool is already being used by 2,500+ pharmacy professionals in the UAE, and we're looking to expand partnerships with leading healthcare institutions like yours.
+> 
+> Our Professional plan is AED 109/month (cancel anytime, no credit card required to start with our Free tier).
 > 
 > Would you be open to a 5-10 minute demonstration? I can show you exactly how it works and how it could benefit your team.
 > 

@@ -1,6 +1,6 @@
-# Hostinger default placeholder pages
 default.php
 apps/
 learn/
-
 .vercel
+pharmacy/data/
+pharmacy/database/
