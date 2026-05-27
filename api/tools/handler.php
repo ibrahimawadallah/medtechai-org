@@ -267,7 +267,56 @@ switch ($tool) {
 
 // DRUG SEARCH
 case 'drug-search':
-    $drug = trim($body['drug']??''); if(!$drug){echo json_encode(['html'=>alert('red','Enter a drug name.')]);exit;}
+    $drug = trim($body['drug']??'');
+    // Prescription scanning mode: file uploaded without a specific drug name
+    if ($fileContext && (!$drug || $drug === 'auto')) {
+        $prompt = "The user uploaded a prescription or medical document. Text extracted from it:\n\n" . $body['_fileText'] . "\n\nIdentify ALL drug names from this prescription. For each drug found, provide comprehensive information. Return ONLY JSON: {\"source\":\"Prescription Scan\",\"drugsFound\":[\"str\"],\"drugs\":[{\"genericName\":\"str\",\"brandNames\":[\"str\"],\"drugClass\":\"str\",\"therapeuticCategory\":\"str\",\"mechanismOfAction\":\"str\",\"indications\":[\"str\"],\"dosageForms\":[\"str\"],\"adultDosing\":\"str\",\"pediatricDosing\":\"str\",\"renalAdjustment\":\"str\",\"hepaticAdjustment\":\"str\",\"administration\":\"str\",\"adverseReactions\":[{\"system\":\"str\",\"reactions\":\"str\",\"frequency\":\"str\"}],\"contraindications\":[\"str\"],\"clinicalWarnings\":[\"str\"],\"drugInteractions\":[\"str\"],\"pregnancyCategory\":\"str\",\"lactationSafety\":\"str\",\"monitoringParameters\":[\"str\"],\"pharmacokinetics\":\"str\",\"patientEducation\":\"str\"}],\"potentialInteractions\":[{\"between\":[\"str\",\"str\"],\"severity\":\"str\",\"description\":\"str\"}],\"summary\":\"str\"}";
+        $d = gemini($prompt);
+        if (isset($d['error'])) { echo json_encode(['html' => alert('red', h($d['error']))]); exit; }
+        $html = '';
+        if (!empty($d['source'])) $html .= sec('Source', '<span class="r-value">' . h($d['source']) . '</span>');
+        if (!empty($d['summary'])) $html .= sec('Prescription Summary', '<span class="r-value">' . h($d['summary']) . '</span>');
+        if (!empty($d['potentialInteractions'])) {
+            $ixs = '';
+            foreach ($d['potentialInteractions'] as $ix) {
+                $ixs .= '<div class="r-alert r-alert-amber" style="margin-bottom:6px"><div><strong>' . h(implode(' + ', $ix['between'] ?? [])) . '</strong><br><span class="badge ' . (($ix['severity'] ?? '') === 'high' ? 'badge-red' : 'badge-amber') . '">' . h(strtoupper($ix['severity'] ?? '')) . '</span> ' . h($ix['description'] ?? '') . '</div></div>';
+            }
+            $html .= sec('Potential Interactions', $ixs, 'amber');
+        }
+        if (!empty($d['drugs'])) {
+            foreach ($d['drugs'] as $idx => $dx) {
+                $html .= '<div style="margin:16px 0 8px;padding:6px 12px;background:var(--teal-bg);border-radius:var(--radius);font-size:13px;font-weight:700;color:var(--teal)">Drug ' . ($idx + 1) . ': ' . h($dx['genericName'] ?? 'Unknown') . '</div>';
+                if (!empty($dx['brandNames'])) $html .= sec('Brand Names', '<span class="r-value">' . h(implode(', ', $dx['brandNames'])) . '</span>');
+                if (!empty($dx['drugClass'])) $html .= sec('Drug Class', '<span class="r-value">' . h($dx['drugClass']) . '</span>');
+                if (!empty($dx['therapeuticCategory'])) $html .= sec('Therapeutic Category', '<span class="r-value">' . h($dx['therapeuticCategory']) . '</span>');
+                if (!empty($dx['mechanismOfAction'])) $html .= sec('Mechanism of Action', '<span class="r-value">' . h($dx['mechanismOfAction']) . '</span>');
+                if (!empty($dx['indications'])) $html .= sec('Indications', rl($dx['indications']));
+                if (!empty($dx['dosageForms'])) $html .= sec('Dosage Forms', '<span class="r-value">' . h(implode(', ', $dx['dosageForms'])) . '</span>');
+                if (!empty($dx['adultDosing'])) $html .= sec('Adult Dosing', '<span class="r-value">' . h($dx['adultDosing']) . '</span>');
+                if (!empty($dx['pediatricDosing'])) $html .= sec('Pediatric Dosing', '<span class="r-value">' . h($dx['pediatricDosing']) . '</span>');
+                if (!empty($dx['renalAdjustment'])) $html .= sec('Renal Adjustment', '<span class="r-value">' . h($dx['renalAdjustment']) . '</span>');
+                if (!empty($dx['hepaticAdjustment'])) $html .= sec('Hepatic Adjustment', '<span class="r-value">' . h($dx['hepaticAdjustment']) . '</span>');
+                if (!empty($dx['administration'])) $html .= sec('Administration', '<span class="r-value">' . h($dx['administration']) . '</span>');
+                if (!empty($dx['adverseReactions'])) {
+                    $ar = '';
+                    foreach ($dx['adverseReactions'] as $arx) $ar .= '<div style="margin-bottom:6px"><span class="badge badge-blue">' . h($arx['system'] ?? '') . '</span> <span class="r-value-sm">' . h($arx['frequency'] ?? '') . '</span><div class="r-value">' . h($arx['reactions'] ?? '') . '</div></div>';
+                    $html .= sec('Adverse Reactions', $ar);
+                }
+                if (!empty($dx['contraindications'])) $html .= sec('Contraindications', rl($dx['contraindications']));
+                if (!empty($dx['clinicalWarnings'])) $html .= sec('Warnings', rl($dx['clinicalWarnings']));
+                if (!empty($dx['drugInteractions'])) $html .= sec('Drug Interactions', rl($dx['drugInteractions']));
+                if (!empty($dx['pregnancyCategory'])) $html .= sec('Pregnancy Category', '<span class="r-value">' . h($dx['pregnancyCategory']) . '</span>');
+                if (!empty($dx['lactationSafety'])) $html .= sec('Lactation Safety', '<span class="r-value">' . h($dx['lactationSafety']) . '</span>');
+                if (!empty($dx['monitoringParameters'])) $html .= sec('Monitoring', rl($dx['monitoringParameters']));
+                if (!empty($dx['pharmacokinetics'])) $html .= sec('Pharmacokinetics', '<span class="r-value">' . h($dx['pharmacokinetics']) . '</span>');
+                if (!empty($dx['patientEducation'])) $html .= sec('Patient Education', '<span class="r-value">' . h($dx['patientEducation']) . '</span>');
+            }
+        }
+        echo json_encode(['html' => $html]);
+        break;
+    }
+    // Standard single-drug search
+    if (!$drug) { echo json_encode(['html' => alert('red', 'Enter a drug name or upload a prescription.')]); exit; }
     $d = gemini($fileContext . "Explain drug \"{$drug}\" comprehensively. Return ONLY JSON: {\"genericName\":\"str\",\"brandNames\":[\"str\"],\"drugClass\":\"str\",\"therapeuticCategory\":\"str\",\"mechanismOfAction\":\"str\",\"indications\":[\"str\"],\"dosageForms\":[\"str\"],\"adultDosing\":\"str\",\"pediatricDosing\":\"str\",\"renalAdjustment\":\"str\",\"hepaticAdjustment\":\"str\",\"administration\":\"str\",\"adverseReactions\":[{\"system\":\"str\",\"reactions\":\"str\",\"frequency\":\"str\"}],\"contraindications\":[\"str\"],\"clinicalWarnings\":[\"str\"],\"drugInteractions\":[\"str\"],\"pregnancyCategory\":\"str\",\"lactationSafety\":\"str\",\"monitoringParameters\":[\"str\"],\"pharmacokinetics\":\"str\",\"patientEducation\":\"str\"}");
     if(isset($d['error'])){echo json_encode(['html'=>alert('red',h($d['error']))]);exit;}
     $html='<div class="r-value-lg" style="margin-bottom:8px">'.h($d['genericName']??$drug).'</div>';

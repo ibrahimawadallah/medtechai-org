@@ -194,6 +194,13 @@ a:hover{text-decoration:underline}
 .textarea-xl{min-height:140px}
 .textarea-mono{font-family:monospace;font-size:12px}
 .field-tag-group{display:flex;flex-wrap:wrap;gap:8px}
+.field-tag{display:inline-block;padding:4px 12px;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--slate3);background:var(--bg);transition:all .15s}
+.field-tag:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-bg)}
+.field-divider{text-align:center;font-size:11px;color:var(--slate5);margin-bottom:14px;position:relative}
+.field-divider::before,.field-divider::after{content:'';position:absolute;top:50%;width:calc(50% - 20px);height:1px;background:var(--border)}
+.field-divider::before{left:0}
+.field-divider::after{right:0}
+.field-divider span{background:var(--bg);padding:0 8px;position:relative}
 
 /* Mobile */
 @media(max-width:768px){.main{grid-template-columns:1fr;padding:0 14px 24px}.tool-header{padding:12px 14px 14px}.field-row{grid-template-columns:1fr}.r-grid{grid-template-columns:1fr}.sidebar{display:none}}

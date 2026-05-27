@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: medtechai-org
+    name: pharmgenius-production
     env: docker
     dockerfilePath: ./Dockerfile
     healthCheckPath: /

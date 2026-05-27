@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Drug Search & Insight — Arab MedTechAI</title>
-  <meta name="description" content="Comprehensive drug lookup with AI-generated insights — mechanism of action, indications, clinical warnings, side effects, and pricing."/>
+  <meta name="description" content="Comprehensive drug lookup with AI-generated insights — mechanism of action, indications, clinical warnings, side effects, and pricing. Upload a prescription to auto-detect all medications."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/tools/shared.css"/>
@@ -33,7 +33,7 @@
   <div>
     <span class="tool-cat">Pharmacy</span>
     <h1 class="tool-name">Drug Search &amp; Insight</h1>
-    <p class="tool-desc">Comprehensive drug lookup with AI-generated insights — mechanism of action, indications, clinical warnings, side effects, and pricing.</p>
+    <p class="tool-desc">Comprehensive drug lookup with AI-generated insights — mechanism of action, indications, clinical warnings, side effects, and pricing. Upload a prescription to auto-detect all medications.</p>
   </div>
 </div>
 
@@ -45,7 +45,7 @@
       <span class="card-header-title">Enter Details</span>
     </div>
     <div class="card-body">
-      <div class="field"><label>Drug Name</label><input id="f_drug" data-suggest="drug" type="text" placeholder="e.g. Metformin, Amoxicillin, Warfarin…" autocomplete="off"/></div>
+      <div class="field"><label>Drug Name <span class="optional">(or upload a prescription below)</span></label><input id="f_drug" data-suggest="drug" type="text" placeholder="e.g. Metformin, Amoxicillin, Warfarin…" autocomplete="off"/></div>
       <div class="field"><label>Quick Search</label>
         <div class="tag-group">
           <span class="field-tag" onclick="setQ('Metformin')">Metformin</span>
@@ -55,8 +55,9 @@
           <span class="field-tag" onclick="setQ('Paracetamol')">Paracetamol</span>
         </div>
       </div>
-            <div class="field">
-        <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
+      <div class="field-divider"><span>— or —</span></div>
+      <div class="field">
+        <label>Upload Prescription <span class="optional">(photo or PDF — auto-detects drugs)</span></label>
         <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
           <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" class="hidden" onchange="handleUpload(this)">
           <div id="upPlaceholder"><span>Click or drag a photo or PDF here (max 5 MB)</span></div>
@@ -100,7 +101,7 @@
 <script>
 var EP='/api/tools/drug-search';
 function setQ(d){document.getElementById('f_drug').value=d;}
-function getFormData(){var d=document.getElementById('f_drug').value.trim();if(!d){alert('Enter a drug name');return null;}var d = {drug:d};
+function getFormData(){var drug=document.getElementById('f_drug').value.trim();if(!drug&&!_upFile){alert('Enter a drug name or upload a prescription');return null;}var d = {drug:drug||'auto'};
   if (_upFile) {
     var fd = new FormData();
     for (var k in d) fd.append(k, d[k]);
