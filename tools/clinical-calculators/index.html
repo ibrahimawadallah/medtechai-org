@@ -354,5 +354,105 @@
   }
 </style>
 
+<script>
+const CALCULATORS = [
+  // Anthropometrics
+  { id: 'bmi', name: 'BMI', category: 'anthropometrics', local: true },
+  { id: 'bsa', name: 'BSA', category: 'anthropometrics', local: true },
+  { id: 'ibw', name: 'Ideal Body Weight', category: 'anthropometrics', local: true },
+  { id: 'adj-bw', name: 'Adjusted Body Weight', category: 'anthropometrics', local: true },
+
+  // Renal
+  { id: 'gfr', name: 'GFR (CKD-EPI)', category: 'renal', local: true },
+  { id: 'crcl', name: 'Creatinine Clearance', category: 'renal', local: true },
+  { id: 'fena', name: 'FENa', category: 'renal', local: true },
+  { id: 'bun-cr', name: 'BUN/Cr Ratio', category: 'renal', local: true },
+
+  // Electrolytes
+  { id: 'corrected-ca', name: 'Corrected Ca²⁺', category: 'electrolytes', local: true },
+  { id: 'anion-gap', name: 'Anion Gap', category: 'electrolytes', local: true },
+  { id: 'na-correction', name: 'Na Correction', category: 'electrolytes', local: true },
+  { id: 'osm-gap', name: 'Osmolality Gap', category: 'electrolytes', local: true },
+  { id: 'delta-delta', name: 'Delta-Delta', category: 'electrolytes', local: true },
+
+  // Cardiovascular
+  { id: 'chads2-vasc', name: 'CHA₂DS₂-VASc', category: 'cardiovascular', local: true },
+  { id: 'wells-dvt', name: 'Wells DVT', category: 'cardiovascular', local: true },
+  { id: 'wells-pe', name: 'Wells PE', category: 'cardiovascular', local: true },
+  { id: 'timi', name: 'TIMI Score', category: 'cardiovascular', api: true },
+  { id: 'grace', name: 'GRACE Score', category: 'cardiovascular', api: true },
+  { id: 'heart', name: 'HEART Score', category: 'cardiovascular', local: true },
+
+  // Critical Care
+  { id: 'apache-ii', name: 'APACHE II', category: 'critical-care', api: true },
+  { id: 'qsofa', name: 'qSOFA', category: 'critical-care', local: true },
+  { id: 'sofa', name: 'SOFA', category: 'critical-care', api: true },
+  { id: 'curb-65', name: 'CURB-65', category: 'critical-care', local: true },
+  { id: 'gcs', name: 'Glasgow Coma Scale', category: 'critical-care', local: true },
+
+  // Hepatology
+  { id: 'meld', name: 'MELD', category: 'hepatology', local: true },
+  { id: 'meld-na', name: 'MELD-Na', category: 'hepatology', local: true },
+  { id: 'child-pugh', name: 'Child-Pugh', category: 'hepatology', local: true },
+  { id: 'fib4', name: 'FIB-4', category: 'hepatology', local: true },
+  { id: 'apri', name: 'APRI', category: 'hepatology', local: true },
+
+  // Neurology
+  { id: 'gcs-neuro', name: 'Glasgow Coma Scale', category: 'neurology', local: true },
+  { id: 'alvarado', name: 'Alvarado Score', category: 'neurology', local: true },
+
+  // Pulmonary
+  { id: 'wells-pe-pulm', name: 'Wells PE', category: 'pulmonary', local: true },
+  { id: 'perc', name: 'PERC Rule', category: 'pulmonary', local: true },
+  { id: 'geneva', name: 'Geneva Score', category: 'pulmonary', local: true },
+  { id: 'curb-65-pulm', name: 'CURB-65', category: 'pulmonary', local: true },
+];
+
+let selectedCalc = null;
+
+function renderGrid(filter = 'all', search = '') {
+  const grid = document.getElementById('calcGrid');
+  grid.innerHTML = '';
+  const filtered = CALCULATORS.filter(c => {
+    const catMatch = filter === 'all' || c.category === filter;
+    const searchMatch = !search || c.name.toLowerCase().includes(search.toLowerCase());
+    return catMatch && searchMatch;
+  });
+  filtered.forEach(calc => {
+    const card = document.createElement('div');
+    card.className = 'calc-card' + (selectedCalc?.id === calc.id ? ' selected' : '');
+    card.dataset.id = calc.id;
+    card.innerHTML = `
+      <div class="calc-card-name">${calc.name}</div>
+      <span class="calc-card-tag tag-${calc.category}">${calc.category.replace('-', ' ')}</span>
+    `;
+    card.addEventListener('click', () => selectCalculator(calc));
+    grid.appendChild(card);
+  });
+}
+
+function selectCalculator(calc) {
+  selectedCalc = calc;
+  renderGrid(currentFilter, document.getElementById('calcSearch').value);
+  showInputPanel(calc);
+}
+
+let currentFilter = 'all';
+document.querySelectorAll('.sidebar-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.cat;
+    renderGrid(currentFilter, document.getElementById('calcSearch').value);
+  });
+});
+
+document.getElementById('calcSearch').addEventListener('input', (e) => {
+  renderGrid(currentFilter, e.target.value);
+});
+
+renderGrid();
+</script>
+
 </body>
 </html>
