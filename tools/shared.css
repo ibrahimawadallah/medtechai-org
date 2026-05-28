@@ -104,6 +104,9 @@ a:hover{text-decoration:underline}
 .r-section.primary{border-left-color:var(--blue)}
 .r-section.primary .r-section-header{background:var(--blue-bg)}
 .r-section.primary .r-section-title{color:var(--blue)}
+.r-section.navy{border-left-color:var(--navy)}
+.r-section.navy .r-section-header{background:#f0f4f8}
+.r-section.navy .r-section-title{color:var(--navy)}
 .r-section.green{border-left-color:var(--green)}
 .r-section.green .r-section-header{background:#f0fdf4}
 .r-section.green .r-section-title{color:var(--green)}
@@ -160,11 +163,24 @@ a:hover{text-decoration:underline}
 .placeholder-card{text-align:center;padding:40px 24px;color:var(--slate5)}
 .placeholder-card h3{font-size:18px;font-weight:700;color:var(--slate);margin-bottom:8px;font-family:'DM Sans',var(--font)}
 .placeholder-card p{font-size:14px;line-height:1.6}
-.placeholder-card .features{background:#f8fafc;border-radius:14px;padding:20px 24px;margin-top:16px;border-left:3px solid var(--teal)}
+.placeholder-card .features{background:#f8fafc;border-radius:14px;padding:20px 24px;margin-top:16px;border-left:3px solid var(--teal);transition:transform .15s,box-shadow .15s}
+.placeholder-card .features:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
 .placeholder-card .features-title{font-size:13px;font-weight:600;color:var(--teal);margin-bottom:10px}
 .placeholder-card .features ul{font-size:13px;color:var(--slate4);line-height:1.8;list-style:none;padding:0;margin:0}
 .placeholder-card .features li{margin-bottom:4px}
 .placeholder-card .features li::before{content:'▸';color:var(--teal);margin-right:6px}
+.placeholder-card.pharmacy .features{border-left-color:var(--blue)}
+.placeholder-card.pharmacy .features-title{color:var(--blue)}
+.placeholder-card.pharmacy .features li::before{color:var(--blue)}
+.placeholder-card.clinical .features{border-left-color:var(--teal)}
+.placeholder-card.clinical .features-title{color:var(--teal)}
+.placeholder-card.clinical .features li::before{color:var(--teal)}
+.placeholder-card.smart-report .features{border-left-color:var(--green)}
+.placeholder-card.smart-report .features-title{color:var(--green)}
+.placeholder-card.smart-report .features li::before{color:var(--green)}
+.placeholder-card.advanced .features{border-left-color:var(--purple)}
+.placeholder-card.advanced .features-title{color:var(--purple)}
+.placeholder-card.advanced .features li::before{color:var(--purple)}
 
 /* Error */
 .r-error{padding:12px 16px;border-radius:var(--radius);font-size:13px;background:var(--red-bg);color:#991b1b}

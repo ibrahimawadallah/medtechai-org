@@ -1,0 +1,6 @@
+#!/bin/bash
+# MedTechAI development server
+# Serves static files locally for testing
+
+cd "$REPO_PATH"
+npx serve -s . --port 3000

@@ -102,26 +102,30 @@
      </aside>
 
 <!-- Main Content -->
-      <main class="rx-content">
-        <div class="card" id="placeholderCard">
-          <div class="placeholder-card">
-            <h3>Medical Document Analyzer</h3>
-            <p>Upload a prescription or lab report for comprehensive analysis. Or paste clinical text above.</p>
-            <div class="features">
-              <div class="features-title">Analysis includes:</div>
-              <ul>
-                <li>• Drug information and interactions</li>
-                <li>• Lab value interpretation</li>
-                <li>• Safety alerts and contraindications</li>
-                <li>• Clinical recommendations</li>
-              </ul>
+<main class="rx-content">
+         <div class="card" id="placeholderCard">
+           <div class="placeholder-card smart-report">
+             <h3>Medical Document Analyzer</h3>
+             <p>Upload a prescription or lab report for comprehensive analysis. Or paste clinical text above.</p>
+             <div class="features">
+               <div class="features-title">Analysis includes:</div>
+               <ul>
+                 <li>• Drug information and interactions</li>
+                 <li>• Lab value interpretation</li>
+                 <li>• Safety alerts and contraindications</li>
+                 <li>• Clinical recommendations</li>
+               </ul>
+             </div>
+           </div>
+         </div>
+<div class="result-panel" id="resultPanel">
+            <div id="resultBody"></div>
+            <div class="btn-bar no-print">
+              <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
+              <button class="btn btn-outline btn-sm" onclick="resetTool()">Clear</button>
             </div>
           </div>
-        </div>
-        <div class="result-panel" id="resultPanel">
-          <div id="resultBody"></div>
-        </div>
-      </main>
+       </main>
    </div>
 
   <footer class="footer">&copy; 2025 Arab MedTechAI Organization</footer>

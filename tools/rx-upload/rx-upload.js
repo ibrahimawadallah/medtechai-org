@@ -8,7 +8,7 @@ var ICONS = {
   recommendations: '<svg viewBox="0 0 16 16" width="16" height="16"><rect x="2" y="2.5" width="12" height="11" rx="1.5" stroke="currentColor" fill="none" stroke-width="1.5"/><path d="M5.5 7.5l1.5 1.5 3-3" stroke="currentColor" fill="none" stroke-width="1.5"/><line x1="5.5" y1="11" x2="9.5" y2="11" stroke="currentColor" stroke-width="1.5"/></svg>',
   g6pd: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M8 2.5C6 5.5 4 8 4 10c0 2.2 1.8 4 4 4s4-1.8 4-4c0-2-2-4.5-4-7.5z" stroke="currentColor" fill="none" stroke-width="1.5"/></svg>',
   pregnancy: '<svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="4" r="2" stroke="currentColor" fill="none" stroke-width="1.5"/><path d="M4 14c0-3 1.8-4.5 4-4.5s4 1.5 4 4.5" stroke="currentColor" fill="none" stroke-width="1.5"/><circle cx="11" cy="3" r="1.2" stroke="currentColor" fill="none" stroke-width="1.2"/></svg>',
-  urgency: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M8 1.5c-2.5 0-4 2-4 4.5v2L2.5 10.5h11L12 8V6c0-2.5-1.5-4.5-4-4.5z" stroke="currentColor" fill="none" stroke-width="1.5"/><path d="M6.5 11.5a1.5 1.5 0 003 0" stroke="currentColor" fill="none" stroke-width="1.5"/>'
+  urgency: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M8 1.5c-2.5 0-4 2-4 4.5v2L2.5 10.5h11L12 8V6c0-2.5-1.5-4.5-4-4.5z" stroke="currentColor" fill="none" stroke-width="1.5"/><path d="M6.5 11.5a1.5 1.5 0 003 0" stroke="currentColor" fill="none" stroke-width="1.5"/></svg>'
 };
 
 // icon(name) — returns SVG string for given service name
@@ -84,7 +84,7 @@ function resetTool() {
   removeUpload();
 }
 
-// renderDashboard(data) — injects SVG icons into sidebar items, renders section cards with matching icons in headers
+// renderDashboard(data) — injects SVG icons into sidebar items, renders collapsible sections
 function renderDashboard(data) {
   var html = '';
   var hasPharmacy = data.pharmacy && data.pharmacy.drugsFound && data.pharmacy.drugsFound.length;
@@ -93,7 +93,6 @@ function renderDashboard(data) {
   // Show/hide sidebar items + inject icons
   document.getElementById('servicesList').querySelectorAll('.rx-service-item').forEach(function(el) {
     var section = el.getAttribute('data-section');
-    // Inject icon before text
     var txt = el.textContent.trim();
     el.innerHTML = icon(section) + ' ' + txt;
     if (section === 'summary') { el.style.display = ''; return; }
@@ -107,15 +106,17 @@ function renderDashboard(data) {
     }
   });
 
-  // Summary section (always shown)
-  html += '<div class="rx-card"><div class="rx-card-header teal"><span>' + icon('summary') + ' Clinical Summary</span>';
+  // Summary section (collapsible)
+  html += '<div class="r-section teal"><div class="r-section-header">';
+  html += '<span class="r-section-title">' + icon('summary') + ' Clinical Summary</span>';
   html += '<span>' + badge(data.urgency || 'Routine') + '</span></div>';
-  html += '<div class="rx-card-body">' + esc(data.summary || 'No summary available.') + '</div></div>';
+  html += '<div class="r-section-body">' + esc(data.summary || 'No summary available.') + '</div></div>';
 
-  // Pharmacy section
+  // Pharmacy section (collapsible)
   if (hasPharmacy) {
-    html += '<div class="rx-card"><div class="rx-card-header navy"><span>' + icon('pharmacy') + ' Pharmacy Services</span></div><div class="rx-card-body">';
-    html += '<div class="rx-drug-list">';
+    html += '<div class="r-section primary"><div class="r-section-header">';
+    html += '<span class="r-section-title">' + icon('pharmacy') + ' Pharmacy Services</span></div>';
+    html += '<div class="r-section-body"><div class="rx-drug-list">';
     data.pharmacy.drugDetails.forEach(function(drug) {
       html += '<div class="rx-drug-card"><div class="rx-drug-name">' + esc(drug.genericName) + '</div>';
       html += '<div class="rx-drug-meta">' + esc(drug.drugClass) + ' · ' + esc(drug.adultDosing) + '</div>';
@@ -123,10 +124,11 @@ function renderDashboard(data) {
     });
     html += '</div></div></div>';
 
-    // Interactions
+    // Interactions (collapsible)
     if (data.pharmacy.interactions && data.pharmacy.interactions.length) {
-      html += '<div class="rx-card"><div class="rx-card-header amber"><span>' + icon('interactions') + ' Drug Interactions</span></div><div class="rx-card-body">';
-      html += '<div class="r-list">';
+      html += '<div class="r-section amber"><div class="r-section-header">';
+      html += '<span class="r-section-title">' + icon('interactions') + ' Drug Interactions</span></div>';
+      html += '<div class="r-section-body"><div class="r-list">';
       data.pharmacy.interactions.forEach(function(ix) {
         var sevClass = ix.severity === 'high' ? 'badge-red' : (ix.severity === 'moderate' ? 'badge-amber' : 'badge-green');
         html += '<div class="rx-ix-item"><span class="badge ' + sevClass + '">' + esc(ix.severity.toUpperCase()) + '</span> ';
@@ -136,9 +138,11 @@ function renderDashboard(data) {
       html += '</div></div></div>';
     }
 
-    // G6PD check
+    // G6PD check (collapsible)
     if (data.pharmacy.g6pdCheck && data.pharmacy.g6pdCheck.length) {
-      html += '<div class="rx-card"><div class="rx-card-header purple"><span>' + icon('g6pd') + ' G6PD Check</span></div><div class="rx-card-body">';
+      html += '<div class="r-section purple"><div class="r-section-header">';
+      html += '<span class="r-section-title">' + icon('g6pd') + ' G6PD Check</span></div>';
+      html += '<div class="r-section-body">';
       data.pharmacy.g6pdCheck.forEach(function(g) {
         var cls = g.riskLevel === 'Contraindicated' || g.riskLevel === 'High Risk' ? 'badge-red' : (g.riskLevel === 'Moderate Risk' ? 'badge-amber' : 'badge-green');
         html += '<div><span class="badge ' + cls + '">' + esc(g.riskLevel.toUpperCase()) + '</span> <strong>' + esc(g.drug) + '</strong></div>';
@@ -146,19 +150,22 @@ function renderDashboard(data) {
       html += '</div></div>';
     }
 
-    // Pregnancy check
+    // Pregnancy check (collapsible)
     if (data.pharmacy.pregnancyCheck && data.pharmacy.pregnancyCheck.fdaCategory) {
-      html += '<div class="rx-card"><div class="rx-card-header purple"><span>' + icon('pregnancy') + ' Pregnancy Safety</span></div><div class="rx-card-body">';
+      html += '<div class="r-section purple"><div class="r-section-header">';
+      html += '<span class="r-section-title">' + icon('pregnancy') + ' Pregnancy Safety</span></div>';
+      html += '<div class="r-section-body">';
       html += '<span class="badge ' + (data.pharmacy.pregnancyCheck.safety === 'Avoid' ? 'badge-red' : 'badge-amber') + '">' + esc(data.pharmacy.pregnancyCheck.fdaCategory) + '</span> ';
       html += esc(data.pharmacy.pregnancyCheck.risk);
       html += '</div></div>';
     }
   }
 
-  // Labs section
+  // Labs section (collapsible)
   if (hasLabs) {
-    html += '<div class="rx-card"><div class="rx-card-header green"><span>' + icon('labs') + ' Lab Analysis</span></div><div class="rx-card-body">';
-    html += '<div class="r-list">';
+    html += '<div class="r-section green"><div class="r-section-header">';
+    html += '<span class="r-section-title">' + icon('labs') + ' Lab Analysis</span></div>';
+    html += '<div class="r-section-body"><div class="r-list">';
     data.labs.abnormalValues.forEach(function(lab) {
       var flagClass = lab.flag === 'Critical' ? 'r-alert-red' : (lab.flag === 'High' || lab.flag === 'Low' ? 'r-alert-amber' : 'r-alert-green');
       html += '<div class="r-alert ' + flagClass + '"><div><strong>' + esc(lab.test) + '</strong> ';
@@ -172,10 +179,11 @@ function renderDashboard(data) {
     html += '</div></div>';
   }
 
-  // Recommendations
+  // Recommendations (collapsible)
   if (data.recommendations && data.recommendations.length) {
-    html += '<div class="rx-card"><div class="rx-card-header purple"><span>' + icon('recommendations') + ' Recommendations</span></div><div class="rx-card-body">';
-    html += '<ul class="r-list">';
+    html += '<div class="r-section purple"><div class="r-section-header">';
+    html += '<span class="r-section-title">' + icon('recommendations') + ' Recommendations</span></div>';
+    html += '<div class="r-section-body"><ul class="r-list">';
     data.recommendations.forEach(function(r) { html += '<li>' + esc(r) + '</li>'; });
     html += '</ul></div></div>';
   }
@@ -184,6 +192,13 @@ function renderDashboard(data) {
   document.getElementById('placeholderCard').style.display = 'none';
   document.getElementById('resultPanel').classList.add('on');
 
+  // Add collapsible behavior to section headers
+  document.querySelectorAll('.r-section-header').forEach(function(h) {
+    h.addEventListener('click', function() {
+      this.classList.toggle('collapsed');
+    });
+  });
+
   // Highlight sidebar item on scroll
   setupScrollSpy();
 }
@@ -191,12 +206,12 @@ function renderDashboard(data) {
 // setupScrollSpy() — sidebar click-to-scroll, icon-injected items clickable
 function setupScrollSpy() {
   var items = document.querySelectorAll('.rx-service-item');
-  var cards = document.querySelectorAll('.rx-card');
+  var cards = document.querySelectorAll('.r-section');
   items.forEach(function(item) {
     item.addEventListener('click', function() {
       var target = this.getAttribute('data-section');
       cards.forEach(function(c) {
-        if (c.querySelector('.rx-card-header') && c.querySelector('.rx-card-header').textContent.toLowerCase().includes(target)) {
+        if (c.querySelector('.r-section-title') && c.querySelector('.r-section-title').textContent.toLowerCase().includes(target)) {
           c.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
