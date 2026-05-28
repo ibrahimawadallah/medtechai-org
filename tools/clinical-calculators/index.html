@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Clinical Calculators — Arab MedTechAI</title>
-  <meta name="description" content="Validated medical calculators — CHADS2, Wells, APACHE II, GFR (CKD-EPI), BMI, corrected calcium, anion gap, and more."/>
+  <title>Clinical Calculators — MedTechAI</title>
+  <meta name="description" content="Validated medical calculators — BMI, GFR, CHA₂DS₂-VASc, Wells, APACHE II, SOFA, MELD, and more."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/tools/shared.css"/>
   <script src="/tools/_upload.js"></script>
 </head>
@@ -28,89 +28,56 @@
 
 <div class="tool-header advanced">
   <div>
-    <span class="tool-cat">Advanced Clinical</span>
+    <span class="tool-cat advanced">Advanced Clinical</span>
     <h1 class="tool-name">Clinical Calculators</h1>
-    <p class="tool-desc">Validated medical calculators — CHADS2, Wells, APACHE II, GFR (CKD-EPI), BMI, corrected calcium, anion gap, and more.</p>
+    <p class="tool-desc">Validated medical calculators — BMI, GFR, CHA₂DS₂-VASc, Wells, APACHE II, SOFA, MELD, and more.</p>
   </div>
 </div>
 
-<div class="main">
-  <div class="card">
-    <div class="card-header advanced">
-      <span class="card-header-title">Enter Details</span>
+<div class="main dashboard-layout">
+  <!-- Category Sidebar -->
+  <aside class="calc-sidebar" id="calcSidebar">
+    <div class="sidebar-search">
+      <input type="text" id="calcSearch" placeholder="Search calculators..." />
     </div>
-    <div class="card-body">
-      <style>
-        .calc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px}
-        .calc-cat-hdr{grid-column:1/-1;font-size:10px;font-weight:700;color:var(--slate5);text-transform:uppercase;letter-spacing:.04em;padding:6px 0 2px;margin-top:4px;border-bottom:1px solid var(--border)}
-        .calc-opt{padding:7px 10px;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;color:var(--slate3);background:var(--surface);transition:all .15s;text-align:center}
-        .calc-opt:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-bg)}
-        .calc-opt.sel{border-color:var(--teal);background:var(--teal-bg);color:var(--teal)}
-        @media(max-width:640px){.calc-grid{grid-template-columns:1fr 1fr}}
-      </style>
-      <div class="field"><label>Select Calculator</label>
-        <div class="calc-grid" id="calcGrid">
-          <div class="calc-cat-hdr">Anthropometrics</div>
-          <div class="calc-opt" onclick="selectCalc(this,'BMI')">BMI</div>
-          <div class="calc-cat-hdr">Renal</div>
-          <div class="calc-opt" onclick="selectCalc(this,'GFR (CKD-EPI)')">GFR (CKD-EPI)</div>
-          <div class="calc-cat-hdr">Electrolytes &amp; Chemistry</div>
-          <div class="calc-opt" onclick="selectCalc(this,'Corrected Calcium')">Corrected Ca²⁺</div>
-          <div class="calc-opt" onclick="selectCalc(this,'Sodium Correction')">Sodium Correction</div>
-          <div class="calc-opt" onclick="selectCalc(this,'Anion Gap')">Anion Gap</div>
-          <div class="calc-cat-hdr">Cardiovascular</div>
-          <div class="calc-opt" onclick="selectCalc(this,'CHA2DS2-VASc')">CHA₂DS₂-VASc</div>
-          <div class="calc-opt" onclick="selectCalc(this,'MAP')">MAP</div>
-          <div class="calc-cat-hdr">Thromboembolism</div>
-          <div class="calc-opt" onclick="selectCalc(this,'Wells DVT')">Wells DVT</div>
-          <div class="calc-opt" onclick="selectCalc(this,'Wells PE')">Wells PE</div>
-          <div class="calc-cat-hdr">Critical Care</div>
-          <div class="calc-opt" onclick="selectCalc(this,'APACHE II')">APACHE II</div>
-        </div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-btn active" data-cat="all">All Calculators</button>
+      <button class="sidebar-btn" data-cat="anthropometrics">Anthropometrics</button>
+      <button class="sidebar-btn" data-cat="renal">Renal</button>
+      <button class="sidebar-btn" data-cat="electrolytes">Electrolytes</button>
+      <button class="sidebar-btn" data-cat="cardiovascular">Cardiovascular</button>
+      <button class="sidebar-btn" data-cat="critical-care">Critical Care</button>
+      <button class="sidebar-btn" data-cat="hepatology">Hepatology</button>
+      <button class="sidebar-btn" data-cat="neurology">Neurology</button>
+      <button class="sidebar-btn" data-cat="pulmonary">Pulmonary</button>
+    </nav>
+  </aside>
+
+  <!-- Calculator Grid -->
+  <div class="calc-grid-container">
+    <div class="calc-grid" id="calcGrid">
+      <!-- Calculators injected by JS -->
+    </div>
+
+    <!-- Input Panel (expands when calculator selected) -->
+    <div class="calc-input-panel" id="calcInputPanel" style="display:none">
+      <div class="input-panel-header">
+        <h3 id="inputPanelTitle">Calculator Name</h3>
+        <button class="btn-close" id="closeInputPanel">&times;</button>
       </div>
-      <div id="calcFields" class="field" style="display:none"><label id="calcLabel" style="font-size:12px;font-weight:600;color:var(--teal);margin-bottom:8px">Calculator</label><div id="calcInputs"></div></div>
-       <div class="field" style="display:none" id="aiCalcField"><label>Patient Data</label><textarea id="f_data" data-suggest="diagnosis" class="textarea-lg" placeholder="E.g.: 72-year-old female with CHF, hypertension, diabetes, prior stroke. Or paste lab values like Na⁺ 128, glucose 320."></textarea></div>
-      <div class="field">
-        <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
-        <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
-          <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" class="hidden" onchange="handleUpload(this)">
-          <div id="upPlaceholder"><span>Click or drag a photo or PDF here (max 5 MB)</span></div>
-          <div id="upPreview" class="hidden">
-            <img id="upImg" class="preview-image">
-            <div id="upName" class="file-name"></div>
-            <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeUpload()">Remove</button>
-          </div>
-        </div>
+      <div class="input-panel-body" id="calcInputs"></div>
+      <div class="input-panel-footer">
+        <button class="btn btn-primary" id="calcRunBtn">Calculate</button>
       </div>
-      <button class="btn btn-primary btn-block" id="submitBtn" onclick="runTool()">
-        <span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span>
-      </button>
     </div>
   </div>
 
-  <div>
-    <div class="card" id="placeholderCard">
-      <div class="placeholder-card advanced">
-        <h3>Clinical Calculators</h3>
-        <p>Select a calculator and enter patient data to get validated results.</p>
-        <div class="features">
-          <div class="features-title">Available calculators:</div>
-          <ul>
-            <li>• BMI, GFR (CKD-EPI), corrected calcium</li>
-            <li>• CHA₂DS₂-VASc, Wells DVT/PE, MAP</li>
-            <li>• Anion gap, APACHE II, sodium correction</li>
-            <li>• AI interpretation for complex cases</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="result-panel" id="resultPanel">
-      <div id="resultBody"></div>
-      <div class="btn-bar no-print">
-        <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
-        <button class="btn btn-outline btn-sm" onclick="resetTool()">Clear</button>
-      </div>
+  <!-- Result Panel -->
+  <div class="result-panel" id="resultPanel">
+    <div id="resultBody"></div>
+    <div class="btn-bar no-print">
+      <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
+      <button class="btn btn-outline btn-sm" onclick="clearResult()">Clear</button>
     </div>
   </div>
 </div>
@@ -119,55 +86,5 @@
   &copy; 2025 Arab MedTechAI Organization
 </footer>
 
-<script>
-var EP='/api/tools/clinical-calculators';
-var localCalcs={
-"BMI":{fields:[{id:"wt",label:"Weight (kg)",type:"number"},{id:"ht",label:"Height (cm)",type:"number"}],calc:function(f){var b=f.wt/((f.ht/100)**2);var c=b<18.5?"Underweight":b<25?"Normal weight":b<30?"Overweight":b<35?"Obese Class I":b<40?"Obese Class II":"Obese Class III";return{result:b.toFixed(1)+" kg/m²",interpretation:"Category: "+c};}},
-"GFR (CKD-EPI)":{fields:[{id:"scr",label:"Serum Creatinine (mg/dL)",type:"number"},{id:"age",label:"Age (years)",type:"number"},{id:"sex",label:"Sex",type:"select",opts:["Female","Male"]}],calc:function(f){var fem=f.sex==="Female",k=fem?0.7:0.9,a=fem?-0.241:-0.302,scr=f.scr,gfr=142*Math.pow(Math.min(scr/k,1),a)*Math.pow(Math.max(scr/k,1),-1.2)*Math.pow(0.9938,f.age)*(fem?1.012:1);var st=gfr>=90?"G1 – Normal":gfr>=60?"G2 – Mildly decreased":gfr>=45?"G3a – Mild-moderately decreased":gfr>=30?"G3b – Moderately-severely decreased":gfr>=15?"G4 – Severely decreased":"G5 – Kidney failure";return{result:Math.round(gfr)+" mL/min/1.73m²",interpretation:"CKD Stage: "+st};}},
-"Corrected Calcium":{fields:[{id:"ca",label:"Serum Calcium (mg/dL)",type:"number"},{id:"alb",label:"Serum Albumin (g/dL)",type:"number"}],calc:function(f){var cc=f.ca+0.8*(4-f.alb);return{result:cc.toFixed(2)+" mg/dL",interpretation:cc<8.5?"Hypocalcemia":cc>10.5?"Hypercalcemia":"Normal (ref: 8.5–10.5 mg/dL)"};}},
-"Anion Gap":{fields:[{id:"na",label:"Sodium Na⁺ (mEq/L)",type:"number"},{id:"cl",label:"Chloride Cl⁻ (mEq/L)",type:"number"},{id:"hco3",label:"Bicarbonate HCO₃⁻ (mEq/L)",type:"number"}],calc:function(f){var ag=f.na-(f.cl+f.hco3);return{result:ag+" mEq/L",interpretation:ag>12?"Elevated Anion Gap — consider MUDPILES (Methanol, Uremia, DKA, Propylene glycol, Isoniazid, Lactic acidosis, Ethylene glycol, Salicylates)":"Normal Anion Gap (ref: 8–12 mEq/L)"};}},
-"MAP":{fields:[{id:"sbp",label:"Systolic BP (mmHg)",type:"number"},{id:"dbp",label:"Diastolic BP (mmHg)",type:"number"}],calc:function(f){var map=(f.sbp+2*f.dbp)/3;return{result:Math.round(map)+" mmHg",interpretation:map<65?"Low MAP — risk of organ hypoperfusion. Target ≥65 mmHg":map>100?"High MAP":"Adequate MAP (target ≥65 mmHg in septic shock)"};}}
-};
-var selected="";
-function selectCalc(el,name){
-  document.querySelectorAll('.calc-opt').forEach(function(t){t.classList.remove('sel');});
-  el.classList.add('sel');
-  selected=name;document.getElementById('calcFields').style.display='';document.getElementById('calcLabel').textContent=name;document.getElementById('aiCalcField').style.display='none';
-  var inp=document.getElementById('calcInputs');inp.innerHTML='';
-  if(localCalcs[name]){localCalcs[name].fields.forEach(function(f){var d=document.createElement('div');d.className='field';var l=document.createElement('label');l.textContent=f.label;d.appendChild(l);if(f.type==='select'){var s=document.createElement('select');s.id='cf_'+f.id;f.opts.forEach(function(o){var opt=document.createElement('option');opt.text=o;s.add(opt);});d.appendChild(s);}else{var i=document.createElement('input');i.type='number';i.id='cf_'+f.id;d.appendChild(i);}inp.appendChild(d);});}else{document.getElementById('calcFields').style.display='none';document.getElementById('aiCalcField').style.display='';}
-}
-function getFormData(){
-  if(!selected){alert('Select a calculator first');return null;}
-  if(localCalcs[selected]){var f={};localCalcs[selected].fields.forEach(function(field){var el=document.getElementById('cf_'+field.id);f[field.id]=field.type==='number'?parseFloat(el.value)||0:el.value;});var res=localCalcs[selected].calc(f);setTimeout(function(){show("<div class='r-section'><div class='r-label'>"+selected+"</div><div class='r-value' style='font-size:28px;color:var(--teal)'>"+res.result+"</div></div><div class='r-section'><div class='r-section-body'><p>"+res.interpretation+"</p></div></div>");},50);return null;}
-  var d={calculator:selected,data:document.getElementById('f_data').value};
-  if (_upFile){var fd=new FormData();for(var k in d)fd.append(k,d[k]);fd.append('file',_upFile);return fd;}
-  return d;
-}
-async function runTool(){
-  var btn=document.getElementById('submitBtn'),sp=document.getElementById('spinner'),txt=document.getElementById('btnText'),body=getFormData();
-  if(!body)return;
-  btn.disabled=true;sp.classList.add('on');txt.textContent='Processing…';
-  try{
-    var opts={method:'POST'};
-    if(body instanceof FormData){opts.body=body;}else{opts.headers={'Content-Type':'application/json'};opts.body=JSON.stringify(body);}
-    var res=await fetch(EP,opts);
-    var data=await res.json();
-    show(data.html||fb(data));
-  }catch(e){show('<div class="r-error"><span class="r-error-icon">&#9888;</span><div><strong>Connection Error</strong><br>Check that the server is running and API keys are set.</div></div>');}
-  finally{btn.disabled=false;sp.classList.remove('on');txt.textContent='Run Tool';}
-}
-function show(html){
-  document.getElementById('placeholderCard').style.display='none';
-  var rp=document.getElementById('resultPanel');rp.classList.add('on');
-  document.getElementById('resultBody').innerHTML=html;
-  document.querySelectorAll('.r-section-header').forEach(function(h){h.addEventListener('click',function(){this.classList.toggle('collapsed');});});
-  rp.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-function resetTool(){document.getElementById('placeholderCard').style.display='';document.getElementById('resultPanel').classList.remove('on');document.getElementById('resultBody').innerHTML='';}
-function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon">&#9888;</span><div>'+d.error+'</div></div>';if(d.raw_text)return'<p>'+d.raw_text.replace(/\n/g,'<br>')+'</p>';return'<pre style="font-size:11px;overflow:auto">'+JSON.stringify(d,null,2)+'</pre>';}
-document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
-</script>
-
-<script src="/tools/_suggest.js"></script>
-<script src="/tools/_sidebar.js" defer></script></body>
+</body>
 </html>
