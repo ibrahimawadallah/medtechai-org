@@ -154,6 +154,15 @@
     background: var(--teal);
     color: #fff;
   }
+  .sidebar-btn:focus-visible,
+  .calc-card:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+  }
+  .btn-close:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+  }
 
   /* Calculator Grid */
   .calc-grid {
@@ -276,11 +285,7 @@
   }
 
   /* Result styling */
-  .result-panel {
-    display: none;
-  }
   .result-panel.on {
-    display: block;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
