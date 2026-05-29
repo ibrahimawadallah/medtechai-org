@@ -278,6 +278,23 @@
     border-color: var(--teal);
     box-shadow: 0 0 0 3px rgba(56,184,174,.15);
   }
+  .field-check {
+    margin-bottom: 12px;
+  }
+  .field-check .check-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--slate);
+  }
+  .field-check .check-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--teal);
+    cursor: pointer;
+  }
   .input-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -449,6 +466,98 @@ document.getElementById('calcSearch').addEventListener('input', (e) => {
 });
 
 renderGrid();
+
+function showInputPanel(calc) {
+  const panel = document.getElementById('calcInputPanel');
+  const title = document.getElementById('inputPanelTitle');
+  const inputs = document.getElementById('calcInputs');
+
+  title.textContent = calc.name;
+  inputs.innerHTML = '';
+
+  const def = LOCAL_CALCS[calc.id];
+  if (!def) {
+    inputs.innerHTML = '<p style="color:var(--slate4)">This calculator requires server-side computation.</p>';
+    panel.style.display = 'block';
+    return;
+  }
+
+  def.fields.forEach(field => {
+    const div = document.createElement('div');
+    div.className = field.type === 'check' ? 'field-check' : 'field';
+
+    if (field.type === 'check') {
+      div.innerHTML = `
+        <label class="check-label">
+          <input type="checkbox" id="cf_${field.id}" />
+          <span>${field.label}</span>
+        </label>
+      `;
+    } else if (field.type === 'select') {
+      div.innerHTML = `
+        <label>${field.label}</label>
+        <select id="cf_${field.id}">
+          ${field.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+        </select>
+      `;
+    } else {
+      div.innerHTML = `
+        <label>${field.label}</label>
+        <input type="number" id="cf_${field.id}" step="any" />
+      `;
+    }
+    inputs.appendChild(div);
+  });
+
+  panel.style.display = 'block';
+  document.getElementById('calcRunBtn').onclick = () => runLocalCalc(calc);
+}
+
+document.getElementById('closeInputPanel').addEventListener('click', () => {
+  document.getElementById('calcInputPanel').style.display = 'none';
+  selectedCalc = null;
+  renderGrid(currentFilter, document.getElementById('calcSearch').value);
+});
+
+function runLocalCalc(calc) {
+  const def = LOCAL_CALCS[calc.id];
+  if (!def) return;
+
+  const fields = {};
+  def.fields.forEach(f => {
+    const el = document.getElementById('cf_' + f.id);
+    if (f.type === 'check') {
+      fields[f.id] = el.checked;
+    } else if (f.type === 'number') {
+      fields[f.id] = parseFloat(el.value) || 0;
+    } else {
+      fields[f.id] = el.value;
+    }
+  });
+
+  const result = def.calc(fields);
+  showResult(calc.name, result);
+}
+
+function showResult(name, result) {
+  const panel = document.getElementById('resultPanel');
+  const body = document.getElementById('resultBody');
+
+  body.innerHTML = `
+    <div class="result-label">${name}</div>
+    <div class="result-value">${result.value}</div>
+    <div class="result-interpretation">${result.interpretation}</div>
+    ${result.reference ? `<div class="result-ref">${result.reference}</div>` : ''}
+  `;
+
+  panel.classList.add('on');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function clearResult() {
+  document.getElementById('resultPanel').classList.remove('on');
+  document.getElementById('resultBody').innerHTML = '';
+}
 
 const LOCAL_CALCS = {
   bmi: {
