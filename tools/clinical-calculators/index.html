@@ -521,7 +521,50 @@ document.getElementById('closeInputPanel').addEventListener('click', () => {
   renderGrid(currentFilter, document.getElementById('calcSearch').value);
 });
 
+async function runApiCalc(calc) {
+  const btn = document.getElementById('calcRunBtn');
+  const inputs = document.getElementById('calcInputs');
+  
+  // Collect any visible inputs
+  const data = { calculator: calc.id };
+  inputs.querySelectorAll('input, select').forEach(el => {
+    if (el.id) data[el.id.replace('cf_', '')] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+  
+  try {
+    const res = await fetch('/api/tools/clinical-calculators', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    
+    if (result.error) {
+      showResult(calc.name, { value: 'Error', interpretation: result.error, reference: '' });
+    } else {
+      showResult(calc.name, {
+        value: result.value || result.score || 'N/A',
+        interpretation: result.interpretation || result.html || '',
+        reference: result.reference || ''
+      });
+    }
+  } catch (e) {
+    showResult(calc.name, { value: 'Error', interpretation: 'Could not connect to server. Please try again.', reference: '' });
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Calculate';
+  }
+}
+
+// Modify runLocalCalc to check if API needed
 function runLocalCalc(calc) {
+  if (calc.api) {
+    runApiCalc(calc);
+    return;
+  }
   const def = LOCAL_CALCS[calc.id];
   if (!def) return;
 
