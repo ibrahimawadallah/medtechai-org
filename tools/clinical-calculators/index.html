@@ -481,6 +481,7 @@ function showInputPanel(calc) {
   if (!def) {
     inputs.innerHTML = '<p style="color:var(--slate4)">This calculator requires server-side computation.</p>';
     panel.style.display = 'block';
+    document.getElementById('calcRunBtn').onclick = () => runLocalCalc(calc);
     return;
   }
 
@@ -540,6 +541,12 @@ async function runApiCalc(calc) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
+
+    if (!res.ok) {
+      showResult(calc.name, { value: 'Error', interpretation: `Server error (${res.status})`, reference: '' });
+      return;
+    }
+
     const result = await res.json();
     
     if (result.error) {
