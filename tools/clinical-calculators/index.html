@@ -660,6 +660,358 @@ const LOCAL_CALCS = {
       let risk = score >= 9 ? 'Very High' : score >= 6 ? 'High' : score >= 3 ? 'Moderate' : score >= 1 ? 'Low-Moderate' : 'Low';
       return { value: score + ' points', interpretation: 'Stroke risk: ' + risk + ' — consider anticoagulation', reference: 'Annual stroke risk: 1.5% (score 0) to 15%+ (score ≥9)' };
     }
+  },
+
+  // Renal
+  crcl: {
+    fields: [
+      { id: 'age', label: 'Age (years)', type: 'number' },
+      { id: 'weight', label: 'Weight (kg)', type: 'number' },
+      { id: 'scr', label: 'Serum Creatinine (mg/dL)', type: 'number' },
+      { id: 'sex', label: 'Sex', type: 'select', options: ['Male', 'Female'] }
+    ],
+    calc: (f) => {
+      let crcl = ((140 - f.age) * f.weight) / (72 * f.scr);
+      if (f.sex === 'Female') crcl *= 0.85;
+      let interp = crcl >= 90 ? 'Normal kidney function' : crcl >= 60 ? 'Mildly reduced' : crcl >= 30 ? 'Moderately reduced' : crcl >= 15 ? 'Severely reduced' : 'Kidney failure';
+      return { value: crcl.toFixed(1) + ' mL/min', interpretation: interp + ' (Cockcroft-Gault)', reference: 'Normal: 90–120 mL/min' };
+    }
+  },
+  fena: {
+    fields: [
+      { id: 'una', label: 'Urine Na (mEq/L)', type: 'number' },
+      { id: 'scr', label: 'Serum Cr (mg/dL)', type: 'number' },
+      { id: 'ucr', label: 'Urine Cr (mg/dL)', type: 'number' },
+      { id: 'sna', label: 'Serum Na (mEq/L)', type: 'number' }
+    ],
+    calc: (f) => {
+      const fena = (f.una * f.scr) / (f.ucr * f.sna) * 100;
+      let interp = fena < 1 ? 'Pre-renal azotemia' : fena > 2 ? 'Intrinsic renal disease' : 'Indeterminate';
+      return { value: fena.toFixed(2) + '%', interpretation: interp, reference: 'Pre-renal: <1%, Intrinsic: >2%' };
+    }
+  },
+  'bun-cr': {
+    fields: [
+      { id: 'bun', label: 'BUN (mg/dL)', type: 'number' },
+      { id: 'cr', label: 'Serum Creatinine (mg/dL)', type: 'number' }
+    ],
+    calc: (f) => {
+      const ratio = f.bun / f.cr;
+      let interp = ratio > 20 ? 'Elevated — consider pre-renal, GI bleed, high protein intake' : ratio < 10 ? 'Low — consider hepatic failure, malnutrition, rhabdomyolysis' : 'Normal';
+      return { value: ratio.toFixed(1), interpretation: interp, reference: 'Normal: 10:1 to 20:1' };
+    }
+  },
+
+  // Anthropometrics
+  ibw: {
+    fields: [
+      { id: 'height', label: 'Height (inches)', type: 'number' },
+      { id: 'sex', label: 'Sex', type: 'select', options: ['Male', 'Female'] }
+    ],
+    calc: (f) => {
+      let ibw;
+      if (f.sex === 'Male') {
+        ibw = 50 + 2.3 * (f.height - 60);
+      } else {
+        ibw = 45.5 + 2.3 * (f.height - 60);
+      }
+      return { value: ibw.toFixed(1) + ' kg', interpretation: 'Ideal Body Weight (Devine formula)', reference: 'Use for drug dosing when actual weight is not ideal' };
+    }
+  },
+  'adj-bw': {
+    fields: [
+      { id: 'height', label: 'Height (inches)', type: 'number' },
+      { id: 'actual', label: 'Actual Weight (kg)', type: 'number' },
+      { id: 'sex', label: 'Sex', type: 'select', options: ['Male', 'Female'] }
+    ],
+    calc: (f) => {
+      let ibw;
+      if (f.sex === 'Male') {
+        ibw = 50 + 2.3 * (f.height - 60);
+      } else {
+        ibw = 45.5 + 2.3 * (f.height - 60);
+      }
+      const adjBW = ibw + 0.4 * (f.actual - ibw);
+      return { value: adjBW.toFixed(1) + ' kg', interpretation: 'Adjusted Body Weight — use for drug dosing in obese patients', reference: 'IBW: ' + ibw.toFixed(1) + ' kg' };
+    }
+  },
+
+  // Electrolytes
+  'na-correction': {
+    fields: [
+      { id: 'na', label: 'Measured Na (mEq/L)', type: 'number' },
+      { id: 'glucose', label: 'Serum Glucose (mg/dL)', type: 'number' }
+    ],
+    calc: (f) => {
+      const corrNa = f.na + 1.6 * ((f.glucose - 100) / 100);
+      let interp = corrNa < 135 ? 'True hyponatremia' : corrNa > 145 ? 'True hypernatremia' : 'Normal sodium';
+      return { value: corrNa.toFixed(1) + ' mEq/L', interpretation: interp, reference: 'Corrected for hyperglycemia (1.6 mEq/L per 100 mg/dL glucose above 100)' };
+    }
+  },
+  'osm-gap': {
+    fields: [
+      { id: 'measured', label: 'Measured Osmolality (mOsm/kg)', type: 'number' },
+      { id: 'na', label: 'Sodium (mEq/L)', type: 'number' },
+      { id: 'glucose', label: 'Glucose (mg/dL)', type: 'number' },
+      { id: 'bun', label: 'BUN (mg/dL)', type: 'number' }
+    ],
+    calc: (f) => {
+      const calcOsm = 2 * f.na + f.glucose / 18 + f.bun / 2.8;
+      const gap = f.measured - calcOsm;
+      let interp = gap > 10 ? 'Elevated — consider toxic alcohol ingestion (methanol, ethylene glycol)' : gap < -10 ? 'Negatively elevated — consider lab error or low osmolality states' : 'Normal';
+      return { value: gap.toFixed(1) + ' mOsm/kg', interpretation: interp, reference: 'Normal: -10 to +10 mOsm/kg' };
+    }
+  },
+  'delta-delta': {
+    fields: [
+      { id: 'ag', label: 'Anion Gap', type: 'number' },
+      { id: 'hco3', label: 'Bicarbonate (mEq/L)', type: 'number' }
+    ],
+    calc: (f) => {
+      const deltaRatio = (f.ag - 12) / (24 - f.hco3);
+      let interp;
+      if (deltaRatio > 2) {
+        interp = 'Concurrent metabolic alkalosis or pre-existing elevated HCO3';
+      } else if (deltaRatio < 1) {
+        interp = 'Concurrent non-anion gap metabolic acidosis';
+      } else {
+        interp = 'Pure anion gap metabolic acidosis';
+      }
+      return { value: deltaRatio.toFixed(2), interpretation: interp, reference: 'Delta Ratio: (AG - 12) / (24 - HCO3)' };
+    }
+  },
+
+  // Cardiovascular
+  'wells-dvt': {
+    fields: [
+      { id: 'cancer', label: 'Active cancer (1 pt)', type: 'check' },
+      { id: 'paralysis', label: 'Paralysis/paresis (1 pt)', type: 'check' },
+      { id: 'immob', label: 'Recently immobilized (1 pt)', type: 'check' },
+      { id: 'tender', label: 'Tender along deep vein (1 pt)', type: 'check' },
+      { id: 'swollen', label: 'Entire leg swollen (1 pt)', type: 'check' },
+      { id: 'calf', label: 'Calf swelling >3cm (1 pt)', type: 'check' },
+      { id: 'edema', label: 'Pitting edema (1 pt)', type: 'check' },
+      { id: 'collateral', label: 'Collateral superficial veins (1 pt)', type: 'check' },
+      { id: 'alt', label: 'Alternative diagnosis (-2 pts)', type: 'check' }
+    ],
+    calc: (f) => {
+      const score = (f.cancer ? 1 : 0) + (f.paralysis ? 1 : 0) + (f.immob ? 1 : 0) + (f.tender ? 1 : 0) + (f.swollen ? 1 : 0) + (f.calf ? 1 : 0) + (f.edema ? 1 : 0) + (f.collateral ? 1 : 0) + (f.alt ? -2 : 0);
+      let risk = score >= 2 ? 'High' : score >= 1 ? 'Moderate' : 'Low';
+      let interp = risk === 'Low' ? 'DVT unlikely — consider D-dimer' : risk === 'Moderate' ? 'DVT possible — ultrasound recommended' : 'DVT likely — ultrasound indicated';
+      return { value: score + ' points', interpretation: interp, reference: 'Low: <2, Moderate: 1-2, High: ≥3' };
+    }
+  },
+  'wells-pe': {
+    fields: [
+      { id: 'pe_most', label: 'PE most likely diagnosis (3 pts)', type: 'check' },
+      { id: 'hr', label: 'Heart rate >100 (1.5 pts)', type: 'check' },
+      { id: 'immob', label: 'Immobilization/surgery (1.5 pts)', type: 'check' },
+      { id: 'dvthx', label: 'Previous DVT/PE (1.5 pts)', type: 'check' },
+      { id: 'hemo', label: 'Hemoptysis (1 pt)', type: 'check' },
+      { id: 'malign', label: 'Malignancy (1 pt)', type: 'check' }
+    ],
+    calc: (f) => {
+      const score = (f.pe_most ? 3 : 0) + (f.hr ? 1.5 : 0) + (f.immob ? 1.5 : 0) + (f.dvthx ? 1.5 : 0) + (f.hemo ? 1 : 0) + (f.malign ? 1 : 0);
+      let risk = score >= 4 ? 'Moderate/High' : 'Low';
+      let interp = risk === 'Low' ? 'PE unlikely — consider D-dimer' : 'PE likely — CT pulmonary angiography indicated';
+      return { value: score + ' points', interpretation: interp, reference: 'Low: <4, Moderate/High: ≥4' };
+    }
+  },
+  heart: {
+    fields: [
+      { id: 'history', label: 'History (0-2 pts)', type: 'select', options: ['0 — Slightly suspicious', '1 — Moderately suspicious', '2 — Highly suspicious'] },
+      { id: 'ecg', label: 'ECG (0-2 pts)', type: 'select', options: ['0 — Normal', '1 — Non-specific repolarization', '2 — Significant ST deviation'] },
+      { id: 'age', label: 'Age (0-2 pts)', type: 'select', options: ['0 — <45 years', '1 — 45-64 years', '2 — ≥65 years'] },
+      { id: 'risk', label: 'Risk factors (0-2 pts)', type: 'select', options: ['0 — None', '1 — ≥2 risk factors', '2 — ≥3 risk factors or atherosclerotic disease'] },
+      { id: 'troponin', label: 'Troponin (0-2 pts)', type: 'select', options: ['0 — Normal', '1 — 1-3x normal', '2 — >3x normal'] }
+    ],
+    calc: (f) => {
+      const score = parseInt(f.history) + parseInt(f.ecg) + parseInt(f.age) + parseInt(f.risk) + parseInt(f.troponin);
+      let risk = score >= 7 ? 'High' : score >= 4 ? 'Moderate' : 'Low';
+      let interp = risk === 'Low' ? 'Low risk for MACE — safe for early discharge' : risk === 'Moderate' ? 'Moderate risk — consider admission and further workup' : 'High risk — admit and aggressive workup';
+      return { value: score + ' points', interpretation: interp, reference: 'Low: 0-3, Moderate: 4-6, High: 7-10' };
+    }
+  },
+
+  // Critical Care
+  qsofa: {
+    fields: [
+      { id: 'ams', label: 'Altered mental status (1 pt)', type: 'check' },
+      { id: 'rr', label: 'Respiratory rate ≥22 (1 pt)', type: 'check' },
+      { id: 'sbp', label: 'SBP ≤100 (1 pt)', type: 'check' }
+    ],
+    calc: (f) => {
+      const score = (f.ams ? 1 : 0) + (f.rr ? 1 : 0) + (f.sbp ? 1 : 0);
+      let interp = score >= 2 ? 'Suggests sepsis — consider further assessment (SOFA score)' : 'Low risk for sepsis';
+      return { value: score + '/3', interpretation: interp, reference: 'Score ≥2 suggests sepsis (qSOFA)' };
+    }
+  },
+  'curb-65': {
+    fields: [
+      { id: 'confusion', label: 'Confusion (1 pt)', type: 'check' },
+      { id: 'urea', label: 'Urea >7 mmol/L (1 pt)', type: 'check' },
+      { id: 'rr', label: 'Respiratory rate ≥30 (1 pt)', type: 'check' },
+      { id: 'bp', label: 'SBP <90 or DBP ≤60 (1 pt)', type: 'check' },
+      { id: 'age', label: 'Age ≥65 (1 pt)', type: 'check' }
+    ],
+    calc: (f) => {
+      const score = (f.confusion ? 1 : 0) + (f.urea ? 1 : 0) + (f.rr ? 1 : 0) + (f.bp ? 1 : 0) + (f.age ? 1 : 0);
+      let risk = score >= 3 ? 'High' : score === 2 ? 'Moderate' : 'Low';
+      let interp = risk === 'Low' ? 'Consider outpatient treatment' : risk === 'Moderate' ? 'Consider hospital admission' : 'High mortality risk — urgent treatment';
+      return { value: score + '/5', interpretation: interp, reference: '0-1: Low, 2: Moderate, 3-5: High' };
+    }
+  },
+  gcs: {
+    fields: [
+      { id: 'eye', label: 'Eye Opening', type: 'select', options: ['1 — None', '2 — To pain', '3 — To voice', '4 — Spontaneous'] },
+      { id: 'verbal', label: 'Verbal Response', type: 'select', options: ['1 — None', '2 — Incomprehensible', '3 — Inappropriate words', '4 — Confused', '5 — Oriented'] },
+      { id: 'motor', label: 'Motor Response', type: 'select', options: ['1 — None', '2 — Abnormal extension', '3 — Abnormal flexion', '4 — Withdrawal', '5 — Localizing', '6 — Obeys commands'] }
+    ],
+    calc: (f) => {
+      const score = parseInt(f.eye) + parseInt(f.verbal) + parseInt(f.motor);
+      let severity;
+      if (score >= 13) severity = 'Mild TBI';
+      else if (score >= 9) severity = 'Moderate TBI';
+      else severity = 'Severe TBI';
+      return { value: score + '/15', interpretation: severity, reference: '3: Severe brain injury, 15: Normal' };
+    }
+  },
+
+  // Hepatology
+  meld: {
+    fields: [
+      { id: 'bili', label: 'Bilirubin (mg/dL)', type: 'number' },
+      { id: 'inr', label: 'INR', type: 'number' },
+      { id: 'cr', label: 'Creatinine (mg/dL)', type: 'number' }
+    ],
+    calc: (f) => {
+      const bili = Math.max(f.bili, 1);
+      const inr = Math.max(f.inr, 1);
+      const cr = Math.max(f.cr, 1);
+      const meld = 3.78 * Math.log(bili) + 11.2 * Math.log(inr) + 9.57 * Math.log(cr) + 6.43;
+      const score = Math.round(Math.max(meld, 0));
+      let interp = score >= 40 ? 'Very high mortality — urgent transplant evaluation' : score >= 30 ? 'High 3-month mortality' : score >= 15 ? 'Moderate 3-month mortality' : 'Low 3-month mortality';
+      return { value: score + ' points', interpretation: interp, reference: 'MELD predicts 3-month mortality in liver disease' };
+    }
+  },
+  'meld-na': {
+    fields: [
+      { id: 'bili', label: 'Bilirubin (mg/dL)', type: 'number' },
+      { id: 'inr', label: 'INR', type: 'number' },
+      { id: 'cr', label: 'Creatinine (mg/dL)', type: 'number' },
+      { id: 'na', label: 'Sodium (mEq/L)', type: 'number' }
+    ],
+    calc: (f) => {
+      const bili = Math.max(f.bili, 1);
+      const inr = Math.max(f.inr, 1);
+      const cr = Math.max(f.cr, 1);
+      const na = Math.min(Math.max(f.na, 125), 137);
+      const meld = 3.78 * Math.log(bili) + 11.2 * Math.log(inr) + 9.57 * Math.log(cr) + 6.43;
+      const meldNa = meld + 1.32 * (137 - na) - 0.033 * meld * (137 - na);
+      const score = Math.round(Math.max(meldNa, 0));
+      let interp = score >= 40 ? 'Very high mortality — urgent transplant evaluation' : score >= 30 ? 'High 3-month mortality' : score >= 15 ? 'Moderate 3-month mortality' : 'Low 3-month mortality';
+      return { value: score + ' points', interpretation: interp, reference: 'MELD-Na includes sodium for better prediction' };
+    }
+  },
+  'child-pugh': {
+    fields: [
+      { id: 'bili', label: 'Bilirubin', type: 'select', options: ['1 — <2 mg/dL', '2 — 2-3 mg/dL', '3 — >3 mg/dL'] },
+      { id: 'alb', label: 'Albumin', type: 'select', options: ['1 — >3.5 g/dL', '2 — 2.8-3.5 g/dL', '3 — <2.8 g/dL'] },
+      { id: 'inr', label: 'INR', type: 'select', options: ['1 — <1.7', '2 — 1.7-2.3', '3 — >2.3'] },
+      { id: 'ascites', label: 'Ascites', type: 'select', options: ['1 — None', '2 — Mild', '3 — Moderate-severe'] },
+      { id: 'enceph', label: 'Encephalopathy', type: 'select', options: ['1 — None', '2 — Grade I-II', '3 — Grade III-IV'] }
+    ],
+    calc: (f) => {
+      const score = parseInt(f.bili) + parseInt(f.alb) + parseInt(f.inr) + parseInt(f.ascites) + parseInt(f.enceph);
+      let class_letter = score >= 10 ? 'C' : score >= 7 ? 'B' : 'A';
+      let interp = 'Class ' + class_letter + ' — ' + (class_letter === 'A' ? 'Good prognosis' : class_letter === 'B' ? 'Significant compromise' : 'Poor prognosis');
+      return { value: score + '/15 (Class ' + class_letter + ')', interpretation: interp, reference: 'A: 5-6, B: 7-9, C: 10-15' };
+    }
+  },
+  fib4: {
+    fields: [
+      { id: 'age', label: 'Age (years)', type: 'number' },
+      { id: 'ast', label: 'AST (U/L)', type: 'number' },
+      { id: 'alt', label: 'ALT (U/L)', type: 'number' },
+      { id: 'plt', label: 'Platelets (×10³/μL)', type: 'number' }
+    ],
+    calc: (f) => {
+      const fib4 = (f.age * f.ast) / (f.plt * Math.sqrt(f.alt));
+      let interp = fib4 > 3.25 ? 'Advanced fibrosis likely' : fib4 < 1.45 ? 'Advanced fibrosis unlikely' : 'Indeterminate';
+      return { value: fib4.toFixed(2), interpretation: interp, reference: 'Low: <1.45, High: >3.25' };
+    }
+  },
+  apri: {
+    fields: [
+      { id: 'ast', label: 'AST (U/L)', type: 'number' },
+      { id: 'uln', label: 'AST ULN (U/L)', type: 'number' },
+      { id: 'plt', label: 'Platelets (×10³/μL)', type: 'number' }
+    ],
+    calc: (f) => {
+      const apri = (f.ast / f.uln) / f.plt * 100;
+      let interp = apri > 2 ? 'Advanced fibrosis likely' : apri < 0.5 ? 'Advanced fibrosis unlikely' : 'Indeterminate';
+      return { value: apri.toFixed(2), interpretation: interp, reference: 'Low: <0.5, High: >2.0' };
+    }
+  },
+
+  // Neurology
+  alvarado: {
+    fields: [
+      { id: 'migration', label: 'Migration of pain to RLQ (1 pt)', type: 'check' },
+      { id: 'anorexia', label: 'Anorexia (1 pt)', type: 'check' },
+      { id: 'nausea', label: 'Nausea/vomiting (1 pt)', type: 'check' },
+      { id: 'tenderness', label: 'Tenderness in RLQ (2 pts)', type: 'check' },
+      { id: 'rebound', label: 'Rebound pain (1 pt)', type: 'check' },
+      { id: 'temp', label: 'Elevated temperature (1 pt)', type: 'check' },
+      { id: 'leuk', label: 'Leukocytosis (2 pts)', type: 'check' },
+      { id: 'shift', label: 'Neutrophilic shift to left (1 pt)', type: 'check' }
+    ],
+    calc: (f) => {
+      const score = (f.migration ? 1 : 0) + (f.anorexia ? 1 : 0) + (f.nausea ? 1 : 0) + (f.tenderness ? 2 : 0) + (f.rebound ? 1 : 0) + (f.temp ? 1 : 0) + (f.leuk ? 2 : 0) + (f.shift ? 1 : 0);
+      let risk = score >= 7 ? 'High' : score >= 5 ? 'Indeterminate' : 'Low';
+      let interp = risk === 'Low' ? 'Appendicitis unlikely' : risk === 'Indeterminate' ? 'Consider CT or observation' : 'Appendicitis likely — consider surgery';
+      return { value: score + '/10', interpretation: interp, reference: 'Low: <4, Indeterminate: 5-6, High: 7-10' };
+    }
+  },
+
+  // Pulmonary
+  perc: {
+    fields: [
+      { id: 'age50', label: 'Age ≥50 (1 pt)', type: 'check' },
+      { id: 'hr', label: 'HR ≥100 (1 pt)', type: 'check' },
+      { id: 'sao2', label: 'SaO2 <95% (1 pt)', type: 'check' },
+      { id: 'leg', label: 'Unilateral leg swelling (1 pt)', type: 'check' },
+      { id: 'hemo', label: 'Hemoptysis (1 pt)', type: 'check' },
+      { id: 'surgery', label: 'Recent surgery (1 pt)', type: 'check' },
+      { id: 'dvthx', label: 'Previous DVT/PE (1 pt)', type: 'check' },
+      { id: 'hormone', label: 'Hormone use (1 pt)', type: 'check' }
+    ],
+    calc: (f) => {
+      const score = (f.age50 ? 1 : 0) + (f.hr ? 1 : 0) + (f.sao2 ? 1 : 0) + (f.leg ? 1 : 0) + (f.hemo ? 1 : 0) + (f.surgery ? 1 : 0) + (f.dvthx ? 1 : 0) + (f.hormone ? 1 : 0);
+      let risk = score >= 1 ? 'High risk' : 'Low risk';
+      let interp = risk === 'Low' ? 'PE very unlikely — DVT/PE can be ruled out without imaging' : 'PE cannot be excluded — consider D-dimer or imaging';
+      return { value: score + '/8', interpretation: interp, reference: 'Low risk: 0, High risk: ≥1' };
+    }
+  },
+  geneva: {
+    fields: [
+      { id: 'age65', label: 'Age >65 (1 pt)', type: 'check' },
+      { id: 'dvthx', label: 'Previous DVT/PE (3 pts)', type: 'check' },
+      { id: 'surgery', label: 'Surgery/fracture (2 pts)', type: 'check' },
+      { id: 'malign', label: 'Malignancy (2 pts)', type: 'check' },
+      { id: 'limb_pain', label: 'Unilateral lower limb pain (3 pts)', type: 'check' },
+      { id: 'hemo', label: 'Hemoptysis (2 pts)', type: 'check' },
+      { id: 'hr75', label: 'HR 75-94 (3 pts)', type: 'check' },
+      { id: 'hr95', label: 'HR ≥95 (5 pts)', type: 'check' },
+      { id: 'tender', label: 'Pain on deep vein palpation (4 pts)', type: 'check' },
+      { id: 'edema', label: 'Unilateral lower limb edema (4 pts)', type: 'check' }
+    ],
+    calc: (f) => {
+      const score = (f.age65 ? 1 : 0) + (f.dvthx ? 3 : 0) + (f.surgery ? 2 : 0) + (f.malign ? 2 : 0) + (f.limb_pain ? 3 : 0) + (f.hemo ? 2 : 0) + (f.hr75 ? 3 : 0) + (f.hr95 ? 5 : 0) + (f.tender ? 4 : 0) + (f.edema ? 4 : 0);
+      let risk = score >= 11 ? 'High' : score >= 4 ? 'Moderate' : 'Low';
+      let interp = risk === 'Low' ? 'PE unlikely — consider D-dimer' : risk === 'Moderate' ? 'PE possible — consider imaging' : 'PE likely — CT pulmonary angiography indicated';
+      return { value: score + ' points', interpretation: interp, reference: 'Low: 0-3, Moderate: 4-10, High: ≥11' };
+    }
   }
 };
 </script>
