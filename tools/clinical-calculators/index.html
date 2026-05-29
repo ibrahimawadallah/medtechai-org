@@ -107,6 +107,7 @@
     min-height: 400px;
   }
   .result-panel {
+    display: none;
     grid-column: 2;
   }
 
@@ -303,6 +304,7 @@
 
   /* Result styling */
   .result-panel.on {
+    display: block;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -524,19 +526,37 @@ function runLocalCalc(calc) {
   if (!def) return;
 
   const fields = {};
+  let hasError = false;
+
   def.fields.forEach(f => {
     const el = document.getElementById('cf_' + f.id);
     if (f.type === 'check') {
       fields[f.id] = el.checked;
     } else if (f.type === 'number') {
-      fields[f.id] = parseFloat(el.value) || 0;
+      const val = parseFloat(el.value);
+      if (isNaN(val)) {
+        hasError = true;
+        el.style.borderColor = 'var(--red)';
+      } else {
+        el.style.borderColor = '';
+        fields[f.id] = val;
+      }
     } else {
       fields[f.id] = el.value;
     }
   });
 
-  const result = def.calc(fields);
-  showResult(calc.name, result);
+  if (hasError) {
+    showResult(calc.name, { value: 'Error', interpretation: 'Please enter valid numeric values for all fields.', reference: '' });
+    return;
+  }
+
+  try {
+    const result = def.calc(fields);
+    showResult(calc.name, result);
+  } catch (e) {
+    showResult(calc.name, { value: 'Error', interpretation: 'Calculation error. Please check your inputs.', reference: '' });
+  }
 }
 
 function showResult(name, result) {
