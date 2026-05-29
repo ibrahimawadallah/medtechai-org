@@ -449,6 +449,90 @@ document.getElementById('calcSearch').addEventListener('input', (e) => {
 });
 
 renderGrid();
+
+const LOCAL_CALCS = {
+  bmi: {
+    fields: [
+      { id: 'weight', label: 'Weight (kg)', type: 'number' },
+      { id: 'height', label: 'Height (cm)', type: 'number' }
+    ],
+    calc: (f) => {
+      const bmi = f.weight / ((f.height / 100) ** 2);
+      let cat = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Normal' : bmi < 30 ? 'Overweight' : bmi < 35 ? 'Obese Class I' : bmi < 40 ? 'Obese Class II' : 'Obese Class III';
+      return { value: bmi.toFixed(1) + ' kg/m²', interpretation: 'Category: ' + cat, reference: 'Normal: 18.5–24.9 kg/m²' };
+    }
+  },
+  bsa: {
+    fields: [
+      { id: 'weight', label: 'Weight (kg)', type: 'number' },
+      { id: 'height', label: 'Height (cm)', type: 'number' }
+    ],
+    calc: (f) => {
+      const bsa = Math.sqrt((f.weight * f.height) / 3600);
+      return { value: bsa.toFixed(2) + ' m²', interpretation: 'Body Surface Area (Mosteller formula)', reference: 'Adult avg: 1.5–2.0 m²' };
+    }
+  },
+  gfr: {
+    fields: [
+      { id: 'scr', label: 'Serum Creatinine (mg/dL)', type: 'number' },
+      { id: 'age', label: 'Age (years)', type: 'number' },
+      { id: 'sex', label: 'Sex', type: 'select', options: ['Female', 'Male'] },
+      { id: 'race', label: 'Race', type: 'select', options: ['Non-Black', 'Black'] }
+    ],
+    calc: (f) => {
+      const isFemale = f.sex === 'Female';
+      const isBlack = f.race === 'Black';
+      const k = isFemale ? 0.7 : 0.9;
+      const alpha = isFemale ? -0.241 : -0.302;
+      const scr = f.scr;
+      let gfr = 142 * Math.pow(Math.min(scr / k, 1), alpha) * Math.pow(Math.max(scr / k, 1), -1.2) * Math.pow(0.9938, f.age);
+      if (isFemale) gfr *= 1.012;
+      if (isBlack) gfr *= 1.159;
+      let stage = gfr >= 90 ? 'G1 – Normal' : gfr >= 60 ? 'G2 – Mildly decreased' : gfr >= 45 ? 'G3a – Mild-moderately decreased' : gfr >= 30 ? 'G3b – Moderately-severely decreased' : gfr >= 15 ? 'G4 – Severely decreased' : 'G5 – Kidney failure';
+      return { value: Math.round(gfr) + ' mL/min/1.73m²', interpretation: 'CKD Stage: ' + stage, reference: 'Normal: ≥90 mL/min/1.73m²' };
+    }
+  },
+  'corrected-ca': {
+    fields: [
+      { id: 'ca', label: 'Serum Calcium (mg/dL)', type: 'number' },
+      { id: 'alb', label: 'Serum Albumin (g/dL)', type: 'number' }
+    ],
+    calc: (f) => {
+      const cc = f.ca + 0.8 * (4 - f.alb);
+      let interp = cc < 8.5 ? 'Hypocalcemia' : cc > 10.5 ? 'Hypercalcemia' : 'Normal';
+      return { value: cc.toFixed(2) + ' mg/dL', interpretation: interp, reference: 'Normal: 8.5–10.5 mg/dL' };
+    }
+  },
+  'anion-gap': {
+    fields: [
+      { id: 'na', label: 'Sodium (mEq/L)', type: 'number' },
+      { id: 'cl', label: 'Chloride (mEq/L)', type: 'number' },
+      { id: 'hco3', label: 'Bicarbonate (mEq/L)', type: 'number' }
+    ],
+    calc: (f) => {
+      const ag = f.na - (f.cl + f.hco3);
+      let interp = ag > 12 ? 'Elevated — consider MUDPILES' : 'Normal';
+      return { value: ag + ' mEq/L', interpretation: interp, reference: 'Normal: 8–12 mEq/L' };
+    }
+  },
+  'chads2-vasc': {
+    fields: [
+      { id: 'chf', label: 'CHF (1 pt)', type: 'check' },
+      { id: 'htn', label: 'Hypertension (1 pt)', type: 'check' },
+      { id: 'age75', label: 'Age ≥75 (2 pts)', type: 'check' },
+      { id: 'dm', label: 'Diabetes (1 pt)', type: 'check' },
+      { id: 'stroke', label: 'Prior Stroke/TIA (2 pts)', type: 'check' },
+      { id: 'vascular', label: 'Vascular Disease (1 pt)', type: 'check' },
+      { id: 'age65', label: 'Age 65–74 (1 pt)', type: 'check' },
+      { id: 'sex', label: 'Female Sex (1 pt)', type: 'check' }
+    ],
+    calc: (f) => {
+      const score = (f.chf ? 1 : 0) + (f.htn ? 1 : 0) + (f.age75 ? 2 : 0) + (f.dm ? 1 : 0) + (f.stroke ? 2 : 0) + (f.vascular ? 1 : 0) + (f.age65 ? 1 : 0) + (f.sex ? 1 : 0);
+      let risk = score >= 9 ? 'Very High' : score >= 6 ? 'High' : score >= 3 ? 'Moderate' : score >= 1 ? 'Low-Moderate' : 'Low';
+      return { value: score + ' points', interpretation: 'Stroke risk: ' + risk + ' — consider anticoagulation', reference: 'Annual stroke risk: 1.5% (score 0) to 15%+ (score ≥9)' };
+    }
+  }
+};
 </script>
 
 </body>
