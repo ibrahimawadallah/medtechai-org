@@ -38,18 +38,18 @@
   <!-- Category Sidebar -->
   <aside class="calc-sidebar" id="calcSidebar">
     <div class="sidebar-search">
-      <input type="text" id="calcSearch" placeholder="Search calculators..." />
+      <input type="text" id="calcSearch" placeholder="Search calculators..." aria-label="Search calculators" />
     </div>
     <nav class="sidebar-nav">
-      <button class="sidebar-btn active" data-cat="all">All Calculators</button>
-      <button class="sidebar-btn" data-cat="anthropometrics">Anthropometrics</button>
-      <button class="sidebar-btn" data-cat="renal">Renal</button>
-      <button class="sidebar-btn" data-cat="electrolytes">Electrolytes</button>
-      <button class="sidebar-btn" data-cat="cardiovascular">Cardiovascular</button>
-      <button class="sidebar-btn" data-cat="critical-care">Critical Care</button>
-      <button class="sidebar-btn" data-cat="hepatology">Hepatology</button>
-      <button class="sidebar-btn" data-cat="neurology">Neurology</button>
-      <button class="sidebar-btn" data-cat="pulmonary">Pulmonary</button>
+      <button class="sidebar-btn active" data-cat="all" aria-pressed="true">All Calculators</button>
+      <button class="sidebar-btn" data-cat="anthropometrics" aria-pressed="false">Anthropometrics</button>
+      <button class="sidebar-btn" data-cat="renal" aria-pressed="false">Renal</button>
+      <button class="sidebar-btn" data-cat="electrolytes" aria-pressed="false">Electrolytes</button>
+      <button class="sidebar-btn" data-cat="cardiovascular" aria-pressed="false">Cardiovascular</button>
+      <button class="sidebar-btn" data-cat="critical-care" aria-pressed="false">Critical Care</button>
+      <button class="sidebar-btn" data-cat="hepatology" aria-pressed="false">Hepatology</button>
+      <button class="sidebar-btn" data-cat="neurology" aria-pressed="false">Neurology</button>
+      <button class="sidebar-btn" data-cat="pulmonary" aria-pressed="false">Pulmonary</button>
     </nav>
   </aside>
 
@@ -63,7 +63,7 @@
     <div class="calc-input-panel" id="calcInputPanel" style="display:none">
       <div class="input-panel-header">
         <h3 id="inputPanelTitle">Calculator Name</h3>
-        <button class="btn-close" id="closeInputPanel">&times;</button>
+        <button class="btn-close" id="closeInputPanel" aria-label="Close calculator panel">&times;</button>
       </div>
       <div class="input-panel-body" id="calcInputs"></div>
       <div class="input-panel-footer">
@@ -438,11 +438,20 @@ function renderGrid(filter = 'all', search = '') {
     const card = document.createElement('div');
     card.className = 'calc-card' + (selectedCalc?.id === calc.id ? ' selected' : '');
     card.dataset.id = calc.id;
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', calc.name + ' calculator');
     card.innerHTML = `
       <div class="calc-card-name">${calc.name}</div>
       <span class="calc-card-tag tag-${calc.category}">${calc.category.replace('-', ' ')}</span>
     `;
     card.addEventListener('click', () => selectCalculator(calc));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectCalculator(calc);
+      }
+    });
     grid.appendChild(card);
   });
 }
@@ -456,8 +465,12 @@ function selectCalculator(calc) {
 let currentFilter = 'all';
 document.querySelectorAll('.sidebar-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.sidebar-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
     currentFilter = btn.dataset.cat;
     renderGrid(currentFilter, document.getElementById('calcSearch').value);
   });
