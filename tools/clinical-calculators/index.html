@@ -419,7 +419,8 @@ const CALCULATORS = [
   // Neurology
   { id: 'alvarado', name: 'Alvarado Score', category: 'neurology', local: true },
 
-  // Pulmonary
+// Pulmonary
+  { id: 'wells-pe', name: 'Wells PE', category: 'pulmonary', local: true },
   { id: 'perc', name: 'PERC Rule', category: 'pulmonary', local: true },
   { id: 'geneva', name: 'Geneva Score', category: 'pulmonary', local: true },
 ];
@@ -491,10 +492,42 @@ function showInputPanel(calc) {
   inputs.innerHTML = '';
 
   const def = LOCAL_CALCS[calc.id];
-  if (!def) {
-    inputs.innerHTML = '<p style="color:var(--slate4)">This calculator requires server-side computation.</p>';
+  const fields = def ? def.fields : [];
+  
+  if (!def || calc.api) {
+    if (calc.api && fields.length > 0) {
+      // API calculator with field definitions - render inputs
+      fields.forEach(field => {
+        const div = document.createElement('div');
+        div.className = field.type === 'check' ? 'field-check' : 'field';
+        
+        if (field.type === 'check') {
+          div.innerHTML = `
+            <label class="check-label">
+              <input type="checkbox" id="cf_${field.id}" />
+              <span>${field.label}</span>
+            </label>
+          `;
+        } else if (field.type === 'select') {
+          div.innerHTML = `
+            <label>${field.label}</label>
+            <select id="cf_${field.id}">
+              ${field.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+            </select>
+          `;
+        } else {
+          div.innerHTML = `
+            <label>${field.label}</label>
+            <input type="number" id="cf_${field.id}" step="${field.step || 'any'}" />
+          `;
+        }
+        inputs.appendChild(div);
+      });
+    } else {
+      inputs.innerHTML = '<p style="color:var(--slate4)">This calculator requires server-side computation.</p>';
+    }
     panel.style.display = 'block';
-    document.getElementById('calcRunBtn').onclick = () => runLocalCalc(calc);
+    document.getElementById('calcRunBtn').onclick = () => runApiCalc(calc);
     return;
   }
 
@@ -638,11 +671,68 @@ function showResult(name, result) {
 }
 
 function clearResult() {
-  document.getElementById('resultPanel').classList.remove('on');
-  document.getElementById('resultBody').innerHTML = '';
-}
+   document.getElementById('resultPanel').classList.remove('on');
+   document.getElementById('resultBody').innerHTML = '';
+ }
 
 const LOCAL_CALCS = {
+  // API calculators (also need field definitions for input collection)
+  timi: {
+    api: true,
+    fields: [
+      { id: 'age', label: 'Age ≥65 (3 pts)', type: 'check' },
+      { id: 'risk', label: '≥3 CAD risk factors (3 pts)', type: 'check' },
+      { id: 'aspirin', label: 'Aspirin within 7d (or chronic) (4 pts)', type: 'check' },
+      { id: 'recent_stemi', label: 'Recent STEMI (ST elevation >7d) (6 pts)', type: 'check' },
+      { id: 'st_dep', label: 'ST depression ≥0.5mm (2 pts)', type: 'check' },
+      { id: 'elevated', label: 'Elevated cardiac enzymes (4 pts)', type: 'check' },
+      { id: 'sev_angina', label: 'Severe angina in last 48h (2 pts)', type: 'check' },
+      { id: 'htn', label: 'Hypertension (2 pts)', type: 'check' },
+      { id: 'known', label: 'Known CAD/SVD (2 pts)', type: 'check' }
+    ]
+  },
+  grace: {
+    api: true,
+    fields: [
+      { id: 'age', label: 'Age (years)', type: 'number' },
+      { id: 'hr', label: 'Heart Rate (bpm)', type: 'number' },
+      { id: 'sbp', label: 'Systolic BP (mmHg)', type: 'number' },
+      { id: 'killip', label: 'Killip Class', type: 'select', options: ['I', 'II', 'III', 'IV'] },
+      { id: 'creatinine', label: 'Creatinine (mg/dL)', type: 'number' },
+      { id: 'elevated', label: 'Elevated cardiac enzymes', type: 'check' }
+    ]
+  },
+  'apache-ii': {
+    api: true,
+    fields: [
+      { id: 'temp', label: 'Temperature (°C)', type: 'number' },
+      { id: 'map', label: 'Mean Arterial Pressure (mmHg)', type: 'number' },
+      { id: 'hr', label: 'Heart Rate (bpm)', type: 'number' },
+      { id: 'rr', label: 'Respiratory Rate (rpm)', type: 'number' },
+      { id: 'fio2', label: 'FiO₂ (%)', type: 'number' },
+      { id: 'ph', label: 'Arterial pH', type: 'number', step: 'any' },
+      { id: 'na', label: 'Sodium (mEq/L)', type: 'number' },
+      { id: 'k', label: 'Potassium (mEq/L)', type: 'number' },
+      { id: 'creatinine', label: 'Creatinine (mg/dL)', type: 'number' },
+      { id: 'hema', label: 'Hematocrit (%)', type: 'number' },
+      { id: 'wbc', label: 'WBC (×10³/μL)', type: 'number' },
+      { id: 'gcs', label: 'Glasgow Coma Scale', type: 'number' },
+      { id: 'age', label: 'Age (years)', type: 'number' }
+    ]
+  },
+  sofa: {
+    api: true,
+    fields: [
+      { id: 'pao2', label: 'PaO₂/FiO₂ ratio', type: 'number' },
+      { id: 'platelets', label: 'Platelets (×10³/μL)', type: 'number' },
+      { id: 'bilirubin', label: 'Bilirubin (mg/dL)', type: 'number', step: 'any' },
+      { id: 'bp', label: 'Hypotension (MAP <70 or dopamine >5)', type: 'check' },
+      { id: 'dopamine', label: 'Dopamine >5 μg/kg/min', type: 'check' },
+      { id: 'gcs', label: 'GCS', type: 'number' },
+      { id: 'urine', label: 'Urine output <500mL/day (1 pt) or <200mL/day (2 pts)', type: 'select', options: ['0', '1', '2'] }
+    ]
+  },
+
   bmi: {
     fields: [
       { id: 'weight', label: 'Weight (kg)', type: 'number' },
