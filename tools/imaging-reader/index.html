@@ -3,79 +3,149 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Imaging Reader — Arab MedTechAI</title>
+  <title>AI Imaging Reader — MedTechAI</title>
   <meta name="description" content="Automated radiological report generation for MRI, CT scan, and X-Ray with severity grading and ICD-10 codes."/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="/tools/shared.css"/>
-  <script src="/tools/_upload.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/tools/shared.css">
+  <style>
+    :root{--teal:#38b8ae;--teal-h:#2a9d8f;--navy:#1a2d3a;--mint:#e6f7f6;--soft-teal:#d1efed;--slate-gray:#6b8a8e;--white:#fff;--bg:#f5fafa}
+    body{background:var(--bg);color:var(--navy)}
+    a{color:var(--teal);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+    .nav-home{color:#94a3b8;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:500}
+    .nav-home:hover{background:rgba(255,255,255,.08);color:#fff;text-decoration:none}
+    .nav-home.act{color:#38bdf8}
+
+    .hero{text-align:center;padding:64px 0 56px}
+    .hero-tag{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
+    .hero h1{font-family:'DM Sans',sans-serif;font-size:40px;font-weight:700;color:var(--navy);line-height:1.15;margin-bottom:16px}
+    .hero h1 span{color:var(--teal)}
+    .hero p{font-size:16px;color:var(--slate-gray);line-height:1.7;max-width:560px;margin:0 auto;text-align:left;}
+
+    .sec{padding:56px 0}
+    .sec-label{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .sec-label::before{content:'';width:20px;height:3px;border-radius:2px;background:var(--teal)}
+    .sec-label span{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px}
+    .sec-title{font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:24px}
+
+    .tool-grid{display:grid;grid-template-columns:1fr;gap:20px}
+    @media(min-width:768px){.tool-grid{grid-template-columns:1fr}}
+
+    .tool-card{background:var(--white);border:1px solid var(--soft-teal);border-radius:16px;padding:24px;transition:transform .15s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+    .tool-card:hover{transform:translateY(-4px);box-shadow:0 8px 25px rgba(56,184,174,.15)}
+    .tool-card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+    .tool-tag{font-size:10px;font-weight:600;color:var(--teal);background:var(--mint);padding:3px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:.03em}
+    .tool-card h3{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;color:var(--navy);margin-bottom:8px}
+    .tool-card h3 a{color:var(--navy)}
+    .tool-card h3 a:hover{color:var(--teal);text-decoration:none}
+    .tool-card p{font-size:14px;color:var(--slate-gray);line-height:1.6;margin-bottom:12px}
+    .tool-card-footer{font-size:12px;color:var(--teal);font-weight:600}
+
+    .disclaimer{background:var(--mint);border-radius:12px;padding:20px;margin-top:48px;border-left:3px solid var(--teal)}
+    .disclaimer-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px}
+    .disclaimer-text{font-size:12px;color:var(--slate-gray);line-height:1.6}
+
+    .footer{background:var(--navy)!important;color:rgba(255,255,255,.6)!important;padding:32px 24px!important}
+    .footer a{color:rgba(255,255,255,.5)!important}
+    .footer a:hover{color:var(--white)!important;text-decoration:none}
+    .footer-links{display:flex;justify-content:center;gap:20px;margin-top:12px}
+    .footer-links a{font-size:12px}
+
+    @media(max-width:640px){
+      .hero{padding:56px 0 48px}
+      .hero h1{font-size:28px}
+      .tool-grid{grid-template-columns:1fr}
+      .sec-title{font-size:22px}
+    }
+  </style>
 </head>
 <body>
 
-<nav class="nav">
-  <a href="/tools/" class="nav-back">&#8592; All Tools</a>
-  <span class="nav-sep">|</span>
+<nav class="nav" style="gap:16px">
   <a href="/" class="nav-logo">MedTech<span>AI</span></a>
+  <span style="flex:1"></span>
+  <a href="/" class="nav-home">Home</a>
+  <a href="/tools/" class="nav-home act">Tools</a>
+  <a href="/about/" class="nav-home">About</a>
+  <a href="/contact/" class="nav-home">Contact</a>
 </nav>
 
-<div class="cat-banner smart-report"></div>
+<main>
 
-<div class="breadcrumb">
-  <a href="/">Home</a><span>/</span>
-  <a href="/tools/">Tools</a><span>/</span>
-  <span>AI Imaging Reader</span>
-</div>
+<section class="hero">
+  <div class="hero-tag">Smart Reports</div>
+  <h1>AI Imaging <span>Reader</span></h1>
+  <p>Automated radiological report generation for MRI, CT, and X-Ray.</p>
+</section>
 
-<div class="tool-header smart-report">
-  <div>
-    <span class="tool-cat">Smart Reports</span>
-    <h1 class="tool-name">AI Imaging Reader</h1>
-    <p class="tool-desc">Automated radiological report generation for MRI, CT scan, and X-Ray with severity grading and ICD-10 codes.</p>
-  </div>
-</div>
+<div class="wrap">
 
-<div class="main">
-  <div class="card">
-    <div class="card-header smart-report">
-      <span class="card-header-title">Enter Details</span>
-    </div>
-    <div class="card-body">
-      <div class="field-row">
-        <div class="field"><label>Modality</label>
-          <select id="f_mod"><option>MRI</option><option>CT Scan</option><option>X-Ray</option><option>Ultrasound</option><option>PET Scan</option><option>DEXA</option></select>
+  <section class="sec">
+    <div class="sec-label"><span>Tool</span></div>
+    <h2 class="sec-title">AI Imaging Reader</h2>
+  </section>
+
+  <div class="tool-grid">
+    <div class="tool-card">
+      <form id="toolForm">
+        <div class="tool-card-tags">
+          <span class="tool-tag">MRI / CT / X-Ray</span>
+          <span class="tool-tag">Severity</span>
         </div>
-        <div class="field"><label>Body Part / Region</label>
-          <select id="f_bp"><option>Head / Brain</option><option>Chest / Thorax</option><option>Abdomen</option><option>Pelvis</option><option>Spine (Cervical)</option><option>Spine (Lumbar)</option><option>Knee</option><option>Hip</option><option>Shoulder</option></select>
-        </div>
-      </div>
-      <div class="field"><label>Clinical Notes / Indication</label><input id="f_ind" type="text" placeholder="e.g. 65yr male, headache, rule out bleed"/></div>
-       <div class="field"><label>Findings / Report Text</label><textarea id="f_text" class="textarea-lg" placeholder="Paste the radiologist report or describe the imaging findings in detail…"></textarea></div>
-            <div class="field">
-        <label>Upload File <span class="optional">(optional — photo or PDF)</span></label>
-        <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
-          <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" class="hidden" onchange="handleUpload(this)">
-          <div id="upPlaceholder"><span>Click or drag a photo or PDF here (max 5 MB)</span></div>
-          <div id="upPreview" class="hidden">
-            <img id="upImg" class="preview-image">
-            <div id="upName" class="file-name"></div>
-            <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeUpload()">Remove</button>
+        <div class="field-row">
+          <div class="field"><label>Modality</label>
+            <select id="f_mod"><option>MRI</option><option>CT Scan</option><option>X-Ray</option><option>Ultrasound</option><option>PET Scan</option><option>DEXA</option></select>
+          </div>
+          <div class="field"><label>Body Part / Region</label>
+            <select id="f_bp"><option>Head / Brain</option><option>Chest / Thorax</option><option>Abdomen</option><option>Pelvis</option><option>Spine (Cervical)</option><option>Spine (Lumbar)</option><option>Knee</option><option>Hip</option><option>Shoulder</option></select>
           </div>
         </div>
+        <div class="field"><label>Clinical Notes / Indication</label><input id="f_ind" type="text" placeholder="e.g. 65yr male, headache, rule out bleed"/></div>
+        <div class="field"><label>Findings / Report Text</label><textarea id="f_text" class="textarea-lg" placeholder="Paste the radiologist report or describe the imaging findings in detail…"></textarea></div>
+        <div class="field-divider"><span>— or —</span></div>
+        <div class="field">
+          <label>Upload File <span class="optional">(optional)</span></label>
+          <div class="upload-area" id="upArea" onclick="document.getElementById('upFile').click()">
+            <input type="file" id="upFile" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" class="hidden" onchange="handleUpload(this)">
+            <div id="upPlaceholder"><span>Click or drag a photo or PDF here (max 5 MB)</span></div>
+            <div id="upPreview" class="hidden">
+              <img id="upImg" class="preview-image">
+              <div id="upName" class="file-name"></div>
+              <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeUpload()">Remove</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="submitBtn" onclick="runTool()">
+          <span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span>
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  <div id="resultPanel" class="result-panel">
+    <div class="tool-grid">
+      <div class="tool-card" id="resultBody" style="padding:0;border:none;box-shadow:none;background:none"></div>
+      <div class="tool-card" style="padding-top:0;border:none;box-shadow:none;background:none">
+        <div class="btn-bar no-print">
+          <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
+          <button class="btn btn-outline btn-sm" onclick="resetTool()">Clear</button>
+        </div>
       </div>
-      <button class="btn btn-primary btn-block" id="submitBtn" onclick="runTool()">
-        <span class="spinner" id="spinner"></span><span id="btnText">Run Tool</span>
-      </button>
     </div>
   </div>
 
-<div>
-    <div class="card" id="placeholderCard">
-      <div class="placeholder-card smart-report">
-        <h3>AI Imaging Reader</h3>
-        <p>Enter imaging findings or upload a scan to generate structured reports.</p>
+  <div id="placeholderCard">
+    <div class="tool-grid">
+      <div class="tool-card">
+        <h3 style="margin-bottom:12px">AI Imaging Reader</h3>
+        <p style="margin-bottom:12px">Enter imaging findings or upload a scan to generate structured reports.</p>
         <div class="features">
           <div class="features-title">Report includes:</div>
-          <ul>
+          <ul style="font-size:14px;color:var(--slate-gray);line-height:1.8">
             <li>• Structured radiology findings</li>
             <li>• Severity grading and impression</li>
             <li>• ICD-10 codes for findings</li>
@@ -84,31 +154,43 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="result-panel" id="resultPanel">
-      <div id="resultBody"></div>
-      <div class="btn-bar no-print">
-        <button class="btn btn-outline btn-sm" onclick="window.print()">Print</button>
-        <button class="btn btn-outline btn-sm" onclick="resetTool()">Clear</button>
-      </div>
+  <div class="disclaimer">
+    <div class="disclaimer-title">Medical Disclaimer</div>
+    <div class="disclaimer-text">
+      These AI-powered tools are designed to assist healthcare professionals and should not replace clinical judgment. Always verify information independently. HIPAA-compliant for US users.
     </div>
   </div>
+
 </div>
+</main>
 
 <footer class="footer">
   &copy; 2025 Arab MedTechAI Organization
+  <div class="footer-links">
+    <a href="/about/">About</a>
+    <a href="/contact/">Contact</a>
+    <a href="/terms/">Terms</a>
+    <a href="/hipaa-compliance/">HIPAA</a>
+  </div>
 </footer>
 
+<script src="/tools/_upload.js"></script>
 <script>
 var EP='/api/tools/imaging-reader';
-function getFormData(){var t=document.getElementById('f_text').value.trim();if(!t){alert('Enter imaging findings or paste a report');return null;}var d = {text:t,modality:document.getElementById('f_mod').value,bodyPart:document.getElementById('f_bp').value};
+function getFormData(){
+  var t=document.getElementById('f_text').value.trim();
+  if(!t){alert('Enter imaging findings or paste a report');return null;}
+  var d = {text:t,modality:document.getElementById('f_mod').value,bodyPart:document.getElementById('f_bp').value};
   if (_upFile) {
     var fd = new FormData();
     for (var k in d) fd.append(k, d[k]);
     fd.append('file', _upFile);
     return fd;
   }
-  return d;}
+  return d;
+}
 async function runTool(){
   var btn=document.getElementById('submitBtn'),sp=document.getElementById('spinner'),txt=document.getElementById('btnText'),body=getFormData();
   if(!body)return;
@@ -126,14 +208,24 @@ function show(html){
   document.getElementById('placeholderCard').style.display='none';
   var rp=document.getElementById('resultPanel');rp.classList.add('on');
   document.getElementById('resultBody').innerHTML=html;
-  document.querySelectorAll('.r-section-header').forEach(function(h){h.addEventListener('click',function(){this.classList.toggle('collapsed');});});
+  document.querySelectorAll('.r-section-header').forEach(function(h){
+    h.addEventListener('click',function(){this.classList.toggle('collapsed');});
+  });
   rp.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function resetTool(){document.getElementById('placeholderCard').style.display='';document.getElementById('resultPanel').classList.remove('on');document.getElementById('resultBody').innerHTML='';}
-function fb(d){if(d.error)return'<div class="r-error"><span class="r-error-icon">&#9888;</span><div>'+d.error+'</div></div>';if(d.raw_text)return'<p>'+d.raw_text.replace(/\n/g,'<br>')+'</p>';return'<pre style="font-size:11px;overflow:auto">'+JSON.stringify(d,null,2)+'</pre>';}
+function resetTool(){
+  document.getElementById('placeholderCard').style.display='';
+  document.getElementById('resultPanel').classList.remove('on');
+  document.getElementById('resultBody').innerHTML='';
+}
+function fb(d){
+  if(d.error)return'<div class="r-error"><span class="r-error-icon">&#9888;</span><div>'+d.error+'</div></div>';
+  if(d.raw_text)return'<p>'+d.raw_text.replace(/\n/g,'<br>')+'</p>';
+  return'<pre style="font-size:11px;overflow:auto">'+JSON.stringify(d,null,2)+'</pre>';
+}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)runTool();});
 </script>
-
 <script src="/tools/_suggest.js"></script>
-<script src="/tools/_sidebar.js" defer></script></body>
+
+</body>
 </html>
