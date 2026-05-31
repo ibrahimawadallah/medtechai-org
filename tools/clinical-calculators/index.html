@@ -658,17 +658,20 @@ function runLocalCalc(calc) {
 }
 
 function showResult(name, result) {
-  const panel = document.getElementById('resultPanel');
-  const body = document.getElementById('resultBody');
-
-  body.innerHTML = `
-    <div class="result-label">${name}</div>
-    <div class="result-value">${result.value}</div>
-    <div class="result-interpretation">${result.interpretation}</div>
-    ${result.reference ? `<div class="result-ref">${result.reference}</div>` : ''}
-  `;
-
-  panel.classList.add('on');
+   const panel = document.getElementById('resultPanel');
+   const body = document.getElementById('resultBody');
+   
+   const disclaimer = '<div class="result-ref" style="border-top:1px solid var(--border);margin-top:12px;padding-top:8px;font-size:11px;color:var(--slate4)">Clinical calculators are for educational purposes only. Results should not replace clinical judgment. Reference: validated peer-reviewed formulas.</div>';
+   
+   body.innerHTML = `
+     <div class="result-label">${name}</div>
+     <div class="result-value">${result.value}</div>
+     <div class="result-interpretation">${result.interpretation}</div>
+     ${result.reference ? `<div class="result-ref">${result.reference}</div>` : ''}
+     ${disclaimer}
+   `;
+   
+   panel.classList.add('on');
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
