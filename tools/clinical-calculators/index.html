@@ -745,7 +745,7 @@ const LOCAL_CALCS = {
     calc: (f) => {
       const bmi = f.weight / ((f.height / 100) ** 2);
       let cat = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Normal' : bmi < 30 ? 'Overweight' : bmi < 35 ? 'Obese Class I' : bmi < 40 ? 'Obese Class II' : 'Obese Class III';
-      return { value: bmi.toFixed(1) + ' kg/m²', interpretation: 'Category: ' + cat, reference: 'Normal: 18.5–24.9 kg/m²' };
+      return { value: bmi.toFixed(1) + ' kg/m²', interpretation: 'Category: ' + cat, reference: 'Source: WHO BMI classification. Normal: 18.5–24.9 kg/m²' };
     }
   },
   bsa: {
@@ -755,7 +755,7 @@ const LOCAL_CALCS = {
     ],
     calc: (f) => {
       const bsa = Math.sqrt((f.weight * f.height) / 3600);
-      return { value: bsa.toFixed(2) + ' m²', interpretation: 'Body Surface Area (Mosteller formula)', reference: 'Adult avg: 1.5–2.0 m²' };
+      return { value: bsa.toFixed(2) + ' m²', interpretation: 'Body Surface Area (Mosteller formula)', reference: 'Source: Mosteller 1987 formula. Normal adult: 1.5–2.0 m²' };
     }
   },
   gfr: {
@@ -775,7 +775,7 @@ const LOCAL_CALCS = {
       if (isFemale) gfr *= 1.012;
       if (isBlack) gfr *= 1.159;
       let stage = gfr >= 90 ? 'G1 – Normal' : gfr >= 60 ? 'G2 – Mildly decreased' : gfr >= 45 ? 'G3a – Mild-moderately decreased' : gfr >= 30 ? 'G3b – Moderately-severely decreased' : gfr >= 15 ? 'G4 – Severely decreased' : 'G5 – Kidney failure';
-      return { value: Math.round(gfr) + ' mL/min/1.73m²', interpretation: 'CKD Stage: ' + stage, reference: 'Normal: ≥90 mL/min/1.73m²' };
+      return { value: Math.round(gfr) + ' mL/min/1.73m²', interpretation: 'CKD Stage: ' + stage, reference: 'Source: CKD-EPI 2009 equation. Normal: ≥90 mL/min/1.73m²' };
     }
   },
   'corrected-ca': {
@@ -786,7 +786,7 @@ const LOCAL_CALCS = {
     calc: (f) => {
       const cc = f.ca + 0.8 * (4 - f.alb);
       let interp = cc < 8.5 ? 'Hypocalcemia' : cc > 10.5 ? 'Hypercalcemia' : 'Normal';
-      return { value: cc.toFixed(2) + ' mg/dL', interpretation: interp, reference: 'Normal: 8.5–10.5 mg/dL' };
+      return { value: cc.toFixed(2) + ' mg/dL', interpretation: interp, reference: 'Source: Standard correction formula. Normal: 8.5–10.5 mg/dL' };
     }
   },
   'anion-gap': {
@@ -798,7 +798,7 @@ const LOCAL_CALCS = {
     calc: (f) => {
       const ag = f.na - (f.cl + f.hco3);
       let interp = ag > 12 ? 'Elevated — consider MUDPILES' : 'Normal';
-      return { value: ag + ' mEq/L', interpretation: interp, reference: 'Normal: 8–12 mEq/L' };
+      return { value: ag + ' mEq/L', interpretation: interp, reference: 'Source: Calculated as Na - (Cl + HCO3). Normal: 8–12 mEq/L' };
     }
   },
   'chads2-vasc': {
@@ -831,7 +831,7 @@ const LOCAL_CALCS = {
       let crcl = ((140 - f.age) * f.weight) / (72 * f.scr);
       if (f.sex === 'Female') crcl *= 0.85;
       let interp = crcl >= 90 ? 'Normal kidney function' : crcl >= 60 ? 'Mildly reduced' : crcl >= 30 ? 'Moderately reduced' : crcl >= 15 ? 'Severely reduced' : 'Kidney failure';
-      return { value: crcl.toFixed(1) + ' mL/min', interpretation: interp + ' (Cockcroft-Gault)', reference: 'Normal: 90–120 mL/min' };
+      return { value: crcl.toFixed(1) + ' mL/min', interpretation: interp + ' (Cockcroft-Gault)', reference: 'Source: Cockcroft-Gault. Normal: 90–120 mL/min' };
     }
   },
   fena: {
@@ -844,7 +844,7 @@ const LOCAL_CALCS = {
     calc: (f) => {
       const fena = (f.una * f.scr) / (f.ucr * f.sna) * 100;
       let interp = fena < 1 ? 'Pre-renal azotemia' : fena > 2 ? 'Intrinsic renal disease' : 'Indeterminate';
-      return { value: fena.toFixed(2) + '%', interpretation: interp, reference: 'Pre-renal: <1%, Intrinsic: >2%' };
+      return { value: fena.toFixed(2) + '%', interpretation: interp, reference: 'Source: FENa = (Urine Na × Serum Cr) / (Urine Cr × Serum Na) × 100. Pre-renal: <1%, Intrinsic: >2%' };
     }
   },
   'bun-cr': {
@@ -855,7 +855,7 @@ const LOCAL_CALCS = {
     calc: (f) => {
       const ratio = f.bun / f.cr;
       let interp = ratio > 20 ? 'Elevated — consider pre-renal, GI bleed, high protein intake' : ratio < 10 ? 'Low — consider hepatic failure, malnutrition, rhabdomyolysis' : 'Normal';
-      return { value: ratio.toFixed(1), interpretation: interp, reference: 'Normal: 10:1 to 20:1' };
+      return { value: ratio.toFixed(1), interpretation: interp, reference: 'Source: BUN/Cr ratio. Normal: 10:1 to 20:1' };
     }
   },
 
@@ -872,7 +872,7 @@ const LOCAL_CALCS = {
       } else {
         ibw = 45.5 + 2.3 * (f.height - 60);
       }
-      return { value: ibw.toFixed(1) + ' kg', interpretation: 'Ideal Body Weight (Devine formula)', reference: 'Use for drug dosing when actual weight is not ideal' };
+      return { value: ibw.toFixed(1) + ' kg', interpretation: 'Ideal Body Weight (Devine formula)', reference: 'Source: Devine 1974 formula. For drug dosing in normal-weight patients' };
     }
   },
   'adj-bw': {
