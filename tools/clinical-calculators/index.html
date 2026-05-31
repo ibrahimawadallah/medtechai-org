@@ -423,6 +423,8 @@ const CALCULATORS = [
   { id: 'wells-pe', name: 'Wells PE', category: 'pulmonary', local: true },
   { id: 'perc', name: 'PERC Rule', category: 'pulmonary', local: true },
   { id: 'geneva', name: 'Geneva Score', category: 'pulmonary', local: true },
+  { id: 'curb-65-pulm', name: 'CURB-65', category: 'pulmonary', local: true },
+  { id: 'nihss', name: 'NIH Stroke Scale', category: 'neurology', local: true },
 ];
 
 let selectedCalc = null;
@@ -1164,6 +1166,42 @@ const LOCAL_CALCS = {
       let risk = score >= 11 ? 'High' : score >= 4 ? 'Moderate' : 'Low';
       let interp = risk === 'Low' ? 'PE unlikely — consider D-dimer' : risk === 'Moderate' ? 'PE possible — consider imaging' : 'PE likely — CT pulmonary angiography indicated';
       return { value: score + ' points', interpretation: interp, reference: 'Low: 0-3, Moderate: 4-10, High: ≥11' };
+    }
+  },
+  'curb-65-pulm': {
+    fields: [
+      { id: 'confusion', label: 'Confusion (1 pt)', type: 'check' },
+      { id: 'urea', label: 'Urea >7 mmol/L (1 pt)', type: 'check' },
+      { id: 'rr', label: 'Respiratory rate ≥30 (1 pt)', type: 'check' },
+      { id: 'bp', label: 'SBP <90 or DBP ≤60 (1 pt)', type: 'check' },
+      { id: 'age', label: 'Age ≥65 (1 pt)', type: 'check' }
+    ],
+    calc: (f) => {
+      const score = (f.confusion ? 1 : 0) + (f.urea ? 1 : 0) + (f.rr ? 1 : 0) + (f.bp ? 1 : 0) + (f.age ? 1 : 0);
+      let risk = score >= 3 ? 'High' : score === 2 ? 'Moderate' : 'Low';
+      let interp = risk === 'Low' ? 'Consider outpatient treatment' : risk === 'Moderate' ? 'Consider hospital admission' : 'High mortality risk — urgent treatment';
+      return { value: score + '/5', interpretation: interp, reference: '0-1: Low, 2: Moderate, 3-5: High' };
+    }
+  },
+  nihss: {
+    fields: [
+      { id: 'loc', label: 'Level of Consciousness (0-3 pts)', type: 'select', options: ['0 — Alert', '1 — Not oriented', '2 — Drowsy, converses', '3 — Coma'] },
+      { id: 'locq', label: 'LOC Questions (0-2 pts)', type: 'select', options: ['0 — Both correct', '1 — One correct', '2 — Both incorrect'] },
+      { id: 'locc', label: 'LOC Commands (0-1 pt)', type: 'select', options: ['0 — Both correct', '1 — One correct', '2 — Neither'] },
+      { id: 'gaze', label: 'Gaze (0-2 pts)', type: 'select', options: ['0 — Normal', '1 — Partial palsy', '2 — Forced deviation'] },
+      { id: 'field', label: 'Visual Fields (0-2 pts)', type: 'select', options: ['0 — Normal', '1 — Partial', '2 — Complete'] },
+      { id: 'ptp', label: 'Positional Test (1 pt)', type: 'check' },
+      { id: 'motor', label: 'Motor (0-4 pts)', type: 'select', options: ['0 — Normal', '1 — Minor', '2 — Weak <1/2', '3 — Weak ≥1/2', '4 — Paralyzed'] },
+      { id: 'atax', label: 'Ataxia (0-2 pts)', type: 'select', options: ['0 — Normal', '1 — Ataxic', '2 — Unable'] },
+      { id: 'sens', label: 'Sensory (0-2 pts)', type: 'select', options: ['0 — Normal', '1 — Mild', '2 — Severe'] },
+      { id: 'lang', label: 'Language (0-8 pts)', type: 'select', options: ['0 — Normal', '1 — Mild', '2 — Moderate', '3 — Severe'] },
+      { id: 'dys', label: 'Dysarthria (0-2 pts)', type: 'select', options: ['0 — Normal', '1 — Mild', '2 — Severe'] },
+      { id: 'ext', label: 'Extinction (0-1 pt)', type: 'select', options: ['0 — None', '1 — Present'] }
+    ],
+    calc: (f) => {
+      const score = parseInt(f.loc) + parseInt(f.locq) + parseInt(f.locc) + parseInt(f.gaze) + parseInt(f.field) + (f.ptp ? 1 : 0) + parseInt(f.motor) + parseInt(f.atax) + parseInt(f.sens) + parseInt(f.lang) + parseInt(f.dys) + parseInt(f.ext);
+      let severity = score === 0 ? 'No stroke' : score <= 4 ? 'Minor stroke' : score <= 15 ? 'Moderate stroke' : score <= 20 ? 'Moderate-severe stroke' : 'Severe stroke';
+      return { value: score + '/42', interpretation: severity, reference: 'NIHSS: 0 (normal) to 42 (coma/extinction)' };
     }
   }
 };
